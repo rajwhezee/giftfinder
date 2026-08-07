@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# GiftFinder
 
-## Getting Started
+A one-stop gift finder — a short quiz about who you're shopping for and the
+occasion, and you get a ranked list of gift ideas with affiliate links across
+Amazon, eBay, Etsy and Walmart.
 
-First, run the development server:
+Built with Next.js (App Router), React 19, Tailwind CSS v4, and Prisma on Neon
+Postgres.
+
+## Getting started
 
 ```bash
+npm install
+cp .env.example .env   # then fill in DATABASE_URL and any affiliate IDs
+npm run db:migrate     # apply schema to your database
+npm run db:seed        # optional: load starter catalog
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Every variable is documented in [`.env.example`](.env.example). The only one
+required to boot is `DATABASE_URL` (a pooled Neon connection string). Affiliate
+IDs fall back to safe placeholders, so the app runs before you have affiliate
+accounts. `.env` is gitignored and should never be committed.
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Command              | What it does                                     |
+| -------------------- | ------------------------------------------------ |
+| `npm run dev`        | Start the dev server                             |
+| `npm run build`      | Production build                                 |
+| `npm start`          | Serve the production build                       |
+| `npm run lint`       | Run ESLint                                       |
+| `npm run db:migrate` | Create/apply a Prisma migration                  |
+| `npm run db:seed`    | Seed the database                                |
+| `npm run db:studio`  | Open Prisma Studio                               |
+| `npm run db:import`  | Import the CSV catalog in `data/gifts.csv`       |
+| `npm run import:etsy`| Import listings from the Etsy Open API v3        |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project layout
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+app/
+  api/recommend/   POST endpoint that ranks gifts from quiz answers
+  page.tsx         Quiz + results
+  privacy/         Privacy policy
+  disclosure/      Affiliate disclosure
+components/        GiftQuiz, GiftResults, GiftCard, Header
+lib/
+  ranking.ts       Scores and orders gift candidates
+  affiliate.ts     Builds affiliate links per merchant network
+  etsy.ts          Etsy Open API v3 client
+  occasion-search.ts, gift-options.ts, types.ts
+prisma/            Schema, migrations, seed
+scripts/           Catalog importers
+```
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Deployed on Vercel. Set the same environment variables in the Vercel project
+settings, and point `DATABASE_URL` at your Neon production branch.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Affiliate disclosure
+
+This site earns commissions from qualifying purchases made through its links.
+See `/disclosure`.
