@@ -1,26 +1,90 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #fefcff;
+  --foreground: #1a1523;
+
+  --color-brand-purple: #7c3aed;
+  --color-brand-pink: #ec4899;
+  --color-brand-orange: #fb923c;
+  --color-brand-yellow: #fde047;
+
+  --gradient-brand: linear-gradient(135deg, #7c3aed 0%, #ec4899 55%, #fb923c 100%);
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand-purple: var(--color-brand-purple);
+  --color-brand-pink: var(--color-brand-pink);
+  --color-brand-orange: var(--color-brand-orange);
+  --color-brand-yellow: var(--color-brand-yellow);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-fredoka);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: #12091f;
+    --foreground: #f3edff;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+.gradient-text {
+  background-image: var(--gradient-brand);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.gradient-bg {
+  background-image: var(--gradient-brand);
+}
+
+.gradient-ring {
+  background-image: var(--gradient-brand);
+  padding: 2px;
+}
+
+.btn-gradient {
+  background-image: var(--gradient-brand);
+  background-size: 160% 160%;
+  background-position: 0% 50%;
+  transition:
+    background-position 0.4s ease,
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.btn-gradient:hover {
+  background-position: 100% 50%;
+  transform: translateY(-1px);
+}
+
+.btn-gradient:active {
+  transform: translateY(0);
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(20px, -30px) scale(1.06);
+  }
+}
+
+.animate-float {
+  animation: float 9s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float 13s ease-in-out infinite reverse;
 }

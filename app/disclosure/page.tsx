@@ -1,0 +1,56 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "How This Site Works — Gift Finder",
+  description: "How Gift Finder chooses what to recommend, and how it makes money.",
+};
+
+export default function DisclosurePage() {
+  return (
+    <main className="mx-auto max-w-2xl px-4 py-16">
+      <h1 className="text-2xl font-bold">How This Site Works</h1>
+      <p className="mt-2 text-sm text-neutral-500">Last updated: July 2026</p>
+
+      <div className="mt-8 space-y-6 text-sm leading-6 text-neutral-700 dark:text-neutral-300">
+        <section>
+          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            We don&apos;t make money from your purchases
+          </h2>
+          <p className="mt-2">
+            Gift Finder is a personal, non-commercial project. Every &quot;View on [platform]&quot;
+            link goes directly to the retailer&apos;s product page. We are not part of any affiliate
+            programme, we earn no commission, and we receive nothing if you buy something.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            How recommendations are chosen
+          </h2>
+          <p className="mt-2">
+            Results are based only on your quiz answers. We match the occasion, the recipient&apos;s
+            age and interests, and your budget against our catalog, then rank by how well each gift
+            fits. Nobody can pay to appear in your results or to rank higher in them.
+          </p>
+          <p className="mt-2">
+            If nothing in the catalog genuinely fits what you told us, we&apos;ll say so rather than
+            filling the page with weak guesses.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            Where the products come from
+          </h2>
+          <p className="mt-2">
+            Product details — titles, prices, images and links — come from public listings on
+            retailers such as Etsy and Walmart, including via Etsy&apos;s public API. Prices and
+            availability can change at any time, so always check the retailer&apos;s page before
+            buying. We don&apos;t sell anything ourselves and we aren&apos;t affiliated with these
+            retailers.
+          </p>
+        </section>
+      </div>
+    </main>
+  );
+}
