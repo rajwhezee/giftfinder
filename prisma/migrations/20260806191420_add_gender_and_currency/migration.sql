@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Gift" ADD COLUMN "gender" TEXT NOT NULL DEFAULT 'unisex',
+ADD COLUMN "currency" TEXT NOT NULL DEFAULT 'USD';

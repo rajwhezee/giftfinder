@@ -1,0 +1,38 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Gift {
+  id            String   @id @default(cuid())
+  name          String
+  description   String
+  price         Decimal  @db.Decimal(10, 2)
+  imageUrl      String
+  affiliateUrl  String   @unique
+  platform      String
+  occasions     String[]
+  interests     String[]
+  ageMin        Int
+  ageMax        Int
+  /// "male" | "female" | "unisex" — who the product is marketed for
+  gender        String   @default("unisex")
+  /// Original listing currency; price is stored in USD (converted at import
+  /// time when this isn't "USD"), and the UI shows converted prices as "~$x".
+  currency      String   @default("USD")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([platform])
+  @@index([occasions], type: Gin)
+  @@index([interests], type: Gin)
+}
