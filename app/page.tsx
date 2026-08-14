@@ -39,7 +39,7 @@ export default function Home() {
           </p>
 
           <h1 className="font-display mt-6 text-4xl leading-[1.08] font-semibold text-balance sm:text-6xl">
-            Find something they&apos;ll <span className="accent-word">actually</span> keep.
+            The gift they didn&rsquo;t know to <span className="accent-word">ask</span> for.
           </h1>
 
           <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-pretty text-ink-soft">
