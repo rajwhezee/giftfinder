@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
 import confetti from "canvas-confetti";
 import type { GiftRecommendation } from "@/lib/types";
 import { GiftCard } from "./GiftCard";
 
-const PAGE_SIZE = 24;
+/** Cards revealed per page. Deep enough that the grid reads as a real spread. */
+const PAGE_SIZE = 36;
 
 export function GiftResults({
   results,
@@ -24,11 +25,34 @@ export function GiftResults({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const visible = results.slice(0, visibleCount);
   const remaining = results.length - visible.length;
+  const sentinelRef = useRef<HTMLDivElement>(null);
 
   // A fresh set of results should always start from the first page.
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
   }, [results]);
+
+  // Load the next page as the bottom of the grid comes into view, so browsing
+  // is one continuous scroll rather than a click every screenful. The button
+  // below stays for anyone who would rather advance deliberately, and for
+  // keyboard users who never scroll the sentinel into view.
+  useEffect(() => {
+    const sentinel = sentinelRef.current;
+    if (!sentinel || remaining <= 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((count) => Math.min(count + PAGE_SIZE, results.length));
+        }
+      },
+      // Start fetching slightly before the sentinel is actually on screen.
+      { rootMargin: "400px 0px" },
+    );
+
+    observer.observe(sentinel);
+    return () => observer.disconnect();
+  }, [remaining, results.length]);
 
   useEffect(() => {
     if (results.length === 0) return;
@@ -116,12 +140,18 @@ export function GiftResults({
             ))}
           </div>
 
+          {/* Tripwire for the observer above; sits above the button so the next
+              page is already loading by the time the button would be reached. */}
+          <div ref={sentinelRef} aria-hidden className="h-px w-full" />
+
           {remaining > 0 && (
             <div className="mt-12 flex flex-col items-center gap-3">
               <motion.button
                 type="button"
                 whileTap={{ scale: 0.97 }}
-                onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
+                onClick={() =>
+                  setVisibleCount((count) => Math.min(count + PAGE_SIZE, results.length))
+                }
                 className="btn-primary rounded-full px-8 py-3 text-sm font-medium"
               >
                 Show {Math.min(remaining, PAGE_SIZE)} more
@@ -130,6 +160,12 @@ export function GiftResults({
                 {visible.length} of {results.length}
               </p>
             </div>
+          )}
+
+          {remaining === 0 && results.length > PAGE_SIZE && (
+            <p className="mt-12 text-center text-xs tracking-[0.14em] text-ink-faint uppercase">
+              That&apos;s all {results.length} · pick a different budget or occasion for more
+            </p>
           )}
         </>
       )}

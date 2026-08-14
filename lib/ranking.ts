@@ -249,6 +249,13 @@ export function selectDiverse<T extends DiversifiableItem>(items: T[], limit: nu
   const chosen: number[] = [];
   const platformCounts = new Map<string, number>();
 
+  // Near-duplicate status is monotonic: the chosen set only grows, so once an
+  // item duplicates something already picked it can never become distinct
+  // again. Recording it once and comparing each round against only the newest
+  // pick turns what was a rescan of every pick per candidate per round into a
+  // single pass, which is what makes a large result cap affordable.
+  const duplicate = new Set<number>();
+
   while (chosen.length < limit && remaining.size > 0) {
     let bestIndex = -1;
     let bestAdjusted = -Infinity;
@@ -257,14 +264,10 @@ export function selectDiverse<T extends DiversifiableItem>(items: T[], limit: nu
       const item = items[index];
       const repeats = platformCounts.get(item.platform) ?? 0;
 
-      const isNearDuplicate = chosen.some(
-        (pickedIndex) => jaccard(tokens[index], tokens[pickedIndex]) >= DUPLICATE_SIMILARITY,
-      );
-
       const adjusted =
         item.score -
         repeats * PLATFORM_REPEAT_PENALTY -
-        (isNearDuplicate ? NEAR_DUPLICATE_PENALTY : 0);
+        (duplicate.has(index) ? NEAR_DUPLICATE_PENALTY : 0);
 
       if (adjusted > bestAdjusted) {
         bestAdjusted = adjusted;
@@ -277,6 +280,12 @@ export function selectDiverse<T extends DiversifiableItem>(items: T[], limit: nu
     remaining.delete(bestIndex);
     const platform = items[bestIndex].platform;
     platformCounts.set(platform, (platformCounts.get(platform) ?? 0) + 1);
+
+    for (const index of remaining) {
+      if (!duplicate.has(index) && jaccard(tokens[index], tokens[bestIndex]) >= DUPLICATE_SIMILARITY) {
+        duplicate.add(index);
+      }
+    }
   }
 
   return chosen;

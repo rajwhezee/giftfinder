@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { motion } from "motion/react";
+import { HOME_RESET_EVENT } from "@/lib/home-reset";
 import { GiftQuiz } from "./GiftQuiz";
 
 /**
@@ -20,6 +21,15 @@ export function QuizLauncher() {
   const [launched, setLaunched] = useState(false);
   const quizRef = useRef<HTMLDivElement>(null);
 
+  // The wordmark in the header asks for this when it is clicked on "/". Dropping
+  // back to the un-launched state unmounts the quiz, which is what discards the
+  // answers and any results along with it.
+  useEffect(() => {
+    const reset = () => setLaunched(false);
+    window.addEventListener(HOME_RESET_EVENT, reset);
+    return () => window.removeEventListener(HOME_RESET_EVENT, reset);
+  }, []);
+
   useEffect(() => {
     if (!launched) return;
 
@@ -37,6 +47,13 @@ export function QuizLauncher() {
   if (!launched) {
     return (
       <div className="flex flex-col items-center gap-3">
+        {/* Says the whole proposition in one sentence, in plain words, right
+            where the decision to click is made. The headline above is doing
+            tone; this is doing comprehension. */}
+        <p className="mb-2 max-w-md text-center text-base leading-relaxed text-pretty text-ink-soft">
+          Tap the button and we&apos;ll help you find the perfect gift for someone you love.
+        </p>
+
         <motion.button
           type="button"
           onClick={() => setLaunched(true)}

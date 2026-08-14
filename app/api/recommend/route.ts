@@ -5,10 +5,18 @@ import { MIN_INTEREST_MATCHES, scoreGift, selectDiverse } from "@/lib/ranking";
 import type { GiftRecommendation, RecommendRequestBody } from "@/lib/types";
 
 /**
- * Generous cap — typical queries have 150–300 qualifying gifts, and the UI
- * reveals them progressively rather than painting all of them at once.
+ * Deliberately high enough that most queries fall *under* it.
+ *
+ * At 72 the cap was below the eligible count for almost every combination, so
+ * every search returned exactly 72 results — which made the number read as a
+ * quota rather than as a real answer. Sitting above the typical eligible count
+ * means the total now varies with how much genuinely matched, and only
+ * unusually broad queries get truncated.
+ *
+ * The UI reveals these progressively as the shopper scrolls, so a larger array
+ * costs payload rather than render time.
  */
-const MAX_RESULTS = 72;
+const MAX_RESULTS = 150;
 
 function parseBody(body: unknown): RecommendRequestBody | null {
   if (typeof body !== "object" || body === null) return null;
