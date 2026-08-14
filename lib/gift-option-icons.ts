@@ -7,7 +7,10 @@ export const RELATIONSHIP_EMOJI: Record<string, string> = {
   // Two glyphs: there is no single fist-bump emoji. Right-facing then
   // left-facing so the pair points inward at each other.
   Friend: "🤜🤛",
-  Parent: "👪",
+  // Neutral base rather than 🦸‍♀️/🦸‍♂️ — a parent is either. Replaces 👪, which
+  // Apple now draws as an abstract grey silhouette that reads as a placeholder
+  // box beside the full-colour emoji around it.
+  Parent: "🦸",
   Sibling: "🧑‍🤝‍🧑",
   Child: "🧒",
   Coworker: "💼",
