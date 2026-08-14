@@ -29,8 +29,30 @@ export function Header() {
           className="group flex items-baseline gap-2"
           aria-label="Gift Finder — back to the start"
         >
-          <span className="font-display text-xl font-semibold tracking-tight text-ink">
-            Gift<span className="text-terracotta">Finder</span>
+          {/* aria-hidden because the link's aria-label above already carries the
+              readable name — the dotless ı would otherwise be announced and
+              copied as "Fınder". See .wordmark-i in globals.css. */}
+          <span
+            aria-hidden
+            className="font-display text-xl font-semibold tracking-tight text-ink"
+          >
+            Gift
+            <span className="text-terracotta">
+              F
+              <span className="wordmark-i">
+                &#x131;
+                <svg viewBox="0 0 20 20" fill="none" className="wordmark-lens">
+                  <circle cx="8" cy="8" r="5.4" stroke="currentColor" strokeWidth="2.6" />
+                  <path
+                    d="M12.3 12.3 17 17"
+                    stroke="currentColor"
+                    strokeWidth="2.6"
+                    strokeLinecap="round"
+                  />
+                </svg>
+              </span>
+              nder
+            </span>
           </span>
         </Link>
         <p className="hidden text-xs tracking-[0.18em] text-ink-faint uppercase sm:block">

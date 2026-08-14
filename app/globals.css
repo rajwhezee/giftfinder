@@ -150,6 +150,37 @@ body {
   transform: translateX(3px);
 }
 
+/* Wordmark: the tittle on "Finder" is a magnifying glass.
+ *
+ * The letter itself is a dotless ı (U+0131) — overlaying a lens on a normal "i"
+ * would leave the real dot showing through the hollow circle. The link's
+ * aria-label carries the readable name, and the wordmark span is aria-hidden,
+ * so nothing reads or announces "Fınder".
+ *
+ * The lens is ink rather than gold so it separates from the letters it sits on.
+ */
+.wordmark-i {
+  position: relative;
+  display: inline-block;
+}
+
+.wordmark-lens {
+  position: absolute;
+  left: 50%;
+  /* Tuned against the app's own Fraunces instance, not a plain Google Fonts
+     copy — the SOFT and WONK axes this project enables change the glyph, so an
+     offset that looked right elsewhere sat too low here. */
+  bottom: 0.78em;
+  width: 0.48em;
+  height: 0.48em;
+  color: var(--ink);
+  overflow: visible;
+  /* The glass sits at 40% of the SVG's width because the handle takes the rest,
+     so centring the box would leave it left of the stem — hence the rightward
+     nudge on top of the centring translate. */
+  transform: translateX(calc(-50% + 0.09em)) rotate(-28deg);
+}
+
 /* Selectable chip / option in its resting state. */
 .chip {
   background-color: var(--surface);
