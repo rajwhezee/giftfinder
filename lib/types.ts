@@ -6,7 +6,10 @@ export interface RecommendRequestBody {
   gender: RecipientGender;
   occasion: string;
   interests: string[];
-  budget: number;
+  /** Lower bound of the chosen budget band, in USD. */
+  minBudget: number;
+  /** Upper bound. At BUDGET_UNCAPPED_AT this means "and up", not a hard cap. */
+  maxBudget: number;
 }
 
 export interface GiftRecommendation {

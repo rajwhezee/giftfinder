@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { BUDGET_MAX } from "@/lib/gift-options";
+import { BUDGET_UNCAPPED_AT } from "@/lib/gift-options";
 import { prisma } from "@/lib/prisma";
-import { MIN_INTEREST_MATCHES, scoreGift } from "@/lib/ranking";
+import { MIN_INTEREST_MATCHES, scoreGift, selectDiverse } from "@/lib/ranking";
 import type { GiftRecommendation, RecommendRequestBody } from "@/lib/types";
 
 /**
@@ -12,18 +12,23 @@ const MAX_RESULTS = 72;
 
 function parseBody(body: unknown): RecommendRequestBody | null {
   if (typeof body !== "object" || body === null) return null;
-  const { relationship, age, gender, occasion, interests, budget } = body as Record<string, unknown>;
+  const { relationship, age, gender, occasion, interests, minBudget, maxBudget } =
+    body as Record<string, unknown>;
 
   if (typeof relationship !== "string" || relationship.trim().length === 0) return null;
   if (typeof occasion !== "string" || occasion.trim().length === 0) return null;
   if (typeof age !== "number" || !Number.isFinite(age) || age < 0 || age > 120) return null;
-  if (typeof budget !== "number" || !Number.isFinite(budget) || budget <= 0) return null;
+  if (typeof minBudget !== "number" || !Number.isFinite(minBudget) || minBudget < 0) return null;
+  if (typeof maxBudget !== "number" || !Number.isFinite(maxBudget) || maxBudget <= 0) return null;
+  // An inverted range would silently return nothing, which reads as a broken
+  // catalogue rather than a bad request.
+  if (minBudget > maxBudget) return null;
   if (gender !== "male" && gender !== "female" && gender !== "any") return null;
   if (!Array.isArray(interests) || !interests.every((interest) => typeof interest === "string")) {
     return null;
   }
 
-  return { relationship, age, gender, occasion, interests, budget };
+  return { relationship, age, gender, occasion, interests, minBudget, maxBudget };
 }
 
 export async function POST(request: Request) {
@@ -34,17 +39,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  // The top budget preset is labelled "$500+": no upper limit, but it's a
-  // premium signal — a $60 trinket under "no limit" reads as a mistake. So
-  // uncapped mode swaps the ceiling for a floor at half of BUDGET_MAX.
-  const uncapped = body.budget >= BUDGET_MAX;
-  const premiumFloor = BUDGET_MAX / 2;
+  // A ceiling at the top of the slider means "and up" rather than a hard cap.
+  // The floor is whatever the user set, so unlike the old single-slider version
+  // there is no need to invent one — dragging the ceiling to the end no longer
+  // implies "premium", it just removes the lid.
+  const uncapped = body.maxBudget >= BUDGET_UNCAPPED_AT;
 
   // Hard constraints in SQL: anything failing these can never be a good gift.
   // A gender pick keeps unisex products — it only excludes the opposite tag.
   const gifts = await prisma.gift.findMany({
     where: {
-      price: uncapped ? { gte: premiumFloor } : { lte: body.budget },
+      price: uncapped
+        ? { gte: body.minBudget }
+        : { gte: body.minBudget, lte: body.maxBudget },
       ageMin: { lte: body.age },
       ageMax: { gte: body.age },
       occasions: { has: body.occasion },
@@ -62,19 +69,37 @@ export async function POST(request: Request) {
       selectedInterests: body.interests,
       relationship: body.relationship,
       age: body.age,
-      // Uncapped: no budget ceiling exists, so the price-fit signal goes flat
-      // (ratio ~0 → constant 0.5) instead of zeroing out everything above $500.
-      budget: uncapped ? Number.POSITIVE_INFINITY : body.budget,
+      minBudget: body.minBudget,
+      // Uncapped: no ceiling exists, so price-fit switches to "pricier is
+      // better" rather than measuring position inside a band that has no end.
+      maxBudget: uncapped ? Number.POSITIVE_INFINITY : body.maxBudget,
     });
 
     return { gift, price, breakdown };
   });
 
-  const results: GiftRecommendation[] = scored
-    // Accuracy over volume: never pad with items that share no interests.
-    .filter((entry) => entry.breakdown.interestMatches >= MIN_INTEREST_MATCHES)
-    .sort((a, b) => b.breakdown.total - a.breakdown.total || b.price - a.price)
-    .slice(0, MAX_RESULTS)
+  // Accuracy over volume: never pad with items that share no interests.
+  const eligible = scored.filter(
+    (entry) => entry.breakdown.interestMatches >= MIN_INTEREST_MATCHES,
+  );
+
+  // Relevance ordering first, then a diversity pass. Without it a single brand
+  // whose catalogue all shares one interest tag takes every slot on the page.
+  const ordered = [...eligible].sort(
+    (a, b) => b.breakdown.total - a.breakdown.total || b.price - a.price,
+  );
+
+  const picked = selectDiverse(
+    ordered.map((entry) => ({
+      score: entry.breakdown.total,
+      platform: entry.gift.platform,
+      name: entry.gift.name,
+    })),
+    MAX_RESULTS,
+  );
+
+  const results: GiftRecommendation[] = picked
+    .map((index) => ordered[index])
     // `description` is deliberately not sent — nothing renders it, and at 72
     // results its ~400 chars each would dominate the payload.
     .map(({ gift, price, breakdown }) => ({

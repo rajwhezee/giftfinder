@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
-import { AnimatePresence, motion } from "motion/react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { motion } from "motion/react";
 import {
   BUDGET_MAX,
   BUDGET_MIN,
-  BUDGET_PRESETS,
+  BUDGET_RANGE_PRESETS,
   BUDGET_STEP,
+  BUDGET_UNCAPPED_AT,
   INTERESTS,
   RELATIONSHIPS,
 } from "@/lib/gift-options";
@@ -14,45 +15,57 @@ import { INTEREST_EMOJI, OCCASION_EMOJI, RELATIONSHIP_EMOJI } from "@/lib/gift-o
 import { searchOccasions } from "@/lib/occasion-search";
 import type { GiftRecommendation, RecipientGender, RecommendResponse } from "@/lib/types";
 import { GiftResults } from "./GiftResults";
+import { StepTransition } from "./StepTransition";
 
-const TOTAL_STEPS = 4;
-const STEP_EMOJI = ["🎯", "🎉", "✨", "💸"];
+const TOTAL_STEPS = 6;
+/** Pause after a tap so the selected state is visible before the card swipes away. */
+const AUTO_ADVANCE_MS = 260;
+
+const AGE_MIN = 1;
+const AGE_MAX = 99;
+const AGE_DEFAULT = 25;
 
 const GENDER_OPTIONS: { value: RecipientGender; label: string; emoji: string }[] = [
   { value: "female", label: "Female", emoji: "👩" },
   { value: "male", label: "Male", emoji: "👨" },
-  { value: "any", label: "No preference", emoji: "🌈" },
+  { value: "any", label: "No preference", emoji: "🫡" },
 ];
 
-function OptionButton({
+function Chip({
   label,
   emoji,
   selected,
   onClick,
-  pill = false,
 }: {
   label: string;
   emoji?: string;
   selected: boolean;
   onClick: () => void;
-  pill?: boolean;
 }) {
   return (
     <motion.button
       type="button"
       onClick={onClick}
-      whileTap={{ scale: 0.95 }}
-      className={`flex items-center justify-center gap-1.5 border-2 px-3 py-2.5 text-sm font-medium transition-colors ${
-        pill ? "rounded-full" : "rounded-xl"
-      } ${
-        selected
-          ? "gradient-bg border-transparent text-white shadow-lg shadow-brand-pink/30"
-          : "border-black/10 bg-white hover:border-brand-pink/50 dark:border-white/10 dark:bg-white/5"
-      }`}
+      data-selected={selected}
+      whileTap={{ scale: 0.96 }}
+      className="chip flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm"
     >
-      {emoji && <span>{emoji}</span>}
-      {label}
+      {emoji && (
+        <span aria-hidden className="text-base leading-none">
+          {emoji}
+        </span>
+      )}
+      <span>{label}</span>
     </motion.button>
+  );
+}
+
+function StepHeading({ children, hint }: { children: React.ReactNode; hint?: string }) {
+  return (
+    <div className="mb-5">
+      <h2 className="font-display text-2xl leading-snug font-semibold text-balance">{children}</h2>
+      {hint && <p className="mt-1.5 text-sm text-ink-soft">{hint}</p>}
+    </div>
   );
 }
 
@@ -62,45 +75,32 @@ function OccasionPicker({ value, onChange }: { value: string; onChange: (occasio
 
   return (
     <div>
-      <div className="relative mb-3">
-        <span className="pointer-events-none absolute top-1/2 left-3.5 -translate-y-1/2 text-neutral-400">
-          🔍
+      <div className="relative mb-4">
+        <span aria-hidden className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-ink-faint">
+          ✦
         </span>
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search any occasion — Diwali, Eid, Quinceañera, Birthday…"
-          className="w-full rounded-xl border-2 border-black/10 py-3 pr-4 pl-10 text-base outline-none focus:border-brand-pink dark:border-white/10 dark:bg-white/5"
+          placeholder="Search any occasion — Diwali, Eid, Quinceañera…"
+          className="w-full rounded-full border border-rule bg-surface py-3 pr-4 pl-10 text-base text-ink outline-none transition-colors placeholder:text-ink-faint focus:border-terracotta"
         />
       </div>
 
-      {value && (
-        <p className="mb-3 text-sm text-neutral-500">
-          Selected:{" "}
-          <span className="font-semibold text-neutral-900 dark:text-neutral-100">
-            {OCCASION_EMOJI[value]} {value}
-          </span>
-        </p>
-      )}
-
       {matches.length === 0 ? (
-        <p className="text-sm text-neutral-500">
-          No match for &quot;{query}&quot; yet — try a different spelling, or pick the closest one.
+        <p className="text-sm text-ink-soft">
+          Nothing matches &ldquo;{query}&rdquo; yet — try another spelling, or pick the closest one.
         </p>
       ) : (
-        <div className="flex max-h-56 flex-wrap gap-2 overflow-y-auto">
+        <div className="flex max-h-64 flex-wrap gap-2 overflow-y-auto">
           {matches.map((option) => (
-            <OptionButton
+            <Chip
               key={option}
               label={option}
               emoji={OCCASION_EMOJI[option]}
               selected={value === option}
-              onClick={() => {
-                onChange(option);
-                setQuery("");
-              }}
-              pill
+              onClick={() => onChange(option)}
             />
           ))}
         </div>
@@ -112,24 +112,66 @@ function OccasionPicker({ value, onChange }: { value: string; onChange: (occasio
 export function GiftQuiz() {
   const [step, setStep] = useState(1);
   const [relationship, setRelationship] = useState("");
-  const [age, setAge] = useState("");
   const [gender, setGender] = useState<RecipientGender | "">("");
+  const [age, setAge] = useState(AGE_DEFAULT);
   const [occasion, setOccasion] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
-  const [budget, setBudget] = useState<number>(BUDGET_PRESETS[1]);
+  const [minBudget, setMinBudget] = useState<number>(BUDGET_RANGE_PRESETS[1].min);
+  const [maxBudget, setMaxBudget] = useState<number>(BUDGET_RANGE_PRESETS[1].max);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [results, setResults] = useState<GiftRecommendation[] | null>(null);
   const [candidateCount, setCandidateCount] = useState(0);
 
-  const ageNumber = Number(age);
-  const canProceed =
-    step === 1
-      ? relationship !== "" && gender !== "" && age !== "" && ageNumber > 0 && ageNumber <= 120
-      : step === 2
-        ? occasion !== ""
-        : step === 3
-          ? interests.length > 0
-          : true;
+  // Auto-advance timers must not fire after the user has navigated away
+  // (e.g. tapped Back during the pause), so keep a handle and clear it.
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const cancelAdvance = useCallback(() => {
+    if (advanceTimer.current) {
+      clearTimeout(advanceTimer.current);
+      advanceTimer.current = null;
+    }
+  }, []);
+
+  useEffect(() => cancelAdvance, [cancelAdvance]);
+
+  const goTo = useCallback(
+    (next: number) => {
+      cancelAdvance();
+      setStep(Math.min(TOTAL_STEPS, Math.max(1, next)));
+    },
+    [cancelAdvance],
+  );
+
+  /** Single-select steps advance on their own — no Next tap needed. */
+  const selectThenAdvance = useCallback(
+    (apply: () => void, fromStep: number) => {
+      apply();
+      cancelAdvance();
+      advanceTimer.current = setTimeout(() => {
+        setStep((current) => (current === fromStep ? Math.min(TOTAL_STEPS, current + 1) : current));
+      }, AUTO_ADVANCE_MS);
+    },
+    [cancelAdvance],
+  );
+
+  const canProceed = step === 5 ? interests.length > 0 : step === 4 ? occasion !== "" : true;
+
+  // Budget range. The ceiling sitting at the top of the slider means "and up"
+  // rather than a literal cap, and the two thumbs are kept one step apart so
+  // they can never cross into an inverted range the API would reject.
+  const uncapped = maxBudget >= BUDGET_UNCAPPED_AT;
+  const budgetSpan = BUDGET_MAX - BUDGET_MIN;
+  const fillStart = ((minBudget - BUDGET_MIN) / budgetSpan) * 100;
+  const fillEnd = ((maxBudget - BUDGET_MIN) / budgetSpan) * 100;
+
+  function handleMinBudget(value: number) {
+    setMinBudget(Math.min(value, maxBudget - BUDGET_STEP));
+  }
+
+  function handleMaxBudget(value: number) {
+    setMaxBudget(Math.max(value, minBudget + BUDGET_STEP));
+  }
 
   function toggleInterest(interest: string) {
     setInterests((prev) =>
@@ -138,13 +180,15 @@ export function GiftQuiz() {
   }
 
   function handleRestart() {
+    cancelAdvance();
     setStep(1);
     setRelationship("");
-    setAge("");
     setGender("");
+    setAge(AGE_DEFAULT);
     setOccasion("");
     setInterests([]);
-    setBudget(BUDGET_PRESETS[1]);
+    setMinBudget(BUDGET_RANGE_PRESETS[1].min);
+    setMaxBudget(BUDGET_RANGE_PRESETS[1].max);
     setResults(null);
     setStatus("idle");
   }
@@ -155,7 +199,15 @@ export function GiftQuiz() {
       const res = await fetch("/api/recommend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ relationship, age: ageNumber, gender, occasion, interests, budget }),
+        body: JSON.stringify({
+          relationship,
+          age,
+          gender,
+          occasion,
+          interests,
+          minBudget,
+          maxBudget,
+        }),
       });
       if (!res.ok) throw new Error("Request failed");
       const data = (await res.json()) as RecommendResponse;
@@ -179,175 +231,216 @@ export function GiftQuiz() {
     );
   }
 
+  // Steps 1, 2 and 4 advance themselves on selection; only these need a button.
+  const showContinue = step === 3 || step === 5;
+
   return (
-    <div className="mx-auto max-w-xl rounded-3xl border border-black/5 bg-white/80 p-6 shadow-xl shadow-purple-500/5 backdrop-blur sm:p-8 dark:border-white/10 dark:bg-white/[0.03]">
-      <div className="mb-6 flex items-center gap-3">
-        <span className="text-sm font-semibold text-neutral-500">
-          Step {step} of {TOTAL_STEPS}
+    <div className="card-surface mx-auto max-w-xl rounded-2xl p-6 sm:p-8">
+      <div className="mb-7 flex items-center gap-4">
+        <span className="font-display text-sm tracking-wide text-ink-faint tabular-nums">
+          {String(step).padStart(2, "0")} <span className="text-ink-faint/60">/</span>{" "}
+          {String(TOTAL_STEPS).padStart(2, "0")}
         </span>
-        <div className="h-2 flex-1 overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
+        <div className="h-px flex-1 bg-rule">
           <motion.div
-            className="gradient-bg h-full rounded-full"
+            className="h-px bg-terracotta"
             initial={false}
             animate={{ width: `${(step / TOTAL_STEPS) * 100}%` }}
-            transition={{ type: "spring", stiffness: 200, damping: 25 }}
+            transition={{ type: "spring", stiffness: 200, damping: 26 }}
           />
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={step}
-          initial={{ opacity: 0, x: 24 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -24 }}
-          transition={{ duration: 0.2 }}
-        >
-          {step === 1 && (
-            <fieldset>
-              <legend className="font-display mb-4 text-xl font-semibold">
-                {STEP_EMOJI[0]} Who is the gift for?
-              </legend>
-              <div className="mb-6 grid grid-cols-3 gap-2 sm:grid-cols-4">
-                {RELATIONSHIPS.map((option) => (
-                  <OptionButton
-                    key={option}
-                    label={option}
-                    emoji={RELATIONSHIP_EMOJI[option]}
-                    selected={relationship === option}
-                    onClick={() => setRelationship(option)}
-                  />
-                ))}
-              </div>
-              <p className="mb-2 text-sm font-semibold">Gender</p>
-              <div className="mb-6 grid grid-cols-3 gap-2">
-                {GENDER_OPTIONS.map((option) => (
-                  <OptionButton
-                    key={option.value}
-                    label={option.label}
-                    emoji={option.emoji}
-                    selected={gender === option.value}
-                    onClick={() => setGender(option.value)}
-                  />
-                ))}
-              </div>
-              <label className="block text-sm font-semibold">
-                Their age
-                <input
-                  type="number"
-                  min={1}
-                  max={120}
-                  value={age}
-                  onChange={(e) => setAge(e.target.value)}
-                  placeholder="e.g. 28"
-                  className="mt-1.5 w-full rounded-xl border-2 border-black/10 px-4 py-3 text-base outline-none focus:border-brand-pink dark:border-white/10 dark:bg-white/5"
+      <StepTransition transitionKey={step}>
+        {step === 1 && (
+          <fieldset>
+            <StepHeading>Who is this gift for?</StepHeading>
+            <div className="flex flex-wrap gap-2">
+              {RELATIONSHIPS.map((option) => (
+                <Chip
+                  key={option}
+                  label={option}
+                  emoji={RELATIONSHIP_EMOJI[option]}
+                  selected={relationship === option}
+                  onClick={() => selectThenAdvance(() => setRelationship(option), 1)}
                 />
-              </label>
-            </fieldset>
-          )}
+              ))}
+            </div>
+          </fieldset>
+        )}
 
-          {step === 2 && (
-            <fieldset>
-              <legend className="font-display mb-4 text-xl font-semibold">
-                {STEP_EMOJI[1]} What&apos;s the occasion?
-              </legend>
-              <OccasionPicker value={occasion} onChange={setOccasion} />
-            </fieldset>
-          )}
+        {step === 2 && (
+          <fieldset>
+            <StepHeading>Who are we shopping for?</StepHeading>
+            <div className="flex flex-wrap gap-2">
+              {GENDER_OPTIONS.map((option) => (
+                <Chip
+                  key={option.value}
+                  label={option.label}
+                  emoji={option.emoji}
+                  selected={gender === option.value}
+                  onClick={() => selectThenAdvance(() => setGender(option.value), 2)}
+                />
+              ))}
+            </div>
+          </fieldset>
+        )}
 
-          {step === 3 && (
-            <fieldset>
-              <legend className="font-display mb-4 text-xl font-semibold">
-                {STEP_EMOJI[2]} What are their interests?
-              </legend>
-              <p className="mb-3 text-sm text-neutral-500">Select all that apply.</p>
-              <div className="flex flex-wrap gap-2">
-                {INTERESTS.map((option) => (
-                  <OptionButton
-                    key={option}
-                    label={option}
-                    emoji={INTEREST_EMOJI[option]}
-                    selected={interests.includes(option)}
-                    onClick={() => toggleInterest(option)}
-                    pill
-                  />
-                ))}
-              </div>
-            </fieldset>
-          )}
+        {step === 3 && (
+          <fieldset>
+            <StepHeading hint="Drag to adjust — close enough is fine.">How old are they?</StepHeading>
+            <p className="font-display mb-6 text-center text-6xl leading-none font-semibold text-terracotta tabular-nums">
+              {age}
+              {age === AGE_MAX ? "+" : ""}
+            </p>
+            <input
+              type="range"
+              min={AGE_MIN}
+              max={AGE_MAX}
+              step={1}
+              value={age}
+              onChange={(e) => setAge(Number(e.target.value))}
+              aria-label="Recipient age"
+            />
+            <div className="mt-3 flex justify-between text-xs text-ink-faint">
+              <span>{AGE_MIN}</span>
+              <span>{AGE_MAX}+</span>
+            </div>
+          </fieldset>
+        )}
 
-          {step === 4 && (
-            <fieldset>
-              <legend className="font-display mb-4 text-xl font-semibold">
-                {STEP_EMOJI[3]} What&apos;s the budget?
-              </legend>
-              <div className="mb-5 flex flex-wrap gap-2">
-                {BUDGET_PRESETS.map((preset) => (
-                  <OptionButton
-                    key={preset}
-                    label={preset === BUDGET_MAX ? `$${preset}+` : `Under $${preset}`}
-                    selected={budget === preset}
-                    onClick={() => setBudget(preset)}
-                  />
-                ))}
-              </div>
+        {step === 4 && (
+          <fieldset>
+            <StepHeading>What are we celebrating?</StepHeading>
+            <OccasionPicker
+              value={occasion}
+              onChange={(value) => selectThenAdvance(() => setOccasion(value), 4)}
+            />
+          </fieldset>
+        )}
+
+        {step === 5 && (
+          <fieldset>
+            <StepHeading hint="Pick as many as you like — more detail, better matches.">
+              What are they into?
+            </StepHeading>
+            <div className="flex flex-wrap gap-2">
+              {INTERESTS.map((option) => (
+                <Chip
+                  key={option}
+                  label={option}
+                  emoji={INTEREST_EMOJI[option]}
+                  selected={interests.includes(option)}
+                  onClick={() => toggleInterest(option)}
+                />
+              ))}
+            </div>
+          </fieldset>
+        )}
+
+        {step === 6 && (
+          <fieldset>
+            <StepHeading hint="Drag either end, or pick a band below.">
+              Define your budget
+            </StepHeading>
+
+            <p className="font-display mb-7 text-center text-4xl leading-none font-semibold text-terracotta tabular-nums sm:text-5xl">
+              ${minBudget}
+              <span className="mx-2 text-ink-faint">–</span>${maxBudget}
+              {uncapped ? "+" : ""}
+            </p>
+
+            {/* Two sliders sharing one track; see .range-dual in globals.css. */}
+            <div className="range-dual">
+              <span className="range-track" />
+              <span
+                className="range-fill"
+                style={{ left: `${fillStart}%`, right: `${100 - fillEnd}%` }}
+              />
               <input
                 type="range"
                 min={BUDGET_MIN}
                 max={BUDGET_MAX}
                 step={BUDGET_STEP}
-                value={budget}
-                onChange={(e) => setBudget(Number(e.target.value))}
-                className="w-full accent-[#ec4899]"
+                value={minBudget}
+                onChange={(e) => handleMinBudget(Number(e.target.value))}
+                aria-label="Minimum budget"
               />
-              <p className="font-display gradient-text mt-3 text-center text-3xl font-bold">
-                ${budget}
-                {budget >= BUDGET_MAX ? "+" : ""}
+              <input
+                type="range"
+                min={BUDGET_MIN}
+                max={BUDGET_MAX}
+                step={BUDGET_STEP}
+                value={maxBudget}
+                onChange={(e) => handleMaxBudget(Number(e.target.value))}
+                aria-label="Maximum budget"
+              />
+            </div>
+
+            <div className="mt-3 flex justify-between text-xs text-ink-faint">
+              <span>${BUDGET_MIN}</span>
+              <span>${BUDGET_MAX}+</span>
+            </div>
+
+            <div className="mt-7 flex flex-wrap gap-2">
+              {BUDGET_RANGE_PRESETS.map((preset) => (
+                <Chip
+                  key={preset.label}
+                  label={preset.label}
+                  selected={minBudget === preset.min && maxBudget === preset.max}
+                  onClick={() => {
+                    setMinBudget(preset.min);
+                    setMaxBudget(preset.max);
+                  }}
+                />
+              ))}
+            </div>
+
+            {uncapped && (
+              <p className="mt-5 text-center text-sm text-ink-soft">
+                No ceiling — anything from ${minBudget} up.
               </p>
-              {budget >= BUDGET_MAX && (
-                <p className="mt-1 text-center text-sm text-neutral-500">
-                  Premium picks — ${BUDGET_MAX / 2} and up, no price cap
-                </p>
-              )}
-            </fieldset>
-          )}
-        </motion.div>
-      </AnimatePresence>
+            )}
+          </fieldset>
+        )}
+      </StepTransition>
 
       {status === "error" && (
-        <p className="mt-4 text-sm text-red-600">Something went wrong. Please try again.</p>
+        <p className="mt-5 text-sm text-terracotta">Something went wrong. Please try again.</p>
       )}
 
-      <div className="mt-8 flex justify-between">
+      <div className="rule-hairline mt-8 flex items-center justify-between border-t pt-5">
         <button
           type="button"
-          onClick={() => setStep((s) => Math.max(1, s - 1))}
+          onClick={() => goTo(step - 1)}
           disabled={step === 1}
-          className="rounded-xl px-4 py-2.5 text-sm font-semibold text-neutral-500 disabled:opacity-0"
+          className="text-sm text-ink-soft transition-colors hover:text-terracotta disabled:pointer-events-none disabled:opacity-0"
         >
-          Back
+          ← Back
         </button>
 
-        {step < TOTAL_STEPS ? (
-          <motion.button
-            type="button"
-            onClick={() => setStep((s) => Math.min(TOTAL_STEPS, s + 1))}
-            disabled={!canProceed}
-            whileTap={canProceed ? { scale: 0.96 } : undefined}
-            className="btn-gradient rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-pink/25 disabled:opacity-40"
-          >
-            Next
-          </motion.button>
-        ) : (
+        {step === TOTAL_STEPS ? (
           <motion.button
             type="button"
             onClick={handleSubmit}
             disabled={status === "loading"}
-            whileTap={status !== "loading" ? { scale: 0.96 } : undefined}
-            className="btn-gradient rounded-xl px-6 py-2.5 text-sm font-semibold text-white shadow-lg shadow-brand-pink/25 disabled:opacity-60"
+            whileTap={status !== "loading" ? { scale: 0.97 } : undefined}
+            className="btn-primary rounded-full px-7 py-3 text-sm font-medium disabled:opacity-60"
           >
-            {status === "loading" ? "Finding gifts…" : "🎁 Find gifts"}
+            {status === "loading" ? "Finding gifts…" : "Show me the gifts"}
           </motion.button>
+        ) : showContinue ? (
+          <motion.button
+            type="button"
+            onClick={() => goTo(step + 1)}
+            disabled={!canProceed}
+            whileTap={canProceed ? { scale: 0.97 } : undefined}
+            className="btn-primary rounded-full px-7 py-3 text-sm font-medium disabled:opacity-40"
+          >
+            Continue
+          </motion.button>
+        ) : (
+          <span className="text-xs text-ink-faint">Choose one to continue</span>
         )}
       </div>
     </div>

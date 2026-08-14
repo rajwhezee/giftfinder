@@ -76,7 +76,9 @@ export interface ScoreInput {
   selectedInterests: string[];
   relationship: string;
   age: number;
-  budget: number;
+  minBudget: number;
+  /** Infinity when the user dragged the ceiling to "and up". */
+  maxBudget: number;
 }
 
 export interface ScoreBreakdown {
@@ -113,22 +115,33 @@ function relationshipScore(giftInterests: string[], relationship: string): numbe
 }
 
 /**
- * Where the price sits inside the budget. Something at 70% of budget generally
- * feels like a more considered gift than something at 5% of it, so the sweet
- * spot is the upper-middle of the range. Never penalizes below 0.5 — cheap
- * isn't disqualifying, just less "this was chosen for you".
+ * Where the price sits inside the chosen band. Something near the top of what
+ * someone is willing to spend generally reads as a more considered gift than
+ * something scraping the floor, so the sweet spot is the upper-middle of the
+ * band. Never penalizes below 0.5 — cheap isn't disqualifying, just less
+ * "this was chosen for you".
  *
- * Uncapped mode (budget === Infinity, from the "$500+" preset) means the user
- * asked for premium: score rises linearly with price up to BUDGET_MAX and
+ * Measured as a fraction of the band's width rather than of the ceiling alone,
+ * so the signal still discriminates when the user picks a narrow window: at
+ * $150-200, a $190 gift should read as top-of-budget, not as 95% of $200 by
+ * coincidence.
+ *
+ * Uncapped mode (maxBudget === Infinity, ceiling dragged to "and up") means the
+ * user asked for premium: score rises linearly with price up to BUDGET_MAX and
  * stays maxed above it, so pricier gifts actively outrank cheaper ones.
  */
-function budgetScore(price: number, budget: number): number {
-  if (budget <= 0) return 0;
-  if (!Number.isFinite(budget)) {
+function budgetScore(price: number, minBudget: number, maxBudget: number): number {
+  if (!Number.isFinite(maxBudget)) {
     return Math.min(price / BUDGET_MAX, 1);
   }
-  const ratio = price / budget;
-  if (ratio > 1) return 0; // shouldn't happen (filtered in SQL), but fail safe
+
+  const span = maxBudget - minBudget;
+  // Both thumbs on the same value: anything that survived the SQL filter is
+  // exactly on budget, so there is nothing left to discriminate on.
+  if (span <= 0) return 1;
+
+  const ratio = (price - minBudget) / span;
+  if (ratio < 0 || ratio > 1) return 0; // shouldn't happen (filtered in SQL), but fail safe
   if (ratio >= 0.4 && ratio <= 0.95) return 1;
   if (ratio > 0.95) return 0.9;
   return 0.5 + (ratio / 0.4) * 0.5;
@@ -155,7 +168,7 @@ function ageScore(ageMin: number, ageMax: number, age: number): number {
 export function scoreGift(input: ScoreInput): ScoreBreakdown {
   const interest = interestScore(input.giftInterests, input.selectedInterests);
   const relationship = relationshipScore(input.giftInterests, input.relationship);
-  const budget = budgetScore(input.giftPrice, input.budget);
+  const budget = budgetScore(input.giftPrice, input.minBudget, input.maxBudget);
   const age = ageScore(input.giftAgeMin, input.giftAgeMax, input.age);
 
   const total =
@@ -172,4 +185,99 @@ export function scoreGift(input: ScoreInput): ScoreBreakdown {
     budget,
     age,
   };
+}
+
+/* ------------------------------------------------------------------ *
+ * Diversity
+ *
+ * Relevance alone produces terrible gift pages. Interests are tagged per
+ * brand, so every product from one label scores identically and price becomes
+ * the only tiebreaker — which yields twelve Boy Smells candles, or six
+ * near-identical gold chains in a row. Both were real outputs before this.
+ *
+ * So selection is greedy with penalties rather than a plain sort: walk the
+ * slots, and each time pick the best remaining candidate *after* discounting
+ * it for how much it repeats what's already on the page. Penalties are
+ * additive and small, so a genuinely dominant item still wins its slot.
+ * ------------------------------------------------------------------ */
+
+/** Per already-selected item from the same platform. */
+export const PLATFORM_REPEAT_PENALTY = 0.055;
+/** Applied once if the title is a near-duplicate of something already picked. */
+export const NEAR_DUPLICATE_PENALTY = 0.3;
+/** Jaccard overlap of title tokens above which two products count as the same idea. */
+export const DUPLICATE_SIMILARITY = 0.55;
+
+/** Words that carry no distinguishing meaning in product titles. */
+const STOP_WORDS = new Set([
+  "the", "a", "an", "and", "or", "for", "with", "in", "of", "to", "by", "on",
+  "gift", "gifts", "set", "box", "kit", "new", "pack", "size", "inch", "inches",
+  "handmade", "custom", "personalized", "personalised", "womens", "mens", "women", "men",
+]);
+
+function titleTokens(title: string): Set<string> {
+  return new Set(
+    title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s]/g, " ")
+      .split(/\s+/)
+      .filter((w) => w.length > 2 && !STOP_WORDS.has(w)),
+  );
+}
+
+function jaccard(a: Set<string>, b: Set<string>): number {
+  if (a.size === 0 || b.size === 0) return 0;
+  let shared = 0;
+  for (const token of a) if (b.has(token)) shared++;
+  return shared / (a.size + b.size - shared);
+}
+
+export interface DiversifiableItem {
+  score: number;
+  platform: string;
+  name: string;
+}
+
+/**
+ * Greedy re-ranking for variety. Returns indices into `items`, best first.
+ *
+ * `items` need not be pre-sorted — the first pick is whichever scores highest.
+ */
+export function selectDiverse<T extends DiversifiableItem>(items: T[], limit: number): number[] {
+  const tokens = items.map((item) => titleTokens(item.name));
+  const remaining = new Set(items.map((_, i) => i));
+  const chosen: number[] = [];
+  const platformCounts = new Map<string, number>();
+
+  while (chosen.length < limit && remaining.size > 0) {
+    let bestIndex = -1;
+    let bestAdjusted = -Infinity;
+
+    for (const index of remaining) {
+      const item = items[index];
+      const repeats = platformCounts.get(item.platform) ?? 0;
+
+      const isNearDuplicate = chosen.some(
+        (pickedIndex) => jaccard(tokens[index], tokens[pickedIndex]) >= DUPLICATE_SIMILARITY,
+      );
+
+      const adjusted =
+        item.score -
+        repeats * PLATFORM_REPEAT_PENALTY -
+        (isNearDuplicate ? NEAR_DUPLICATE_PENALTY : 0);
+
+      if (adjusted > bestAdjusted) {
+        bestAdjusted = adjusted;
+        bestIndex = index;
+      }
+    }
+
+    if (bestIndex === -1) break;
+    chosen.push(bestIndex);
+    remaining.delete(bestIndex);
+    const platform = items[bestIndex].platform;
+    platformCounts.set(platform, (platformCounts.get(platform) ?? 0) + 1);
+  }
+
+  return chosen;
 }

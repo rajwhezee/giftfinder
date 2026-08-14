@@ -86,4 +86,18 @@ export const INTERESTS = [
 export const BUDGET_MIN = 10;
 export const BUDGET_MAX = 500;
 export const BUDGET_STEP = 5;
-export const BUDGET_PRESETS = [25, 75, 150, 500] as const;
+
+/**
+ * The budget step is a range, so a ceiling at BUDGET_MAX means "and up" rather
+ * than a hard cap — the catalogue carries items well past $500 and there is no
+ * reason to hide them from someone who dragged the slider all the way over.
+ * Both the API filter and the price-fit score check for this.
+ */
+export const BUDGET_UNCAPPED_AT = BUDGET_MAX;
+
+export const BUDGET_RANGE_PRESETS = [
+  { label: "Under $25", min: BUDGET_MIN, max: 25 },
+  { label: "$25–75", min: 25, max: 75 },
+  { label: "$75–150", min: 75, max: 150 },
+  { label: "$150+", min: 150, max: BUDGET_MAX },
+] as const;
