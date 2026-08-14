@@ -32,70 +32,84 @@ export function GiftResults({
 
   useEffect(() => {
     if (results.length === 0) return;
+    // Restrained and in-palette — a small flourish, not a party popper.
     confetti({
-      particleCount: 90,
-      spread: 80,
-      origin: { y: 0.3 },
-      colors: ["#7c3aed", "#ec4899", "#fb923c", "#fde047"],
+      particleCount: 55,
+      spread: 62,
+      startVelocity: 32,
+      ticks: 140,
+      scalar: 0.85,
+      origin: { y: 0.28 },
+      // Saturated enough to stay visible against the ivory ground — the pale
+      // champagne tones used on the dark build disappeared here.
+      colors: ["#8c6829", "#b8944a", "#4a5480", "#1b1c24"],
     });
   }, [results.length]);
 
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-4">
-        <h2 className="font-display text-2xl font-bold">
-          {results.length > 0 ? (
-            <>
-              <span className="gradient-text">{results.length}</span>
-              {" gift"}
-              {results.length === 1 ? "" : "s"} for your {relationship.toLowerCase()}&apos;s{" "}
-              {occasion.toLowerCase()} 🎉
-            </>
-          ) : (
-            "No gifts matched 😕"
-          )}
-        </h2>
-        <button
-          type="button"
-          onClick={onRestart}
-          className="rounded-full border-2 border-black/10 px-4 py-1.5 text-sm font-semibold transition hover:border-brand-pink/50 dark:border-white/10"
-        >
-          ↺ Start over
-        </button>
-      </div>
+    <div className="mx-auto max-w-5xl px-4">
+      <header className="rule-hairline mb-8 border-b pb-6">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs tracking-[0.18em] text-ink-faint uppercase">
+              {occasion} · for your {relationship.toLowerCase()}
+            </p>
+            <h2 className="font-display mt-2 text-3xl leading-tight font-semibold text-balance sm:text-4xl">
+              {results.length > 0 ? (
+                <>
+                  <span className="text-terracotta">{results.length}</span> gift
+                  {results.length === 1 ? "" : "s"} worth giving
+                </>
+              ) : (
+                "Nothing quite fits — yet"
+              )}
+            </h2>
+          </div>
+          <button
+            type="button"
+            onClick={onRestart}
+            className="rule-hairline rounded-full border px-5 py-2.5 text-sm text-ink transition-colors hover:border-terracotta hover:text-terracotta"
+          >
+            Start over
+          </button>
+        </div>
 
-      {results.length > 0 && (
-        <p className="mb-6 text-xs text-neutral-400">
-          Links go directly to the seller. We don&apos;t earn anything from your purchase.
-        </p>
-      )}
+        {results.length > 0 && (
+          <p className="mt-4 text-xs text-ink-faint">
+            Links go straight to the seller. We earn nothing from your purchase.
+          </p>
+        )}
+      </header>
 
       {results.length === 0 ? (
-        <div className="rounded-2xl border border-black/5 bg-white/70 p-6 text-sm text-neutral-600 dark:border-white/10 dark:bg-white/5 dark:text-neutral-300">
+        <div className="card-surface rounded-2xl p-8 text-sm leading-relaxed text-ink-soft">
           {candidateCount > 0 ? (
             <p>
               We found {candidateCount} gift{candidateCount === 1 ? "" : "s"} for this occasion and
-              budget, but none that genuinely fit those interests — so we&apos;d rather show you
-              nothing than a bad guess. Try picking a few more interests, or widen the budget.
+              budget, but none that genuinely match those interests — and we&apos;d rather show you
+              nothing than a bad guess. Try adding a few more interests, or widening the budget.
             </p>
           ) : (
             <p>
-              Nothing in our catalog fits that occasion, age and budget combination yet. Try raising
-              the budget or choosing a different occasion.
+              Nothing in the collection fits that occasion, age and budget together yet. Try raising
+              the budget, or choosing a nearby occasion.
             </p>
           )}
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+          <div className="grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
             {visible.map((gift, index) => (
               <motion.div
                 key={gift.id}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 14 }}
                 animate={{ opacity: 1, y: 0 }}
                 // Stagger only within a page, and cap it — otherwise the last
                 // card of a long list waits seconds before appearing.
-                transition={{ delay: Math.min((index % PAGE_SIZE) * 0.03, 0.4), duration: 0.3 }}
+                transition={{ delay: Math.min((index % PAGE_SIZE) * 0.025, 0.35), duration: 0.32 }}
+                // h-full so every card stretches to its grid row, keeping the
+                // "View on…" buttons aligned when titles wrap to different heights.
+                className="h-full"
               >
                 <GiftCard gift={gift} />
               </motion.div>
@@ -103,17 +117,17 @@ export function GiftResults({
           </div>
 
           {remaining > 0 && (
-            <div className="mt-8 text-center">
+            <div className="mt-12 flex flex-col items-center gap-3">
               <motion.button
                 type="button"
-                whileTap={{ scale: 0.96 }}
+                whileTap={{ scale: 0.97 }}
                 onClick={() => setVisibleCount((count) => count + PAGE_SIZE)}
-                className="btn-gradient rounded-xl px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-brand-pink/25"
+                className="btn-primary rounded-full px-8 py-3 text-sm font-medium"
               >
                 Show {Math.min(remaining, PAGE_SIZE)} more
               </motion.button>
-              <p className="mt-2 text-xs text-neutral-500">
-                Showing {visible.length} of {results.length}
+              <p className="text-xs text-ink-faint tabular-nums">
+                {visible.length} of {results.length}
               </p>
             </div>
           )}

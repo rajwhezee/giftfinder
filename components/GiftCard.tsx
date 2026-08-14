@@ -3,61 +3,59 @@ import { motion } from "motion/react";
 import type { GiftRecommendation } from "@/lib/types";
 import { buildAffiliateUrl } from "@/lib/affiliate";
 
-const PLATFORM_BADGE: Record<string, string> = {
-  amazon: "bg-[#232f3e] text-[#ff9900]",
-  etsy: "bg-[#f1641e] text-white",
-  walmart: "bg-[#0071ce] text-white",
-  ebay: "bg-neutral-900 text-white",
-};
-
 export function GiftCard({ gift }: { gift: GiftRecommendation }) {
   const affiliateUrl = buildAffiliateUrl(gift);
-  const badgeClass = PLATFORM_BADGE[gift.platform.toLowerCase()] ?? "gradient-bg text-white";
+  const approximate = gift.originalCurrency !== "USD";
 
   return (
-    <motion.div
-      whileHover={{ y: -4 }}
-      transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      className="flex flex-col overflow-hidden rounded-2xl border border-black/5 bg-white shadow-sm transition-shadow hover:shadow-xl hover:shadow-purple-500/10 dark:border-white/10 dark:bg-neutral-900"
+    <motion.article
+      whileHover={{ y: -3 }}
+      transition={{ type: "spring", stiffness: 300, damping: 24 }}
+      className="card-surface group flex h-full flex-col overflow-hidden rounded-2xl"
     >
-      <div className="relative aspect-square w-full overflow-hidden bg-neutral-100 dark:bg-neutral-800">
+      <div className="relative aspect-[4/5] w-full overflow-hidden bg-paper">
         <Image
           src={gift.imageUrl}
           alt={gift.name}
           fill
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-          className="object-cover transition-transform duration-300 hover:scale-105"
+          className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
         />
-        <span
-          className={`absolute top-2 left-2 rounded-full px-2.5 py-1 text-xs font-bold ${badgeClass}`}
-        >
-          {gift.platform}
-        </span>
-        {gift.matchScore > 0 && (
-          <span className="absolute top-2 right-2 rounded-full bg-white/90 px-2 py-1 text-xs font-bold text-brand-purple shadow-sm dark:bg-black/70">
-            ✨ {gift.matchScore} match{gift.matchScore === 1 ? "" : "es"}
+        {gift.matchScore > 1 && (
+          <span className="absolute top-3 left-3 rounded-full bg-surface/90 px-2.5 py-1 text-[11px] font-medium tracking-wide text-plum backdrop-blur-sm">
+            Strong match
           </span>
         )}
       </div>
-      <div className="flex flex-1 flex-col gap-2 p-4">
-        <h3 className="line-clamp-2 text-sm font-semibold">{gift.name}</h3>
-        <p className="font-display gradient-text text-xl font-bold">
-          {gift.originalCurrency !== "USD" && (
-            <span title={`Converted from ${gift.originalCurrency} — the seller's page shows their own currency`}>
+
+      <div className="flex flex-1 flex-col gap-3 p-4">
+        <div className="flex-1">
+          <p className="text-[11px] tracking-[0.14em] text-ink-faint uppercase">{gift.platform}</p>
+          <h3 className="mt-1.5 line-clamp-2 text-sm leading-snug text-ink">{gift.name}</h3>
+        </div>
+
+        <p className="font-display text-xl font-semibold text-ink tabular-nums">
+          {approximate && (
+            <span
+              className="text-ink-faint"
+              title={`Converted from ${gift.originalCurrency} — the seller charges in their own currency`}
+            >
               ~
             </span>
           )}
           ${gift.price.toFixed(2)}
         </p>
+
         <a
           href={affiliateUrl}
           target="_blank"
           rel="nofollow noopener"
-          className="btn-gradient mt-auto inline-flex items-center justify-center rounded-xl px-3 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-pink/20"
+          className="rule-hairline mt-auto inline-flex items-center justify-center gap-1.5 rounded-full border px-4 py-2.5 text-sm text-ink transition-colors hover:border-terracotta hover:text-terracotta"
         >
           View on {gift.platform}
+          <span aria-hidden>→</span>
         </a>
       </div>
-    </motion.div>
+    </motion.article>
   );
 }

@@ -15,6 +15,18 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "i.etsystatic.com",
       },
+      {
+        protocol: "https",
+        hostname: "pisces.bbystatic.com",
+      },
+      {
+        protocol: "https",
+        hostname: "cdn.shopify.com",
+      },
+      {
+        protocol: "https",
+        hostname: "i.ebayimg.com",
+      },
     ],
   },
 };

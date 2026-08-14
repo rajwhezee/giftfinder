@@ -2,14 +2,16 @@ import Link from "next/link";
 
 export function Header() {
   return (
-    <header className="sticky top-0 z-50 border-b border-black/5 bg-white/70 backdrop-blur-lg dark:border-white/10 dark:bg-[#12091f]/70">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-3">
-        <Link href="/" className="flex items-center gap-2">
-          <span className="text-xl">🎁</span>
-          <span className="font-display gradient-text text-lg font-bold tracking-tight">
-            GiftFinder
+    <header className="rule-hairline sticky top-0 z-50 border-b bg-paper/80 backdrop-blur-md">
+      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
+        <Link href="/" className="group flex items-baseline gap-2">
+          <span className="font-display text-xl font-semibold tracking-tight text-ink">
+            Gift<span className="text-terracotta">Finder</span>
           </span>
         </Link>
+        <p className="hidden text-xs tracking-[0.18em] text-ink-faint uppercase sm:block">
+          Any occasion · Any culture
+        </p>
       </div>
     </header>
   );

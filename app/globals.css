@@ -1,90 +1,324 @@
 @import "tailwindcss";
 
+/*
+ * Champagne on Ivory.
+ *
+ * The light counterpart of the Midnight palette: same antique-gold and indigo
+ * character, inverted onto a warm ivory ground. Deliberately not plain white —
+ * the paper is tinted and grained so it reads as stock, and the "black" is a
+ * near-black with an indigo bias rather than a default grey.
+ *
+ * Contrast was chosen, not inherited: the gold is taken deep enough
+ * (#8c6829) to clear 4.5:1 both as text on ivory and behind ivory text when
+ * used as a fill, so nothing here relies on large type to stay legible.
+ *
+ * Token names carry over from the previous palette (`--terracotta` reads as
+ * "the accent") so component classes didn't need renaming.
+ */
+
 :root {
-  --background: #fefcff;
-  --foreground: #1a1523;
+  color-scheme: light;
 
-  --color-brand-purple: #7c3aed;
-  --color-brand-pink: #ec4899;
-  --color-brand-orange: #fb923c;
-  --color-brand-yellow: #fde047;
+  --paper: #faf7f0;
+  --surface: #ffffff;
+  --ink: #1b1c24;
+  --ink-soft: #575866;
+  --ink-faint: #8a8b96;
+  --rule: rgba(27, 28, 36, 0.13);
 
-  --gradient-brand: linear-gradient(135deg, #7c3aed 0%, #ec4899 55%, #fb923c 100%);
+  --terracotta: #8c6829;
+  --terracotta-deep: #6f511e;
+  --plum: #4a5480;
+  --gold: #b8944a;
+
+  /* Ivory sits on the gold fill; the gold is dark enough to carry it. */
+  --on-accent: #fffbf2;
+
+  --shadow-soft: 0 1px 2px rgba(27, 28, 36, 0.05), 0 10px 26px -14px rgba(27, 28, 36, 0.22);
+  --shadow-lift: 0 2px 6px rgba(27, 28, 36, 0.08), 0 22px 44px -20px rgba(27, 28, 36, 0.32);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --color-brand-purple: var(--color-brand-purple);
-  --color-brand-pink: var(--color-brand-pink);
-  --color-brand-orange: var(--color-brand-orange);
-  --color-brand-yellow: var(--color-brand-yellow);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-display: var(--font-fredoka);
-}
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-rule: var(--rule);
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-deep: var(--terracotta-deep);
+  --color-plum: var(--plum);
+  --color-gold: var(--gold);
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #12091f;
-    --foreground: #f3edff;
-  }
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-fraunces);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background-color: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 }
 
-.gradient-text {
-  background-image: var(--gradient-brand);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
+/* Fine tooth over the page — lighter than the dark build needed, or it muddies
+   the ivory. */
+.paper-grain::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.5;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
 }
 
-.gradient-bg {
-  background-image: var(--gradient-brand);
+.font-display {
+  font-family: var(--font-fraunces), ui-serif, Georgia, serif;
+  font-optical-sizing: auto;
+  letter-spacing: -0.015em;
 }
 
-.gradient-ring {
-  background-image: var(--gradient-brand);
-  padding: 2px;
+/* Accent word inside a headline — the one place colour carries emphasis. */
+.accent-word {
+  color: var(--terracotta);
+  font-style: italic;
 }
 
-.btn-gradient {
-  background-image: var(--gradient-brand);
-  background-size: 160% 160%;
-  background-position: 0% 50%;
+.rule-hairline {
+  border-color: var(--rule);
+}
+
+/* Primary action: deep gold fill, ivory text. */
+.btn-primary {
+  background-color: var(--terracotta);
+  color: var(--on-accent);
+  border: 1px solid transparent;
   transition:
-    background-position 0.4s ease,
-    transform 0.15s ease,
-    box-shadow 0.15s ease;
+    background-color 0.18s ease,
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+  box-shadow: var(--shadow-soft);
 }
 
-.btn-gradient:hover {
-  background-position: 100% 50%;
+.btn-primary:hover:not(:disabled) {
+  background-color: var(--terracotta-deep);
   transform: translateY(-1px);
+  box-shadow: var(--shadow-lift);
 }
 
-.btn-gradient:active {
+.btn-primary:active:not(:disabled) {
   transform: translateY(0);
 }
 
-@keyframes float {
-  0%,
+/* The landing page's one real action.
+ *
+ * Everything else on the page is paper and hairlines, so the CTA does not need
+ * more colour — it needs movement. A gold ring breathes outward on a slow loop,
+ * which peripheral vision picks up while direct reading stays undisturbed. The
+ * pulse stops on hover, where the existing lift takes over and the ring would
+ * only compete with it.
+ *
+ * The reduced-motion block at the bottom of this file neutralises the loop, and
+ * the button is still the only gold fill on the page, so nothing is lost.
+ */
+.btn-launch {
+  animation: launch-pulse 3.2s ease-out infinite;
+}
+
+.btn-launch:hover:not(:disabled) {
+  animation: none;
+}
+
+@keyframes launch-pulse {
+  0% {
+    box-shadow: var(--shadow-soft), 0 0 0 0 rgba(140, 104, 41, 0.34);
+  }
+  70% {
+    box-shadow: var(--shadow-soft), 0 0 0 18px rgba(140, 104, 41, 0);
+  }
   100% {
-    transform: translate(0, 0) scale(1);
+    box-shadow: var(--shadow-soft), 0 0 0 0 rgba(140, 104, 41, 0);
+  }
+}
+
+/* Arrow leans towards the click on hover. */
+.btn-launch .btn-arrow {
+  transition: transform 0.18s ease;
+}
+
+.btn-launch:hover .btn-arrow {
+  transform: translateX(3px);
+}
+
+/* Selectable chip / option in its resting state. */
+.chip {
+  background-color: var(--surface);
+  border: 1px solid var(--rule);
+  color: var(--ink);
+  transition:
+    border-color 0.16s ease,
+    background-color 0.16s ease,
+    color 0.16s ease;
+}
+
+.chip:hover {
+  border-color: var(--terracotta);
+  color: var(--terracotta);
+}
+
+.chip[data-selected="true"] {
+  background-color: var(--terracotta);
+  border-color: var(--terracotta);
+  color: var(--on-accent);
+}
+
+.chip[data-selected="true"]:hover {
+  color: var(--on-accent);
+}
+
+.card-surface {
+  background-color: var(--surface);
+  border: 1px solid var(--rule);
+  box-shadow: var(--shadow-soft);
+}
+
+/* Range inputs: thin rule track, gold thumb. */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--rule);
+  outline: none;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--terracotta);
+  border: 3px solid var(--surface);
+  box-shadow: var(--shadow-soft);
+  cursor: grab;
+}
+
+input[type="range"]::-webkit-slider-thumb:active {
+  cursor: grabbing;
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--terracotta);
+  border: 3px solid var(--surface);
+  box-shadow: var(--shadow-soft);
+  cursor: grab;
+}
+
+/* Two-thumb budget range.
+ *
+ * There is no native dual range input, so two ordinary sliders are stacked on
+ * one track. Each input is transparent and ignores pointer events except on its
+ * own thumb, which keeps both thumbs independently draggable while preserving
+ * native keyboard and screen-reader behaviour. The visible track and the filled
+ * span between the thumbs are drawn by sibling elements underneath.
+ */
+.range-dual {
+  position: relative;
+  height: 22px;
+}
+
+.range-dual .range-track,
+.range-dual .range-fill {
+  position: absolute;
+  top: 50%;
+  height: 2px;
+  border-radius: 999px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.range-dual .range-track {
+  left: 0;
+  right: 0;
+  background: var(--rule);
+}
+
+.range-dual .range-fill {
+  background: var(--terracotta);
+}
+
+.range-dual input[type="range"] {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  pointer-events: none;
+}
+
+.range-dual input[type="range"]::-webkit-slider-thumb {
+  pointer-events: auto;
+}
+
+.range-dual input[type="range"]::-moz-range-thumb {
+  pointer-events: auto;
+}
+
+/* Firefox paints its own track inside the input; hide it so only the shared one
+   underneath shows through. */
+.range-dual input[type="range"]::-moz-range-track {
+  background: transparent;
+}
+
+:focus-visible {
+  outline: 2px solid var(--terracotta);
+  outline-offset: 2px;
+}
+
+/* Ambient drift for the background parcels: a slow lopsided orbit rather than a
+   straight bob, with a little rotation sway so no two loops look alike.
+   --tilt is carried through so each parcel keeps its own resting angle. */
+@keyframes drift {
+  0% {
+    transform: translate3d(0, 0, 0) rotate(var(--tilt, 0deg));
+  }
+  25% {
+    transform: translate3d(7px, -11px, 0) rotate(calc(var(--tilt, 0deg) + 3.5deg));
   }
   50% {
-    transform: translate(20px, -30px) scale(1.06);
+    transform: translate3d(-2px, -19px, 0) rotate(var(--tilt, 0deg));
+  }
+  75% {
+    transform: translate3d(-8px, -9px, 0) rotate(calc(var(--tilt, 0deg) - 3.5deg));
+  }
+  100% {
+    transform: translate3d(0, 0, 0) rotate(var(--tilt, 0deg));
   }
 }
 
-.animate-float {
-  animation: float 9s ease-in-out infinite;
+.drift {
+  transform: rotate(var(--tilt, 0deg));
+  animation: drift var(--dur, 10s) ease-in-out infinite;
+  animation-delay: var(--delay, 0s);
 }
 
-.animate-float-slow {
-  animation: float 13s ease-in-out infinite reverse;
+/* Half the parcels run the loop backwards so the field never pulses in sync. */
+.drift-rev {
+  animation-direction: reverse;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

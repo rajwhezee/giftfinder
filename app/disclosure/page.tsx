@@ -7,13 +7,13 @@ export const metadata: Metadata = {
 
 export default function DisclosurePage() {
   return (
-    <main className="mx-auto max-w-2xl px-4 py-16">
-      <h1 className="text-2xl font-bold">How This Site Works</h1>
-      <p className="mt-2 text-sm text-neutral-500">Last updated: July 2026</p>
+    <main className="mx-auto max-w-2xl px-4 py-16 sm:py-20">
+      <h1 className="font-display text-4xl font-semibold">How This Site Works</h1>
+      <p className="mt-3 text-xs tracking-[0.18em] text-ink-faint uppercase">Last updated: July 2026</p>
 
-      <div className="mt-8 space-y-6 text-sm leading-6 text-neutral-700 dark:text-neutral-300">
+      <div className="mt-10 space-y-8 text-[15px] leading-relaxed text-ink-soft">
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h2 className="font-display text-lg font-semibold text-ink">
             We don&apos;t make money from your purchases
           </h2>
           <p className="mt-2">
@@ -24,7 +24,7 @@ export default function DisclosurePage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h2 className="font-display text-lg font-semibold text-ink">
             How recommendations are chosen
           </h2>
           <p className="mt-2">
@@ -39,7 +39,7 @@ export default function DisclosurePage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h2 className="font-display text-lg font-semibold text-ink">
             Where the products come from
           </h2>
           <p className="mt-2">

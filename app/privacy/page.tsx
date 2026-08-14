@@ -8,13 +8,13 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <main className="mx-auto max-w-2xl px-4 py-16">
-      <h1 className="text-2xl font-bold">Privacy Policy</h1>
-      <p className="mt-2 text-sm text-neutral-500">Last updated: July 2026</p>
+    <main className="mx-auto max-w-2xl px-4 py-16 sm:py-20">
+      <h1 className="font-display text-4xl font-semibold">Privacy Policy</h1>
+      <p className="mt-3 text-xs tracking-[0.18em] text-ink-faint uppercase">Last updated: July 2026</p>
 
-      <div className="mt-8 space-y-6 text-sm leading-6 text-neutral-700 dark:text-neutral-300">
+      <div className="mt-10 space-y-8 text-[15px] leading-relaxed text-ink-soft">
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h2 className="font-display text-lg font-semibold text-ink">
             What we collect
           </h2>
           <p className="mt-2">
@@ -26,7 +26,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h2 className="font-display text-lg font-semibold text-ink">
             Server and hosting logs
           </h2>
           <p className="mt-2">
@@ -37,14 +37,14 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h2 className="font-display text-lg font-semibold text-ink">
             Third-party links
           </h2>
           <p className="mt-2">
             Gift results link out to retailers such as Etsy and Walmart. Once you click through,
             you&apos;re subject to that retailer&apos;s own privacy policy — we don&apos;t control
             or receive any personal information from those sites. See{" "}
-            <Link href="/disclosure" className="underline underline-offset-4">
+            <Link href="/disclosure" className="text-terracotta underline underline-offset-4 hover:text-terracotta-deep">
               how this site works
             </Link>{" "}
             for more on those links.
@@ -52,7 +52,7 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h2 className="font-display text-lg font-semibold text-ink">
             Changes to this policy
           </h2>
           <p className="mt-2">
@@ -62,12 +62,12 @@ export default function PrivacyPage() {
         </section>
 
         <section>
-          <h2 className="text-base font-semibold text-neutral-900 dark:text-neutral-100">
+          <h2 className="font-display text-lg font-semibold text-ink">
             Contact
           </h2>
           <p className="mt-2">
             Questions about this policy can be sent to{" "}
-            <a href="mailto:hello@example.com" className="underline underline-offset-4">
+            <a href="mailto:hello@example.com" className="text-terracotta underline underline-offset-4 hover:text-terracotta-deep">
               hello@example.com
             </a>
             .
