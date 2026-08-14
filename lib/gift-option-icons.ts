@@ -3,8 +3,10 @@
 // matching/filtering against the database.
 
 export const RELATIONSHIP_EMOJI: Record<string, string> = {
-  Partner: "💕",
-  Friend: "🤙",
+  Partner: "💘",
+  // Two glyphs: there is no single fist-bump emoji. Right-facing then
+  // left-facing so the pair points inward at each other.
+  Friend: "🤜🤛",
   Parent: "👪",
   Sibling: "🧑‍🤝‍🧑",
   Child: "🧒",
@@ -27,7 +29,10 @@ export const OCCASION_EMOJI: Record<string, string> = {
   "Valentine's Day": "❤️",
   "Thank You": "🙏",
   Diwali: "🪔",
-  Holi: "🎨",
+  // The pichkari — Holi is a water fight. Note this is U+1F52B, the same
+  // codepoint as the pistol emoji, which every current platform renders as a
+  // toy water gun; very old systems may still draw a firearm.
+  Holi: "🔫",
   "Raksha Bandhan": "🧵",
   "Eid al-Fitr": "🌙",
   "Eid al-Adha": "🐑",
@@ -71,7 +76,9 @@ export const INTEREST_EMOJI: Record<string, string> = {
   "Self-care": "🧖",
   Painting: "🖌️",
   Astronomy: "🔭",
-  Romance: "💘",
+  // Moved off 💘 when Partner took it — two options sharing a glyph is
+  // indistinguishable in the quiz.
+  Romance: "🌹",
   Sports: "⚽",
   STEM: "🔬",
   Creativity: "💡",
