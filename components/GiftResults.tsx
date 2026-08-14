@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import confetti from "canvas-confetti";
 import type { GiftRecommendation } from "@/lib/types";
@@ -23,14 +23,49 @@ export function GiftResults({
   onRestart: () => void;
 }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const visible = results.slice(0, visibleCount);
-  const remaining = results.length - visible.length;
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  // A fresh set of results should always start from the first page.
+  // Brands actually present in this result set, most-stocked first. Derived
+  // rather than taken from a fixed list, so a brand only ever appears as a
+  // filter when there is something behind it to show.
+  const brands = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const gift of results) counts.set(gift.platform, (counts.get(gift.platform) ?? 0) + 1);
+    return [...counts.entries()].sort(
+      ([nameA, countA], [nameB, countB]) => countB - countA || nameA.localeCompare(nameB),
+    );
+  }, [results]);
+
+  // No selection means no filter, rather than an empty page.
+  const filtered = useMemo(
+    () =>
+      selectedBrands.length === 0
+        ? results
+        : results.filter((gift) => selectedBrands.includes(gift.platform)),
+    [results, selectedBrands],
+  );
+
+  const visible = filtered.slice(0, visibleCount);
+  const remaining = filtered.length - visible.length;
+
+  // A fresh set of results should start from the first page with no filter.
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
+    setSelectedBrands([]);
   }, [results]);
+
+  // Narrowing the brands should also rewind the reveal — otherwise a filter
+  // applied deep in a long scroll paints every remaining match at once.
+  useEffect(() => {
+    setVisibleCount(PAGE_SIZE);
+  }, [selectedBrands]);
+
+  function toggleBrand(brand: string) {
+    setSelectedBrands((current) =>
+      current.includes(brand) ? current.filter((b) => b !== brand) : [...current, brand],
+    );
+  }
 
   // Load the next page as the bottom of the grid comes into view, so browsing
   // is one continuous scroll rather than a click every screenful. The button
@@ -43,7 +78,7 @@ export function GiftResults({
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0]?.isIntersecting) {
-          setVisibleCount((count) => Math.min(count + PAGE_SIZE, results.length));
+          setVisibleCount((count) => Math.min(count + PAGE_SIZE, filtered.length));
         }
       },
       // Start fetching slightly before the sentinel is actually on screen.
@@ -52,7 +87,7 @@ export function GiftResults({
 
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [remaining, results.length]);
+  }, [remaining, filtered.length]);
 
   useEffect(() => {
     if (results.length === 0) return;
@@ -81,8 +116,8 @@ export function GiftResults({
             <h2 className="font-display mt-2 text-3xl leading-tight font-semibold text-balance sm:text-4xl">
               {results.length > 0 ? (
                 <>
-                  <span className="text-terracotta">{results.length}</span> gift
-                  {results.length === 1 ? "" : "s"} worth giving
+                  <span className="text-terracotta">{filtered.length}</span> gift
+                  {filtered.length === 1 ? "" : "s"} worth giving
                 </>
               ) : (
                 "Nothing quite fits — yet"
@@ -104,6 +139,46 @@ export function GiftResults({
           </p>
         )}
       </header>
+
+      {/* Only worth showing when there is a choice to make — a single brand
+          would render a filter that can only narrow to what is already there. */}
+      {brands.length > 1 && (
+        <div className="mb-8">
+          <div className="mb-3 flex items-baseline justify-between gap-4">
+            <p className="text-xs tracking-[0.18em] text-ink-faint uppercase">
+              {selectedBrands.length === 0
+                ? "Shop from"
+                : `Shopping from ${selectedBrands.length} of ${brands.length}`}
+            </p>
+            {selectedBrands.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedBrands([])}
+                className="text-xs text-ink-soft transition-colors hover:text-terracotta"
+              >
+                Show all
+              </button>
+            )}
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {brands.map(([brand, count]) => (
+              <motion.button
+                key={brand}
+                type="button"
+                onClick={() => toggleBrand(brand)}
+                data-selected={selectedBrands.includes(brand)}
+                aria-pressed={selectedBrands.includes(brand)}
+                whileTap={{ scale: 0.96 }}
+                className="chip rounded-full px-4 py-2 text-sm"
+              >
+                {brand}
+                <span className="ml-1.5 text-xs tabular-nums opacity-60">{count}</span>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {results.length === 0 ? (
         <div className="card-surface rounded-2xl p-8 text-sm leading-relaxed text-ink-soft">
@@ -150,21 +225,24 @@ export function GiftResults({
                 type="button"
                 whileTap={{ scale: 0.97 }}
                 onClick={() =>
-                  setVisibleCount((count) => Math.min(count + PAGE_SIZE, results.length))
+                  setVisibleCount((count) => Math.min(count + PAGE_SIZE, filtered.length))
                 }
                 className="btn-primary rounded-full px-8 py-3 text-sm font-medium"
               >
                 Show {Math.min(remaining, PAGE_SIZE)} more
               </motion.button>
               <p className="text-xs text-ink-faint tabular-nums">
-                {visible.length} of {results.length}
+                {visible.length} of {filtered.length}
               </p>
             </div>
           )}
 
-          {remaining === 0 && results.length > PAGE_SIZE && (
+          {remaining === 0 && filtered.length > PAGE_SIZE && (
             <p className="mt-12 text-center text-xs tracking-[0.14em] text-ink-faint uppercase">
-              That&apos;s all {results.length} · pick a different budget or occasion for more
+              That&apos;s all {filtered.length}
+              {selectedBrands.length > 0
+                ? " · show all brands for more"
+                : " · pick a different budget or occasion for more"}
             </p>
           )}
         </>
