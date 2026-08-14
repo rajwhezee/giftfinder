@@ -10,6 +10,9 @@
  *   npm run import:etsy                  write to the database
  */
 
+// tsx does not read .env on its own, so the credentials below would be
+// undefined without this. Same pattern as prisma.config.ts.
+import "dotenv/config";
 import { PrismaClient } from "@prisma/client";
 import { PrismaNeon } from "@prisma/adapter-neon";
 import {
@@ -443,6 +446,104 @@ const QUERIES: CuratedQuery[] = [
     ageMin: 55,
     ageMax: 99,
     maxPrice: 100,
+  },
+
+  // --- Gaming, broken out by genre/platform so the catalog has real depth ---
+  {
+    keywords: "retro arcade gaming decor",
+    interests: ["Gaming", "Home Decor"],
+    occasions: ["Birthday", "Christmas", "Housewarming"],
+    ageMin: 12,
+    ageMax: 60,
+    maxPrice: 90,
+  },
+  {
+    keywords: "gaming controller stand wood",
+    interests: ["Gaming", "Tech"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 10,
+    ageMax: 50,
+    maxPrice: 80,
+  },
+  {
+    keywords: "dungeons and dragons dice set",
+    interests: ["Gaming", "Games", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Family Gathering"],
+    ageMin: 12,
+    ageMax: 60,
+    maxPrice: 80,
+  },
+  {
+    keywords: "pixel art video game poster",
+    interests: ["Gaming", "Art", "Home Decor"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 10,
+    ageMax: 50,
+    maxPrice: 70,
+  },
+  {
+    keywords: "gaming desk setup led light",
+    interests: ["Gaming", "Tech", "Home Decor"],
+    occasions: ["Birthday", "Christmas", "Housewarming"],
+    ageMin: 12,
+    ageMax: 45,
+    maxPrice: 90,
+  },
+  {
+    keywords: "custom gamer keycaps mechanical keyboard",
+    interests: ["Gaming", "Tech", "Personalized"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 50,
+    maxPrice: 90,
+  },
+  {
+    keywords: "handmade chess set wooden",
+    interests: ["Games", "Home Decor", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Retirement", "Family Gathering"],
+    ageMin: 10,
+    ageMax: 99,
+    maxPrice: 150,
+  },
+  {
+    keywords: "tabletop rpg game master gift",
+    interests: ["Gaming", "Games", "Creativity"],
+    occasions: ["Birthday", "Christmas"],
+    ageMin: 14,
+    ageMax: 60,
+    maxPrice: 90,
+  },
+  {
+    keywords: "gamer hoodie shirt",
+    interests: ["Gaming", "Fashion"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 12,
+    ageMax: 45,
+    maxPrice: 70,
+  },
+  {
+    keywords: "puzzle brain teaser wooden game",
+    interests: ["Games", "STEM", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Family Gathering", "Get Well Soon"],
+    ageMin: 6,
+    ageMax: 99,
+    maxPrice: 70,
+  },
+  {
+    keywords: "gaming mouse pad desk mat large",
+    interests: ["Gaming", "Tech"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 12,
+    ageMax: 50,
+    maxPrice: 70,
+  },
+  {
+    keywords: "video game character plush",
+    interests: ["Gaming", "Creativity"],
+    occasions: ["Birthday", "Christmas"],
+    ageMin: 5,
+    ageMax: 30,
+    maxPrice: 70,
   },
 
   // --- Luxury tier ($150+; the budget slider goes to "$500+ no limit") ---

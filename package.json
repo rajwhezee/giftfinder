@@ -12,7 +12,10 @@
     "db:seed": "prisma db seed",
     "db:studio": "prisma studio",
     "db:import": "tsx scripts/import-gifts.ts",
-    "import:etsy": "tsx scripts/import-etsy.ts"
+    "import:etsy": "tsx scripts/import-etsy.ts",
+    "import:bestbuy": "tsx scripts/import-bestbuy.ts",
+    "import:shopify": "tsx scripts/import-shopify.ts",
+    "import:ebay": "tsx scripts/import-ebay.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
