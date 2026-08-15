@@ -239,6 +239,189 @@ const QUERIES: CuratedQuery[] = [
     ageMin: 14,
     ageMax: 90,
   },
+
+  /* ------------------------------------------------------------------ *
+   * Wishlist brands and long-tail categories.
+   *
+   * These are the names people actually ask for that have no other route in:
+   * LEGO, UGG, Ralph Lauren, Lacoste and Longchamp run no open storefront and
+   * no public API, so eBay's new-with-tags inventory is the only way to carry
+   * them without an affiliate network approval.
+   *
+   * The remaining entries target the thinnest interests in the catalogue —
+   * Cars sat at 43 gifts, Sports 54, Painting 56, Photography 79, Astronomy 127
+   * — categories no DTC brand covers well but eBay's breadth does.
+   * ------------------------------------------------------------------ */
+
+  // --- Wishlist brands with no direct route ---
+  {
+    label: "LEGO sets",
+    q: "lego set",
+    mode: "new",
+    minPrice: 25,
+    maxPrice: 600,
+    interests: ["Games", "STEM", "Creativity", "Family"],
+    occasions: ["Birthday", "Christmas", "Family Gathering"],
+    ageMin: 5,
+    ageMax: 60,
+  },
+  {
+    label: "UGG boots & slippers",
+    q: "ugg boots",
+    mode: "new",
+    minPrice: 60,
+    maxPrice: 300,
+    interests: ["Fashion", "Self-care"],
+    occasions: ["Christmas", "Birthday", "Mother's Day", "New Year"],
+    ageMin: 14,
+    ageMax: 80,
+  },
+  {
+    label: "Ralph Lauren",
+    q: "ralph lauren polo shirt",
+    mode: "new",
+    minPrice: 40,
+    maxPrice: 300,
+    interests: ["Fashion"],
+    occasions: ["Birthday", "Christmas", "Father's Day", "Graduation"],
+    ageMin: 16,
+    ageMax: 85,
+  },
+  {
+    label: "Lacoste",
+    q: "lacoste polo",
+    mode: "new",
+    minPrice: 40,
+    maxPrice: 250,
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Father's Day", "Graduation"],
+    ageMin: 16,
+    ageMax: 80,
+  },
+  {
+    label: "Longchamp",
+    q: "longchamp le pliage bag",
+    mode: "new",
+    minPrice: 70,
+    maxPrice: 400,
+    interests: ["Fashion", "Travel"],
+    occasions: ["Birthday", "Graduation", "Christmas", "Mother's Day"],
+    ageMin: 18,
+    ageMax: 75,
+    gender: "female",
+  },
+  {
+    label: "Birkenstock",
+    q: "birkenstock sandals",
+    mode: "new",
+    minPrice: 50,
+    maxPrice: 220,
+    interests: ["Fashion", "Outdoors"],
+    occasions: ["Birthday", "Graduation", "Christmas"],
+    ageMin: 14,
+    ageMax: 80,
+  },
+
+  // --- Cars (thinnest interest in the catalogue, 43 gifts) ---
+  {
+    label: "Die-cast model cars",
+    q: "diecast model car 1:18 collectible",
+    mode: "new",
+    minPrice: 25,
+    maxPrice: 400,
+    interests: ["Cars", "Games", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Father's Day", "Graduation"],
+    ageMin: 8,
+    ageMax: 80,
+  },
+  {
+    label: "Car care & detailing kits",
+    q: "car detailing kit gift set",
+    mode: "new",
+    minPrice: 30,
+    maxPrice: 250,
+    interests: ["Cars", "Self-care"],
+    occasions: ["Father's Day", "Birthday", "Christmas"],
+    ageMin: 18,
+    ageMax: 80,
+    gender: "male",
+  },
+
+  // --- Sports (54 gifts) ---
+  {
+    label: "Sports trading cards",
+    q: "sports trading card sealed box",
+    mode: "new",
+    minPrice: 25,
+    maxPrice: 400,
+    interests: ["Sports", "Games"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 10,
+    ageMax: 70,
+  },
+  {
+    label: "Team merchandise",
+    q: "official team jersey merchandise",
+    mode: "new",
+    minPrice: 30,
+    maxPrice: 250,
+    interests: ["Sports", "Fashion"],
+    occasions: ["Birthday", "Christmas", "Father's Day"],
+    ageMin: 8,
+    ageMax: 80,
+  },
+
+  // --- Astronomy (127 gifts, single source) ---
+  {
+    label: "Telescopes & stargazing",
+    q: "telescope astronomy beginner",
+    mode: "new",
+    minPrice: 60,
+    maxPrice: 700,
+    interests: ["Astronomy", "STEM", "Outdoors"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 10,
+    ageMax: 80,
+  },
+
+  // --- Photography (79 gifts) ---
+  {
+    label: "Instant cameras & film",
+    q: "instant camera polaroid film",
+    mode: "new",
+    minPrice: 40,
+    maxPrice: 300,
+    interests: ["Photography", "Creativity", "Travel"],
+    occasions: ["Birthday", "Graduation", "Christmas"],
+    ageMin: 10,
+    ageMax: 65,
+  },
+
+  // --- Painting & art supplies (56 gifts) ---
+  {
+    label: "Art & painting sets",
+    q: "artist paint set easel gift",
+    mode: "new",
+    minPrice: 25,
+    maxPrice: 250,
+    interests: ["Painting", "Art", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Get Well Soon"],
+    ageMin: 8,
+    ageMax: 85,
+  },
+
+  // --- Music instruments (163 gifts, vinyl already covered above) ---
+  {
+    label: "Beginner instruments",
+    q: "ukulele acoustic guitar beginner",
+    mode: "new",
+    minPrice: 40,
+    maxPrice: 400,
+    interests: ["Music", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 8,
+    ageMax: 75,
+  },
 ];
 
 interface StagedGift {

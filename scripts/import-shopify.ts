@@ -425,6 +425,252 @@ const BRANDS: Brand[] = [
     ageMin: 16,
     ageMax: 90,
   },
+
+  /* ------------------------------------------------------------------ *
+   * Gap-filling wave (endpoints verified 2026-08-14).
+   *
+   * The catalogue had skewed hard to beauty, fashion, fragrance and home —
+   * Fashion sat at 2,615 gifts while Sports had 54 and Cars 43, and most thin
+   * categories were fed by Etsy alone. Everything below targets a category with
+   * under ~350 gifts, or under three sources feeding it.
+   * ------------------------------------------------------------------ */
+
+  // --- Games & puzzles (was 291 gifts across only 2 sources) ---
+  {
+    domain: "pieceworkpuzzles.com",
+    name: "Piecework Puzzles",
+    interests: ["Games", "Art", "Family"],
+    occasions: ["Birthday", "Christmas", "Family Gathering", "Thank You"],
+    ageMin: 8,
+    ageMax: 90,
+  },
+  {
+    domain: "artofplay.com",
+    name: "Art of Play",
+    interests: ["Games", "Creativity", "Art"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 10,
+    ageMax: 80,
+  },
+  {
+    domain: "galison.com",
+    name: "Galison",
+    interests: ["Games", "Art", "Family"],
+    occasions: ["Birthday", "Christmas", "Family Gathering", "Housewarming"],
+    ageMin: 8,
+    ageMax: 90,
+  },
+  {
+    domain: "printworksmarket.com",
+    name: "Printworks",
+    interests: ["Games", "Home Decor", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Housewarming", "Anniversary"],
+    ageMin: 12,
+    ageMax: 80,
+  },
+
+  // --- Outdoors (was 208) ---
+  {
+    domain: "stanley1913.com",
+    name: "Stanley",
+    interests: ["Outdoors", "Travel", "Fitness"],
+    occasions: ["Birthday", "Christmas", "Father's Day", "Graduation"],
+    ageMin: 12,
+    ageMax: 90,
+  },
+  {
+    domain: "snowpeak.com",
+    name: "Snow Peak",
+    interests: ["Outdoors", "Cooking", "Travel"],
+    occasions: ["Birthday", "Christmas", "Father's Day", "Anniversary"],
+    ageMin: 18,
+    ageMax: 80,
+  },
+  {
+    domain: "rumpl.com",
+    name: "Rumpl",
+    interests: ["Outdoors", "Travel", "Home Decor"],
+    occasions: ["Birthday", "Christmas", "Housewarming", "Father's Day"],
+    ageMin: 14,
+    ageMax: 85,
+  },
+  {
+    domain: "barebonesliving.com",
+    name: "Barebones",
+    interests: ["Outdoors", "Gardening", "Cooking"],
+    occasions: ["Birthday", "Christmas", "Father's Day", "Housewarming"],
+    ageMin: 18,
+    ageMax: 85,
+  },
+
+  // --- Kids, toys & STEM (was 80) ---
+  {
+    domain: "melissaanddoug.com",
+    name: "Melissa & Doug",
+    interests: ["STEM", "Games", "Creativity", "Family"],
+    occasions: ["Birthday", "Christmas", "Family Gathering"],
+    ageMin: 2,
+    ageMax: 12,
+  },
+  {
+    domain: "plantoys.com",
+    name: "PlanToys",
+    interests: ["STEM", "Games", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Baby Shower"],
+    ageMin: 1,
+    ageMax: 10,
+  },
+  {
+    domain: "tegu.com",
+    name: "Tegu",
+    interests: ["STEM", "Games", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Baby Shower"],
+    ageMin: 1,
+    ageMax: 12,
+  },
+
+  // --- Gardening (was 69, single source) ---
+  {
+    domain: "thesill.com",
+    name: "The Sill",
+    interests: ["Gardening", "Home Decor", "Self-care"],
+    occasions: ["Housewarming", "Birthday", "Thank You", "Get Well Soon", "Mother's Day"],
+    ageMin: 18,
+    ageMax: 90,
+  },
+  {
+    domain: "modernsprout.com",
+    name: "Modern Sprout",
+    interests: ["Gardening", "Home Decor", "Cooking"],
+    occasions: ["Housewarming", "Birthday", "Christmas", "Thank You"],
+    ageMin: 14,
+    ageMax: 90,
+  },
+
+  // --- Fitness & recovery (was 83) ---
+  {
+    domain: "therabody.com",
+    name: "Therabody",
+    interests: ["Fitness", "Health", "Self-care"],
+    occasions: ["Birthday", "Christmas", "Father's Day", "New Year"],
+    ageMin: 18,
+    ageMax: 80,
+  },
+  {
+    domain: "manduka.com",
+    name: "Manduka",
+    interests: ["Fitness", "Health", "Self-care"],
+    occasions: ["Birthday", "New Year", "Christmas", "Get Well Soon"],
+    ageMin: 16,
+    ageMax: 80,
+  },
+  {
+    domain: "hyperice.com",
+    name: "Hyperice",
+    interests: ["Fitness", "Health", "Sports"],
+    occasions: ["Birthday", "Christmas", "Father's Day", "New Year"],
+    ageMin: 16,
+    ageMax: 75,
+  },
+
+  // --- Reading (was 83) ---
+  {
+    domain: "juniperbooks.com",
+    name: "Juniper Books",
+    interests: ["Reading", "Home Decor", "Personalized"],
+    occasions: ["Housewarming", "Christmas", "Wedding", "Graduation", "Anniversary"],
+    ageMin: 18,
+    ageMax: 90,
+  },
+
+  // --- Writing (was 352, thin on sources) ---
+  {
+    domain: "blackwing602.com",
+    name: "Blackwing",
+    interests: ["Writing", "Creativity", "Art"],
+    occasions: ["Graduation", "Birthday", "New Year", "Thank You"],
+    ageMin: 14,
+    ageMax: 90,
+  },
+
+  // --- Coffee & kitchen (Coffee was 202) ---
+  {
+    domain: "atlascoffeeclub.com",
+    name: "Atlas Coffee Club",
+    interests: ["Coffee", "Food", "Travel"],
+    occasions: ["Birthday", "Christmas", "Father's Day", "Thank You"],
+    ageMin: 18,
+    ageMax: 90,
+  },
+  {
+    domain: "misen.com",
+    name: "Misen",
+    interests: ["Cooking", "Food", "Home Decor"],
+    occasions: ["Wedding", "Housewarming", "Christmas", "Anniversary"],
+    ageMin: 18,
+    ageMax: 85,
+  },
+  {
+    domain: "fromourplace.com",
+    name: "Our Place",
+    interests: ["Cooking", "Home Decor", "Food"],
+    occasions: ["Wedding", "Housewarming", "Christmas", "Anniversary", "Diwali"],
+    ageMin: 18,
+    ageMax: 85,
+  },
+  {
+    domain: "brightland.co",
+    name: "Brightland",
+    interests: ["Food", "Cooking"],
+    occasions: ["Housewarming", "Thank You", "Christmas", "Wedding"],
+    ageMin: 21,
+    ageMax: 90,
+  },
+
+  // --- Everyday & design ---
+  {
+    domain: "flyingtiger.com",
+    name: "Flying Tiger",
+    interests: ["Creativity", "Home Decor", "Games"],
+    occasions: ["Birthday", "Christmas", "Thank You", "Housewarming"],
+    ageMin: 6,
+    ageMax: 80,
+  },
+
+  // --- Beauty (already the strongest category; these are high-recognition
+  //     names rather than coverage, so they earn their place on demand) ---
+  {
+    domain: "rhodeskin.com",
+    name: "Rhode",
+    interests: ["Beauty", "Self-care"],
+    occasions: ["Birthday", "Christmas", "Valentine's Day", "Graduation"],
+    ageMin: 14,
+    ageMax: 55,
+  },
+  {
+    domain: "summerfridays.com",
+    name: "Summer Fridays",
+    interests: ["Beauty", "Self-care"],
+    occasions: ["Birthday", "Christmas", "Thank You", "Mother's Day"],
+    ageMin: 16,
+    ageMax: 65,
+  },
+  {
+    domain: "olaplex.com",
+    name: "Olaplex",
+    interests: ["Beauty", "Self-care"],
+    occasions: ["Birthday", "Christmas", "Mother's Day"],
+    ageMin: 16,
+    ageMax: 70,
+  },
+  {
+    domain: "tatcha.com",
+    name: "Tatcha",
+    interests: ["Beauty", "Self-care", "Health"],
+    occasions: ["Birthday", "Christmas", "Mother's Day", "Thank You"],
+    ageMin: 18,
+    ageMax: 75,
+  },
 ];
 
 interface StagedGift {
