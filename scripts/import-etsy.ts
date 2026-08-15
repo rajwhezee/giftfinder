@@ -702,7 +702,7 @@ interface StagedGift {
   gender: "male" | "female" | "unisex";
   /** Filled in by the second-phase batch fetch; listings without one are dropped. */
   imageUrl: string | null;
-  affiliateUrl: string;
+  productUrl: string;
   platform: string;
   occasions: Set<string>;
   interests: Set<string>;
@@ -825,7 +825,7 @@ function stage(
     currency,
     gender: query.gender ?? "unisex",
     imageUrl: null,
-    affiliateUrl: url,
+    productUrl: url,
     platform: "Etsy",
     occasions: new Set(query.occasions),
     interests: new Set(query.interests),
@@ -947,7 +947,7 @@ async function main() {
         currency: gift.currency,
         gender: gift.gender,
         imageUrl: gift.imageUrl!,
-        affiliateUrl: gift.affiliateUrl,
+        productUrl: gift.productUrl,
         platform: gift.platform,
         occasions: [...gift.occasions],
         interests: [...gift.interests],
@@ -955,7 +955,7 @@ async function main() {
         ageMax: gift.ageMax,
       };
       await prisma.gift.upsert({
-        where: { affiliateUrl: gift.affiliateUrl },
+        where: { productUrl: gift.productUrl },
         update: data,
         create: data,
       });

@@ -18,7 +18,10 @@ model Gift {
   description   String
   price         Decimal  @db.Decimal(10, 2)
   imageUrl      String
-  affiliateUrl  String   @unique
+  /// The merchant's own product page. Mapped to the legacy `affiliateUrl`
+  /// column so renaming it in code needed no migration — the site never joined
+  /// an affiliate programme, so the old name only ever described an intention.
+  productUrl    String   @unique @map("affiliateUrl")
   platform      String
   occasions     String[]
   interests     String[]

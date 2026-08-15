@@ -1,5 +1,4 @@
 import Image from "next/image";
-import { buildAffiliateUrl } from "@/lib/affiliate";
 
 /**
  * Server-rendered gift card for the occasion landing pages.
@@ -17,11 +16,10 @@ export function StaticGiftCard({
     price: number;
     originalCurrency: string;
     imageUrl: string;
-    affiliateUrl: string;
+    productUrl: string;
     platform: string;
   };
 }) {
-  const href = buildAffiliateUrl(gift);
   const approximate = gift.originalCurrency !== "USD";
 
   return (
@@ -55,7 +53,7 @@ export function StaticGiftCard({
         </p>
 
         <a
-          href={href}
+          href={gift.productUrl}
           target="_blank"
           rel="nofollow noopener"
           className="rule-hairline mt-auto inline-flex items-center justify-center gap-1.5 rounded-full border px-4 py-2.5 text-sm text-ink transition-colors hover:border-terracotta hover:text-terracotta"

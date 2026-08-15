@@ -61,7 +61,7 @@ async function getGiftsForOccasion(occasion: string) {
           price: true,
           currency: true,
           imageUrl: true,
-          affiliateUrl: true,
+          productUrl: true,
           platform: true,
         },
       }),
@@ -74,7 +74,7 @@ async function getGiftsForOccasion(occasion: string) {
     price: Number(g.price),
     originalCurrency: g.currency,
     imageUrl: g.imageUrl,
-    affiliateUrl: g.affiliateUrl,
+    productUrl: g.productUrl,
     platform: g.platform,
   }));
 }
@@ -104,7 +104,7 @@ export default async function OccasionPage({
       "@type": "ListItem",
       position: index + 1,
       name: gift.name,
-      url: gift.affiliateUrl,
+      url: gift.productUrl,
       image: gift.imageUrl,
     })),
   };

@@ -41,7 +41,7 @@ interface ValidatedGift {
   description: string;
   price: number;
   imageUrl: string;
-  affiliateUrl: string;
+  productUrl: string;
   platform: string;
   occasions: string[];
   interests: string[];
@@ -135,7 +135,7 @@ function validateRow(row: RawRow, rowNumber: number): ValidatedGift | null {
     description: row.description.trim(),
     price,
     imageUrl: row.imageUrl.trim(),
-    affiliateUrl: row.productUrl.trim(),
+    productUrl: row.productUrl.trim(),
     platform: row.platform.trim(),
     occasions,
     interests,
@@ -171,7 +171,7 @@ async function main() {
     }
 
     await prisma.gift.upsert({
-      where: { affiliateUrl: gift.affiliateUrl },
+      where: { productUrl: gift.productUrl },
       update: gift,
       create: gift,
     });

@@ -116,7 +116,7 @@ export async function POST(request: Request) {
       price,
       originalCurrency: gift.currency,
       imageUrl: gift.imageUrl,
-      affiliateUrl: gift.affiliateUrl,
+      productUrl: gift.productUrl,
       platform: gift.platform,
       matchScore: breakdown.interestMatches,
     }));

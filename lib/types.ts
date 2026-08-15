@@ -20,7 +20,7 @@ export interface GiftRecommendation {
   /** The listing's own currency — UI shows "~" on the price when not USD. */
   originalCurrency: string;
   imageUrl: string;
-  affiliateUrl: string;
+  productUrl: string;
   platform: string;
   matchScore: number;
 }
