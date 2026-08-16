@@ -65,6 +65,25 @@ export async function POST(request: Request) {
       occasions: { has: body.occasion },
       ...(body.gender !== "any" && { gender: { in: [body.gender, "unisex"] } }),
     },
+    // Only what scoring, diversity, and the response actually read. Without
+    // this Prisma fetches every column, and `description` alone — used by
+    // none of the three — was about half the bytes on a broad query
+    // (1.5 MB of 3.1 MB across 6,076 candidate rows).
+    //
+    // `gender` and `occasions` are filtered on above but never read after, so
+    // they stay out too.
+    select: {
+      id: true,
+      name: true,
+      price: true,
+      currency: true,
+      imageUrl: true,
+      productUrl: true,
+      platform: true,
+      interests: true,
+      ageMin: true,
+      ageMax: true,
+    },
   });
 
   const scored = gifts.map((gift) => {
