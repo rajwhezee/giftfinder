@@ -43,3 +43,6 @@ next-env.d.ts
 
 # neon cli project link (local)
 .neon
+
+# Tag snapshots taken before an enrich-tags run
+tag-backup-*.json

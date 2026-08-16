@@ -15,9 +15,11 @@
     "import:etsy": "tsx scripts/import-etsy.ts",
     "import:bestbuy": "tsx scripts/import-bestbuy.ts",
     "import:shopify": "tsx scripts/import-shopify.ts",
-    "import:ebay": "tsx scripts/import-ebay.ts"
+    "import:ebay": "tsx scripts/import-ebay.ts",
+    "enrich:tags": "tsx scripts/enrich-tags.ts"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.117.1",
     "@neondatabase/serverless": "^1.1.0",
     "@prisma/adapter-neon": "^6.19.3",
     "@prisma/client": "^6.19.3",
