@@ -17,10 +17,16 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # No database is contacted during `next build` — only the /api/recommend
-      # route touches Prisma, and that runs at request time. This placeholder
-      # exists so `prisma generate` and any dotenv loading don't fail.
-      DATABASE_URL: postgresql://user:password@localhost:5432/placeholder?sslmode=require
+      # `next build` DOES contact the database. It statically generates the 35
+      # occasion pages from real gifts, and the landing page counts the
+      # catalogue for its "over N gifts across N brands" line. Both run at build
+      # time, so a placeholder connection string fails the build with
+      # "Error occurred prerendering page" rather than anything about Postgres.
+      #
+      # Set this in the repo: Settings -> Secrets and variables -> Actions ->
+      # New repository secret, named DATABASE_URL. Use the Neon pooled string.
+      # The build only reads, so a read-only Neon role is the safer credential.
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - uses: actions/checkout@v4
@@ -29,6 +35,15 @@ jobs:
         with:
           node-version: 20
           cache: npm
+
+      # Without this the build dies at "Error occurred prerendering page /",
+      # which says nothing about the missing credential that actually caused it.
+      - name: Check DATABASE_URL is set
+        run: |
+          if [ -z "$DATABASE_URL" ]; then
+            echo "::error::DATABASE_URL secret is not set. Add it under Settings -> Secrets and variables -> Actions. The build prerenders pages from the database and cannot run without it."
+            exit 1
+          fi
 
       # `npm ci` triggers the postinstall `prisma generate`.
       - name: Install dependencies
