@@ -67,9 +67,20 @@ export function QuizLauncher() {
         </motion.button>
 
         {/* Naming the cost is what actually converts — the button can only make
-            itself seen, this makes it feel cheap to press. */}
-        <p className="text-xs tracking-[0.14em] text-ink-faint uppercase">
-          About 30 seconds · No sign-up
+            itself seen, this makes it feel cheap to press. The third item is the
+            independence claim: it lives here, in the same terse register as the
+            other two, rather than in the headline copy where stating it at
+            length read as protesting too much. Parallel "No X" phrasing keeps
+            the three reading as one list. */}
+        {/* text-center because the flex parent only centres this while it is a
+            single line, and three items wrap on a phone. The nowrap spans keep
+            any break between items rather than through one, and binding each
+            separator to the item before it stops a line starting with a bare
+            middot. */}
+        <p className="text-center text-xs tracking-[0.14em] text-balance text-ink-faint uppercase">
+          <span className="whitespace-nowrap">About 30 seconds ·</span>{" "}
+          <span className="whitespace-nowrap">No sign-up ·</span>{" "}
+          <span className="whitespace-nowrap">No sponsors</span>
         </p>
       </div>
     );
