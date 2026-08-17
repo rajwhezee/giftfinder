@@ -44,7 +44,7 @@ export function StaticGiftCard({
           {approximate && (
             <span
               className="text-ink-faint"
-              title={`Converted from ${gift.originalCurrency} — the seller charges in their own currency`}
+              title={`Converted from ${gift.originalCurrency}. The seller charges in their own currency.`}
             >
               ~
             </span>

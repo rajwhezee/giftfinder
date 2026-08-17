@@ -83,14 +83,14 @@ function OccasionPicker({ value, onChange }: { value: string; onChange: (occasio
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search any occasion — Diwali, Eid, Quinceañera…"
+          placeholder="Try Diwali, Eid, or Quinceañera…"
           className="w-full rounded-full border border-rule bg-surface py-3 pr-4 pl-10 text-base text-ink outline-none transition-colors placeholder:text-ink-faint focus:border-terracotta"
         />
       </div>
 
       {matches.length === 0 ? (
         <p className="text-sm text-ink-soft">
-          Nothing matches &ldquo;{query}&rdquo; yet — try another spelling, or pick the closest one.
+          Nothing matches &ldquo;{query}&rdquo; yet. Try another spelling, or pick the closest one.
         </p>
       ) : (
         <div className="flex max-h-64 flex-wrap gap-2 overflow-y-auto">
@@ -179,20 +179,6 @@ export function GiftQuiz() {
     );
   }
 
-  function handleRestart() {
-    cancelAdvance();
-    setStep(1);
-    setRelationship("");
-    setGender("");
-    setAge(AGE_DEFAULT);
-    setOccasion("");
-    setInterests([]);
-    setMinBudget(BUDGET_RANGE_PRESETS[1].min);
-    setMaxBudget(BUDGET_RANGE_PRESETS[1].max);
-    setResults(null);
-    setStatus("idle");
-  }
-
   async function handleSubmit() {
     setStatus("loading");
     try {
@@ -226,7 +212,6 @@ export function GiftQuiz() {
         relationship={relationship}
         occasion={occasion}
         candidateCount={candidateCount}
-        onRestart={handleRestart}
       />
     );
   }
@@ -288,7 +273,7 @@ export function GiftQuiz() {
 
         {step === 3 && (
           <fieldset>
-            <StepHeading hint="Drag to adjust — close enough is fine.">How old are they?</StepHeading>
+            <StepHeading hint="Drag to adjust. Close enough is fine.">How old are they?</StepHeading>
             <p className="font-display mb-6 text-center text-6xl leading-none font-semibold text-terracotta tabular-nums">
               {age}
               {age === AGE_MAX ? "+" : ""}
@@ -321,7 +306,7 @@ export function GiftQuiz() {
 
         {step === 5 && (
           <fieldset>
-            <StepHeading hint="Pick as many as you like — more detail, better matches.">
+            <StepHeading hint="Pick as many as you like. The more you add, the better we can match.">
               What are they into?
             </StepHeading>
             <div className="flex flex-wrap gap-2">
@@ -398,7 +383,7 @@ export function GiftQuiz() {
 
             {uncapped && (
               <p className="mt-5 text-center text-sm text-ink-soft">
-                No ceiling — anything from ${minBudget} up.
+                No ceiling. Anything from ${minBudget} up.
               </p>
             )}
           </fieldset>

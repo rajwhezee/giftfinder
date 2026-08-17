@@ -25,7 +25,7 @@ export async function generateMetadata({
   const occasion = slugToOccasion(slug);
   if (!occasion) return {};
 
-  const title = `${occasion} Gift Ideas — thoughtful gifts people actually keep`;
+  const title = `${occasion} Gift Ideas | Thoughtful gifts people actually keep`;
   const description = `Hand-picked ${occasion} gifts from independent makers and trusted shops, across every budget. Answer six quick questions and get matches for the person you're buying for.`;
   const url = `${SITE}/gifts/${slug}`;
 
@@ -136,8 +136,8 @@ export default async function OccasionPage({
           </h1>
           <p className="mt-5 text-base leading-relaxed text-pretty text-ink-soft">
             {gifts.length > 0
-              ? `A hand-picked spread of ${occasion} gifts across every budget — from independent makers on Etsy and small DTC labels through to recognisable brands. Every link goes straight to the seller, and we earn nothing from your purchase.`
-              : `We're still building out our ${occasion} collection. Try the quiz — it searches the whole catalogue, not just this page.`}
+              ? `A hand-picked spread of ${occasion} gifts across every budget, from independent makers on Etsy and small DTC labels through to recognisable brands. Every link goes straight to the seller, and we earn nothing from your purchase.`
+              : `We're still building out our ${occasion} collection. Try the quiz. It searches the whole catalogue, not just this page.`}
           </p>
 
           <Link

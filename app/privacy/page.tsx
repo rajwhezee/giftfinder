@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy — Gift Finder",
+  title: "Privacy Policy | Gift Finder",
   description: "How Gift Finder handles your information.",
 };
 
@@ -20,7 +20,7 @@ export default function PrivacyPage() {
           <p className="mt-2">
             Gift Finder&apos;s quiz asks about the recipient&apos;s relationship to you, age,
             occasion, interests, and your budget. These answers are sent to our server only to
-            look up matching gifts and are not stored or linked to your identity — there are no
+            look up matching gifts and are not stored or linked to your identity. There are no
             user accounts, and we don&apos;t save your quiz submissions.
           </p>
         </section>
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
           </h2>
           <p className="mt-2">
             Gift results link out to retailers such as Etsy and Walmart. Once you click through,
-            you&apos;re subject to that retailer&apos;s own privacy policy — we don&apos;t control
+            you&apos;re subject to that retailer&apos;s own privacy policy, which we don&apos;t control
             or receive any personal information from those sites. See{" "}
             <Link href="/disclosure" className="text-terracotta underline underline-offset-4 hover:text-terracotta-deep">
               how this site works

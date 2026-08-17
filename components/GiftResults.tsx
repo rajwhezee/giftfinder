@@ -3,24 +3,36 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "motion/react";
 import confetti from "canvas-confetti";
+import { HOME_RESET_EVENT } from "@/lib/home-reset";
 import type { GiftRecommendation } from "@/lib/types";
 import { GiftCard } from "./GiftCard";
 
 /** Cards revealed per page. Deep enough that the grid reads as a real spread. */
 const PAGE_SIZE = 36;
 
+/**
+ * Once results are on screen the quiz is finished, so the useful next move is a
+ * fresh start for a different person — not question one with the previous
+ * answers cleared. This is the same reset the header wordmark broadcasts:
+ * QuizLauncher collapses to the landing page, and unmounting the quiz is what
+ * discards the answers.
+ */
+function goHome() {
+  window.dispatchEvent(new Event(HOME_RESET_EVENT));
+  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
+}
+
 export function GiftResults({
   results,
   relationship,
   occasion,
   candidateCount,
-  onRestart,
 }: {
   results: GiftRecommendation[];
   relationship: string;
   occasion: string;
   candidateCount: number;
-  onRestart: () => void;
 }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
@@ -120,16 +132,16 @@ export function GiftResults({
                   {filtered.length === 1 ? "" : "s"} worth giving
                 </>
               ) : (
-                "Nothing quite fits — yet"
+                "Nothing quite fits yet"
               )}
             </h2>
           </div>
           <button
             type="button"
-            onClick={onRestart}
+            onClick={goHome}
             className="rule-hairline rounded-full border px-5 py-2.5 text-sm text-ink transition-colors hover:border-terracotta hover:text-terracotta"
           >
-            Start over
+            Search for someone else
           </button>
         </div>
 
@@ -185,7 +197,7 @@ export function GiftResults({
           {candidateCount > 0 ? (
             <p>
               We found {candidateCount} gift{candidateCount === 1 ? "" : "s"} for this occasion and
-              budget, but none that genuinely match those interests — and we&apos;d rather show you
+              budget, but none that genuinely match those interests. We&apos;d rather show you
               nothing than a bad guess. Try adding a few more interests, or widening the budget.
             </p>
           ) : (

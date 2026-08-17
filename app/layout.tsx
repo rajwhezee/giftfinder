@@ -24,14 +24,14 @@ export const metadata: Metadata = {
   // Makes relative OG/canonical URLs resolve against the real domain rather
   // than the deployment's rotating *.vercel.app hostname.
   metadataBase: new URL("https://thegiftfinder.net"),
-  title: "Gift Finder — thoughtful gifts for any occasion",
+  title: "Gift Finder | Thoughtful gifts for any occasion",
   description:
     "Answer a few questions and find a gift worth giving, for any occasion and any culture.",
   openGraph: {
     type: "website",
     url: "https://thegiftfinder.net",
     siteName: "Gift Finder",
-    title: "Gift Finder — thoughtful gifts for any occasion",
+    title: "Gift Finder | Thoughtful gifts for any occasion",
     description:
       "Answer a few questions and find a gift worth giving, for any occasion and any culture.",
   },

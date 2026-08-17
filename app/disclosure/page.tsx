@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "How This Site Works — Gift Finder",
+  title: "How This Site Works | Gift Finder",
   description: "How Gift Finder chooses what to recommend, and how it makes money.",
 };
 
@@ -43,7 +43,7 @@ export default function DisclosurePage() {
             Where the products come from
           </h2>
           <p className="mt-2">
-            Product details — titles, prices, images and links — come from public listings on
+            Product details, including titles, prices, images and links, come from public listings on
             retailers such as Etsy and Walmart, including via Etsy&apos;s public API. Prices and
             availability can change at any time, so always check the retailer&apos;s page before
             buying. We don&apos;t sell anything ourselves and we aren&apos;t affiliated with these

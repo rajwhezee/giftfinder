@@ -75,8 +75,8 @@ export default async function Home() {
           </h1>
 
           <p className="mx-auto mt-5 max-w-lg text-base leading-relaxed text-pretty text-ink-soft">
-            Six quick taps — who it&apos;s for, what they&apos;re into, what you want to spend. No
-            endless scrolling, no sponsored clutter, no commission.
+            Thousands of gifts from brands worth buying, narrowed down to the few they&apos;ll
+            genuinely love. Nothing sponsored, nothing paid to rank.
           </p>
 
           <div
@@ -96,7 +96,7 @@ export default async function Home() {
         <section className="mx-auto mt-20 max-w-3xl text-center">
           <h2 className="font-display text-xl font-semibold">Or browse by occasion</h2>
           <p className="mt-2 text-sm text-ink-soft">
-            Ready-made edits for the occasions people shop for most.
+            Curated gifts for the occasions people shop for most.
           </p>
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             {FEATURED_OCCASIONS.map((occasion) => (

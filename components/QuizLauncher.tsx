@@ -51,7 +51,7 @@ export function QuizLauncher() {
             where the decision to click is made. The headline above is doing
             tone; this is doing comprehension. */}
         <p className="mb-2 max-w-md text-center text-base leading-relaxed text-pretty text-ink-soft">
-          Tap the button and we&apos;ll help you find the perfect gift for someone you love.
+          Answer six quick questions about them and we&apos;ll find the one.
         </p>
 
         <motion.button

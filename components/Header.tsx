@@ -27,7 +27,7 @@ export function Header() {
           href="/"
           onClick={handleWordmarkClick}
           className="group flex items-baseline gap-2"
-          aria-label="Gift Finder — back to the start"
+          aria-label="Gift Finder, back to the start"
         >
           {/* aria-hidden because the link's aria-label above already carries the
               readable name — the dotless ı would otherwise be announced and
