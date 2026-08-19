@@ -92,17 +92,37 @@ export interface ScoreBreakdown {
   age: number;
 }
 
+/** How much of the gift's score comes from covering what the shopper asked
+ *  for, as opposed to being narrowly about one of those things. */
+export const COVERAGE_WEIGHT = 0.85;
+
 /**
- * Thematic fit. Divided by the smaller of (how many interests the user picked)
- * and (how many the gift has), so a focused gift that fully matches a subset of
- * a long interest list still scores 1.0 rather than being punished for the
- * user having broad taste.
+ * Thematic fit, as two questions.
+ *
+ * COVERAGE: how much of what the shopper asked for does this satisfy? Measured
+ * against their selection, so every gift is judged by the same yardstick.
+ *
+ * FOCUS: how much of this gift is about those things? A product tagged only
+ * "Home Decor" is more purely that than one tagged with it among four others,
+ * and deserves a nudge.
+ *
+ * The old formula divided by min(selected, giftInterests), which handed a
+ * *perfect* score to anything carrying exactly one tag. Pick Sneakers, Cars and
+ * Home Decor and a single-tag coffee table scored 1.0 while a sneaker tagged
+ * [Sneakers, Fashion, Sports] scored 0.33 — so the shoes never appeared, and
+ * the page filled with whatever narrow-tagged item was most expensive. Focus is
+ * worth a nudge, not a landslide.
  */
 function interestScore(giftInterests: string[], selected: string[]): number {
   if (selected.length === 0 || giftInterests.length === 0) return 0;
-  const matches = giftInterests.filter((i) => selected.includes(i)).length;
-  const denominator = Math.min(selected.length, giftInterests.length);
-  return Math.min(matches / denominator, 1);
+  // Deduplicated: 32 rows carry a repeated tag, and counting one twice both
+  // inflates coverage and understates focus.
+  const tags = [...new Set(giftInterests)];
+  const wanted = new Set(selected);
+  const matches = tags.filter((i) => wanted.has(i)).length;
+  const coverage = matches / wanted.size;
+  const focus = matches / tags.length;
+  return Math.min(coverage * COVERAGE_WEIGHT + focus * (1 - COVERAGE_WEIGHT), 1);
 }
 
 /** Affinity boost minus intimacy penalty, clamped to -1..1. */
@@ -181,7 +201,9 @@ export function scoreGift(input: ScoreInput): ScoreBreakdown {
 
   return {
     total,
-    interestMatches: input.giftInterests.filter((i) => input.selectedInterests.includes(i)).length,
+    interestMatches: [...new Set(input.giftInterests)].filter((i) =>
+      input.selectedInterests.includes(i),
+    ).length,
     interest,
     relationship,
     budget,
@@ -205,6 +227,20 @@ export function scoreGift(input: ScoreInput): ScoreBreakdown {
 
 /** Per already-selected item from the same platform. */
 export const PLATFORM_REPEAT_PENALTY = 0.055;
+/**
+ * Per already-selected item answering the same chosen interest.
+ *
+ * Someone who picks three interests is asking to see all three. Without this
+ * the whole page answers whichever one happens to score highest — pick
+ * Sneakers, Cars and Home Decor and you get 150 pieces of home decor, because
+ * every gift matching exactly one interest scores identically and nothing
+ * breaks the tie in favour of variety.
+ *
+ * Small and additive, like the platform penalty, and measured against the
+ * *least* represented interest a gift answers, so a gift covering a neglected
+ * interest is barely penalised at all.
+ */
+export const INTEREST_REPEAT_PENALTY = 0.02;
 /** Applied once if the title is a near-duplicate of something already picked. */
 export const NEAR_DUPLICATE_PENALTY = 0.3;
 /** Jaccard overlap of title tokens above which two products count as the same idea. */
@@ -238,6 +274,8 @@ export interface DiversifiableItem {
   score: number;
   platform: string;
   name: string;
+  /** The gift's own interests, used to spread the page across the chosen ones. */
+  interests?: string[];
 }
 
 /**
@@ -245,11 +283,22 @@ export interface DiversifiableItem {
  *
  * `items` need not be pre-sorted — the first pick is whichever scores highest.
  */
-export function selectDiverse<T extends DiversifiableItem>(items: T[], limit: number): number[] {
+export function selectDiverse<T extends DiversifiableItem>(
+  items: T[],
+  limit: number,
+  /** The shopper's chosen interests. Omit to skip interest balancing. */
+  selected: string[] = [],
+): number[] {
   const tokens = items.map((item) => titleTokens(item.name));
   const remaining = new Set(items.map((_, i) => i));
   const chosen: number[] = [];
   const platformCounts = new Map<string, number>();
+  const interestCounts = new Map<string, number>();
+
+  // Which of the shopper's interests each gift answers. Computed once.
+  const answered = items.map((item) =>
+    (item.interests ?? []).filter((i) => selected.includes(i)),
+  );
 
   // Near-duplicate status is monotonic: the chosen set only grows, so once an
   // item duplicates something already picked it can never become distinct
@@ -266,9 +315,17 @@ export function selectDiverse<T extends DiversifiableItem>(items: T[], limit: nu
       const item = items[index];
       const repeats = platformCounts.get(item.platform) ?? 0;
 
+      // Against the least represented interest this gift answers: covering a
+      // neglected one should cost nothing even if it also covers a crowded one.
+      const mine = answered[index];
+      const interestRepeats = mine.length
+        ? Math.min(...mine.map((i) => interestCounts.get(i) ?? 0))
+        : 0;
+
       const adjusted =
         item.score -
         repeats * PLATFORM_REPEAT_PENALTY -
+        interestRepeats * INTEREST_REPEAT_PENALTY -
         (duplicate.has(index) ? NEAR_DUPLICATE_PENALTY : 0);
 
       if (adjusted > bestAdjusted) {
@@ -282,6 +339,7 @@ export function selectDiverse<T extends DiversifiableItem>(items: T[], limit: nu
     remaining.delete(bestIndex);
     const platform = items[bestIndex].platform;
     platformCounts.set(platform, (platformCounts.get(platform) ?? 0) + 1);
+    for (const i of answered[bestIndex]) interestCounts.set(i, (interestCounts.get(i) ?? 0) + 1);
 
     for (const index of remaining) {
       if (!duplicate.has(index) && jaccard(tokens[index], tokens[bestIndex]) >= DUPLICATE_SIMILARITY) {

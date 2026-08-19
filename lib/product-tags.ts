@@ -135,6 +135,32 @@ const RULES: Rule[] = [
     interests: ["Tech", "Fitness"],
   },
 
+  // --- Bags & carry ---
+  //
+  // Above the home rules, not below them, because colourways collide with
+  // furniture words: "CHRISTOS LARGE TOTE | LAWN CHAIR" was reading as a
+  // chair, and a $487 tote went into the catalogue tagged Home Decor.
+  //
+  // Outdoors goes first so a *sleeping* bag isn't luggage. The bare word
+  // "bag" is matched deliberately: without it a $1,750 canvas bag from a
+  // sneaker boutique fell through to the brand's tags and was filed under
+  // Sneakers, which is exactly what these rules exist to prevent.
+  {
+    label: "outdoors",
+    pattern: /\btents?\b|\bsleeping bags?\b|\bhiking\b|\bcamping\b|\bcoolers?\b|\bhammock\b/,
+    interests: ["Outdoors", "Travel"],
+  },
+  {
+    label: "bags & luggage",
+    pattern: /\bbackpacks?\b|\bduffels?\b|\btotes?\b|\bluggage\b|\bsuitcases?\b|\bcarry[- ]on\b|\bcrossbody\b|\bhandbags?\b|\bpouch(es)?\b|\bbags?\b|\bsatchels?\b|\bclutch(es)?\b|\bhobo\b|\bshoulder bag\b|\bweekender\b/,
+    interests: ["Bags", "Fashion", "Travel"],
+  },
+  {
+    label: "wallets & small leather",
+    pattern: /\bwallets?\b|\bcard ?holder\b|\bkey ?chain\b|\bkey ?ring\b|\bkey ?organiz(er|ers)\b/,
+    interests: ["Fashion", "Personalized"],
+  },
+
   // --- Home ---
   {
     label: "furniture",
@@ -183,28 +209,6 @@ const RULES: Rule[] = [
     label: "plants & garden",
     pattern: /\bplants?\b(?![- ]based)|\bplanters?\b|\bseeds?\b|\bgarden\b|\bsucculent\b/,
     interests: ["Gardening", "Home Decor"],
-  },
-
-  // --- Bags & carry ---
-  //
-  // Outdoors goes first so a *sleeping* bag isn't luggage. The bare word
-  // "bag" is matched deliberately: without it a $1,750 canvas bag from a
-  // sneaker boutique fell through to the brand's tags and was filed under
-  // Sneakers, which is exactly what these rules exist to prevent.
-  {
-    label: "outdoors",
-    pattern: /\btents?\b|\bsleeping bags?\b|\bhiking\b|\bcamping\b|\bcoolers?\b|\bhammock\b/,
-    interests: ["Outdoors", "Travel"],
-  },
-  {
-    label: "bags & luggage",
-    pattern: /\bbackpacks?\b|\bduffels?\b|\btotes?\b|\bluggage\b|\bsuitcases?\b|\bcarry[- ]on\b|\bcrossbody\b|\bhandbags?\b|\bpouch(es)?\b|\bbags?\b|\bsatchels?\b|\bclutch(es)?\b|\bhobo\b|\bshoulder bag\b|\bweekender\b/,
-    interests: ["Bags", "Fashion", "Travel"],
-  },
-  {
-    label: "wallets & small leather",
-    pattern: /\bwallets?\b|\bcard ?holder\b|\bkey ?chain\b|\bkey ?ring\b|\bkey ?organiz(er|ers)\b/,
-    interests: ["Fashion", "Personalized"],
   },
 
   // --- Apparel & accessories. Last of the wearables, so footwear, bags and

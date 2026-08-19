@@ -6,8 +6,9 @@ import {
   BUDGET_MAX,
   BUDGET_MIN,
   BUDGET_RANGE_PRESETS,
-  BUDGET_STEP,
+  BUDGET_SCALE,
   BUDGET_UNCAPPED_AT,
+  budgetIndexOf,
   INTERESTS,
   RELATIONSHIPS,
 } from "@/lib/gift-options";
@@ -171,16 +172,22 @@ export function GiftQuiz() {
   // rather than a literal cap, and the two thumbs are kept one step apart so
   // they can never cross into an inverted range the API would reject.
   const uncapped = maxBudget >= BUDGET_UNCAPPED_AT;
-  const budgetSpan = BUDGET_MAX - BUDGET_MIN;
-  const fillStart = ((minBudget - BUDGET_MIN) / budgetSpan) * 100;
-  const fillEnd = ((maxBudget - BUDGET_MIN) / budgetSpan) * 100;
 
-  function handleMinBudget(value: number) {
-    setMinBudget(Math.min(value, maxBudget - BUDGET_STEP));
+  // The sliders move over scale *positions*, not dollars: the stops are closer
+  // together where the catalogue is dense, so a linear track would put almost
+  // every gift in its first tenth. See BUDGET_SCALE.
+  const lastIndex = BUDGET_SCALE.length - 1;
+  const minIndex = budgetIndexOf(minBudget);
+  const maxIndex = budgetIndexOf(maxBudget);
+  const fillStart = (minIndex / lastIndex) * 100;
+  const fillEnd = (maxIndex / lastIndex) * 100;
+
+  function handleMinBudget(index: number) {
+    setMinBudget(BUDGET_SCALE[Math.min(index, maxIndex - 1)]);
   }
 
-  function handleMaxBudget(value: number) {
-    setMaxBudget(Math.max(value, minBudget + BUDGET_STEP));
+  function handleMaxBudget(index: number) {
+    setMaxBudget(BUDGET_SCALE[Math.max(index, minIndex + 1)]);
   }
 
   function toggleInterest(interest: string) {
@@ -349,21 +356,23 @@ export function GiftQuiz() {
               />
               <input
                 type="range"
-                min={BUDGET_MIN}
-                max={BUDGET_MAX}
-                step={BUDGET_STEP}
-                value={minBudget}
+                min={0}
+                max={lastIndex}
+                step={1}
+                value={minIndex}
                 onChange={(e) => handleMinBudget(Number(e.target.value))}
                 aria-label="Minimum budget"
+                aria-valuetext={`$${minBudget}`}
               />
               <input
                 type="range"
-                min={BUDGET_MIN}
-                max={BUDGET_MAX}
-                step={BUDGET_STEP}
-                value={maxBudget}
+                min={0}
+                max={lastIndex}
+                step={1}
+                value={maxIndex}
                 onChange={(e) => handleMaxBudget(Number(e.target.value))}
                 aria-label="Maximum budget"
+                aria-valuetext={uncapped ? `$${maxBudget} and up` : `$${maxBudget}`}
               />
             </div>
 

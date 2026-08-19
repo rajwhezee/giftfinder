@@ -101,8 +101,10 @@ export async function POST(request: Request) {
       score: entry.breakdown.total,
       platform: entry.gift.platform,
       name: entry.gift.name,
+      interests: entry.gift.interests,
     })),
     MAX_RESULTS,
+    body.interests,
   );
 
   const results: GiftRecommendation[] = picked
