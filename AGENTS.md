@@ -53,7 +53,9 @@ purchase") is only true while this holds. `Gift.productUrl` is
 migration.
 
 **No LLM at request time.** `/api/recommend` and `/api/similar` are both a
-Postgres query plus pure scoring, and run in ~100–300 ms at zero marginal cost.
+Postgres query plus pure scoring, at zero marginal cost. Measured on production
+2026-08-19 at ~18,900 gifts: a one-interest search ~300–360 ms, two interests
+~280 ms, and a five-interest search with no budget limits ~790 ms.
 The only Claude usage is `scripts/enrich-tags.ts`, an offline Batch API pass.
 Adding a model call to either request path would break both the latency and the
 "about 30 seconds" promise.
@@ -73,10 +75,24 @@ Filtering those rows out instead looks tidier and is wrong: on a narrow query
 the grid already holds every eligible candidate, and the panel came back empty
 on the one product they pointed at.
 
-**`findMany` in the recommend route has an explicit `select`.** Without it
-Prisma fetches every column for thousands of candidate rows, and `description`
-alone — read by nothing — was about half the bytes. Removing the `select`
-silently doubles the payload and the latency.
+**The recommend route is shaped around not touching rows it will discard.**
+Three separate guards, each of which was added after the latency regressed:
+
+- The `findMany` has an explicit `select`, and it lists only what *scoring*
+  reads. `description` was dropped for being half the bytes; `imageUrl`,
+  `productUrl` and `currency` followed, because no scoring step reads them —
+  they come from a second query keyed on the 150 ids that survive. Putting them
+  back in the first query means fetching URLs for every candidate to render 150.
+- Interest overlap is a SQL `hasSome`, not a JS filter. `MIN_INTEREST_MATCHES`
+  means a gift sharing no interest can never be returned, so filtering after the
+  fetch pulled 14,468 rows to keep 3,900.
+- `DIVERSITY_POOL` caps what `selectDiverse` walks at 4× the result cap. That
+  pass is greedy and compares title tokens on every rescan, so it is the CPU
+  bound rather than the database: 11,000 candidates ran 610 ms on a laptop and
+  1.4 s on the function, on identical data.
+
+`candidateCount` is only queried when there are no results, which is the only
+time the UI renders it.
 
 **Occasions are curated; interests, age and gender are per-product.** An
 occasion says *why* someone is shopping, so it belongs to the import query.
