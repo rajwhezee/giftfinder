@@ -193,6 +193,16 @@ const QUERIES: CuratedQuery[] = [
   },
 
   // --- Sneakers & streetwear ---
+  //
+  // eBay's Authenticity Guarantee covers sneakers, and that is what makes this
+  // the only responsible route to the resale market: eBay inspects the pair
+  // before it reaches the buyer. It is also the only route left — StockX
+  // disallows /api/ and */search* in robots.txt for every user agent, and GOAT
+  // returns a Cloudflare challenge even for robots.txt itself.
+  //
+  // The boutiques in import-shopify.ts cover these silhouettes at retail. These
+  // queries exist for the pairs that never sit on a shelf at retail: the
+  // collabs, and anything already sold out.
   {
     label: "Sneakers (authenticated)",
     q: "nike jordan sneakers",
@@ -203,6 +213,61 @@ const QUERIES: CuratedQuery[] = [
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 50,
+  },
+  {
+    label: "Air Jordan 1 (authenticated)",
+    q: "air jordan 1 retro",
+    mode: "authenticated",
+    minPrice: 120,
+    maxPrice: 900,
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+  },
+  {
+    label: "Nike Dunk (authenticated)",
+    q: "nike dunk low",
+    mode: "authenticated",
+    minPrice: 100,
+    maxPrice: 700,
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+  },
+  {
+    label: "Travis Scott collabs (authenticated)",
+    q: "travis scott jordan",
+    mode: "authenticated",
+    minPrice: 300,
+    maxPrice: 2500,
+    interests: ["Fashion", "Sports", "Music"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 16,
+    ageMax: 40,
+  },
+  {
+    label: "Yeezy (authenticated)",
+    q: "adidas yeezy boost",
+    mode: "authenticated",
+    minPrice: 150,
+    maxPrice: 1200,
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 16,
+    ageMax: 45,
+  },
+  {
+    label: "New Balance retro runners",
+    q: "new balance 550 990 sneakers",
+    mode: "new",
+    minPrice: 80,
+    maxPrice: 300,
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Father's Day"],
+    ageMin: 14,
+    ageMax: 60,
   },
   {
     label: "Sunglasses",

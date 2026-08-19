@@ -105,7 +105,31 @@ public endpoint — no affiliate membership anywhere.
 
 Every script takes `--dry-run`. Verify a Shopify domain serves `/products.json`
 before adding it to `BRANDS` — about half of tested brands block it, and some
-return the wrong image entirely.
+return the wrong image entirely. **Also check the store's currency**: the feed
+carries no currency field and the importer hardcodes USD, so a CAD or EUR
+storefront silently imports mispriced. The storefront HTML carries
+`"active":"XXX"`; `deadstock.ca`, `capsuletoronto.com` and `fermliving.com` were
+dropped on exactly this.
+
+`Brand.prefer` fills a brand's 60 slots with matching products first, tested
+against `product_type` and title. Sneaker boutique feeds are roughly
+three-quarters apparel, so without it the shoes lose their slots to whatever
+t-shirt dropped that week — footwear share of what imports was 25% before and
+93% after.
+
+### Sources that were tried and cannot be used
+
+Checked 2026-08-19; do not spend the afternoon on them again.
+
+| Source | Why not |
+| --- | --- |
+| **IKEA** | No `/products.json`, no public product API, and `robots.txt` disallows every `*/search/*` path an importer would need. The only way in is its undocumented internal endpoint, against that stated policy. Covered instead by Umbra, Floyd, Bend Goods, Brightech and the LED brands. |
+| **StockX** | `robots.txt` disallows `/api/` and `*/search*` for every user agent. Its sanctioned API is a partner programme behind a business agreement. |
+| **GOAT** | Returns a Cloudflare managed challenge for `robots.txt` itself. Getting a crawler past it means defeating bot detection. |
+
+Hyped sneakers are covered instead by the 18 boutiques that hold real Nike
+SNKRS allocations, plus eBay's Authenticity Guarantee queries for pairs that
+only exist on the resale market.
 
 `enrich:tags` overwrites interests, age range and gender on every row. Snapshot
 first; `tag-backup-*.json` at the repo root is gitignored and is the only way

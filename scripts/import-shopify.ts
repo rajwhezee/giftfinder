@@ -50,7 +50,25 @@ interface Brand {
   ageMin: number;
   ageMax: number;
   gender?: "male" | "female";
+  /**
+   * Fills this brand's MAX_PER_BRAND slots with matching products first.
+   *
+   * Without it the cap simply takes the feed in order, which for a sneaker
+   * boutique means whatever dropped this week — and those feeds are roughly
+   * three-quarters apparel, so the shoes the shopper came for lose their slots
+   * to t-shirts. Tested against `product_type` and title together.
+   */
+  prefer?: RegExp;
 }
+
+/**
+ * Sneaker boutiques list footwear under a dozen different `product_type`
+ * spellings ("Footwear", "Sneakers", "Lifestyle Shoes", "Men's Footwear"), so
+ * this reads both the type and the title. Model names are spelled out in full
+ * ("air jordan", not "jordan") because the bare brand word appears on tees and
+ * hats throughout the same feeds.
+ */
+const FOOTWEAR = /footwear|sneakers?|\bshoes?\b|\bboots?\b|\btrainers\b|\bcleats\b|\bdunk\b|air jordan|air max|air force|\byeezy\b|\bsamba\b|\bgazelle\b|new balance/i;
 
 const BRANDS: Brand[] = [
   // --- Fragrance ---
@@ -671,6 +689,413 @@ const BRANDS: Brand[] = [
     ageMin: 18,
     ageMax: 75,
   },
+
+  // --- Sneakers & streetwear (verified 2026-08-19) ---
+  //
+  // The ask was StockX and GOAT: Dunks, Jordans, the Travis Scott collabs.
+  // Neither is reachable — GOAT answers robots.txt itself with a Cloudflare
+  // challenge, and StockX's robots.txt disallows /api/ and */search* for every
+  // user agent, so its only sanctioned route is a partner API behind a business
+  // agreement. These are the boutiques that actually receive the Nike SNKRS
+  // allocations, each serving its own public products.json, and between them
+  // they carry the same silhouettes at retail rather than at resale.
+  //
+  // Note MAX_PRICE: hyped pairs trading above $600 are skipped, which is the
+  // right outcome for a gift site — what survives is the $100-200 general
+  // release, not a $1,400 Jordan 1 Travis Scott.
+  {
+    domain: "kith.com",
+    name: "Kith",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "undefeated.com",
+    name: "Undefeated",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "bdgastore.com",
+    name: "Bodega",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "cncpts.com",
+    name: "Concepts",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "a-ma-maniere.com",
+    name: "A Ma Maniére",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Anniversary"],
+    ageMin: 16,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "sneakerpolitics.com",
+    name: "Sneaker Politics",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "extrabutterny.com",
+    name: "Extra Butter",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "socialstatuspgh.com",
+    name: "Social Status",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "notre-shop.com",
+    name: "Notre",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 16,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "packershoes.com",
+    name: "Packer",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "renarts.com",
+    name: "Renarts",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "lapstoneandhammer.com",
+    name: "Lapstone & Hammer",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 16,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "solefly.com",
+    name: "SoleFly",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "wishatl.com",
+    name: "Wish ATL",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "xhibition.co",
+    name: "Xhibition",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "shoepalace.com",
+    name: "Shoe Palace",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 10,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "shoegallerymiami.com",
+    name: "Shoe Gallery",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+  {
+    domain: "dtlr.com",
+    name: "DTLR",
+    interests: ["Fashion", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 12,
+    ageMax: 45,
+    prefer: FOOTWEAR,
+  },
+
+  // --- Lighting & LED (verified 2026-08-19) ---
+  //
+  // The "cool LEDs" half of the IKEA ask. IKEA itself has no public product
+  // feed: no products.json, no developer API, and its robots.txt disallows
+  // every search path an importer would have to walk, so the only route in
+  // would be its undocumented internal endpoint against that stated policy.
+  {
+    domain: "lifx.com",
+    name: "LIFX",
+    interests: ["Tech", "Home Decor"],
+    occasions: ["Birthday", "Christmas", "Housewarming", "New Year"],
+    ageMin: 14,
+    ageMax: 65,
+  },
+  {
+    domain: "twinkly.com",
+    name: "Twinkly",
+    interests: ["Tech", "Home Decor", "Creativity"],
+    occasions: ["Christmas", "Birthday", "Housewarming", "New Year", "Diwali"],
+    ageMin: 12,
+    ageMax: 70,
+  },
+  {
+    domain: "nanoleaf.me",
+    name: "Nanoleaf",
+    interests: ["Tech", "Home Decor", "Gaming"],
+    occasions: ["Birthday", "Christmas", "Housewarming", "Graduation"],
+    ageMin: 12,
+    ageMax: 55,
+  },
+  {
+    domain: "lepro.com",
+    name: "Lepro",
+    interests: ["Tech", "Home Decor", "Gaming"],
+    occasions: ["Birthday", "Christmas", "Housewarming"],
+    ageMin: 12,
+    ageMax: 60,
+  },
+  {
+    domain: "divoom.com",
+    name: "Divoom",
+    interests: ["Tech", "Gaming", "Art", "Music"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 10,
+    ageMax: 45,
+  },
+  {
+    domain: "brightech.com",
+    name: "Brightech",
+    interests: ["Home Decor", "Reading"],
+    occasions: ["Housewarming", "Christmas", "Birthday", "Wedding"],
+    ageMin: 18,
+    ageMax: 80,
+  },
+  {
+    domain: "colorcord.com",
+    name: "Color Cord Company",
+    interests: ["Home Decor", "Creativity"],
+    occasions: ["Housewarming", "Wedding", "Christmas"],
+    ageMin: 20,
+    ageMax: 75,
+  },
+  {
+    domain: "schoolhouse.com",
+    name: "Schoolhouse",
+    interests: ["Home Decor"],
+    occasions: ["Housewarming", "Wedding", "Anniversary", "Christmas"],
+    ageMin: 22,
+    ageMax: 80,
+  },
+
+  // --- Small furniture & storage (verified 2026-08-19) ---
+  {
+    domain: "umbra.com",
+    name: "Umbra",
+    interests: ["Home Decor", "Creativity"],
+    occasions: ["Housewarming", "Birthday", "Christmas", "Wedding"],
+    ageMin: 16,
+    ageMax: 75,
+  },
+  {
+    domain: "floydhome.com",
+    name: "Floyd",
+    interests: ["Home Decor"],
+    occasions: ["Housewarming", "Wedding", "Graduation", "Christmas"],
+    ageMin: 20,
+    ageMax: 60,
+  },
+  {
+    domain: "bendgoods.com",
+    name: "Bend Goods",
+    interests: ["Home Decor", "Outdoors"],
+    occasions: ["Housewarming", "Wedding", "Anniversary"],
+    ageMin: 22,
+    ageMax: 75,
+  },
+  {
+    domain: "sixpenny.com",
+    name: "Sixpenny",
+    interests: ["Home Decor", "Self-care"],
+    occasions: ["Housewarming", "Wedding", "Anniversary"],
+    ageMin: 22,
+    ageMax: 75,
+  },
+
+  // --- Desk tech & gadgets (verified 2026-08-19) ---
+  //
+  // The other half of the IKEA ask: the cheap tech someone picks up on the way
+  // out. Mostly sub-$100, which is the band the quiz's busiest budget presets
+  // ask for.
+  {
+    domain: "keychron.com",
+    name: "Keychron",
+    interests: ["Tech", "Gaming", "Writing"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Father's Day"],
+    ageMin: 14,
+    ageMax: 60,
+  },
+  {
+    domain: "lofree.co",
+    name: "Lofree",
+    interests: ["Tech", "Creativity", "Writing"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 55,
+  },
+  {
+    domain: "twelvesouth.com",
+    name: "Twelve South",
+    interests: ["Tech"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Father's Day"],
+    ageMin: 16,
+    ageMax: 70,
+  },
+  {
+    domain: "us.anker.com",
+    name: "Anker",
+    interests: ["Tech", "Travel"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Father's Day"],
+    ageMin: 14,
+    ageMax: 75,
+  },
+  {
+    domain: "satechi.net",
+    name: "Satechi",
+    interests: ["Tech"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Father's Day"],
+    ageMin: 16,
+    ageMax: 70,
+  },
+  {
+    domain: "moft.us",
+    name: "MOFT",
+    interests: ["Tech", "Travel"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Thank You"],
+    ageMin: 14,
+    ageMax: 65,
+  },
+  {
+    domain: "nativeunion.com",
+    name: "Native Union",
+    interests: ["Tech", "Home Decor"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 16,
+    ageMax: 65,
+  },
+  {
+    domain: "orbitkey.com",
+    name: "Orbitkey",
+    interests: ["Tech", "Travel", "Personalized"],
+    occasions: ["Birthday", "Christmas", "Father's Day", "Graduation"],
+    ageMin: 16,
+    ageMax: 70,
+  },
+  {
+    domain: "elago.com",
+    name: "elago",
+    interests: ["Tech", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Thank You"],
+    ageMin: 12,
+    ageMax: 55,
+  },
+  {
+    domain: "baseus.com",
+    name: "Baseus",
+    interests: ["Tech", "Travel"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 65,
+  },
+  {
+    domain: "sharge.com",
+    name: "Sharge",
+    interests: ["Tech", "Gaming"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 50,
+  },
+  {
+    domain: "ugmonk.com",
+    name: "Ugmonk",
+    interests: ["Tech", "Writing", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Thank You"],
+    ageMin: 18,
+    ageMax: 65,
+  },
+  {
+    domain: "jlab.com",
+    name: "JLab",
+    interests: ["Music", "Tech", "Fitness"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 12,
+    ageMax: 60,
+  },
+  {
+    domain: "skullcandy.com",
+    name: "Skullcandy",
+    interests: ["Music", "Tech", "Sports"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 12,
+    ageMax: 50,
+  },
+  {
+    domain: "rayconglobal.com",
+    name: "Raycon",
+    interests: ["Music", "Tech", "Fitness"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 55,
+  },
 ];
 
 interface StagedGift {
@@ -776,24 +1201,48 @@ async function main() {
 
   for (const brand of BRANDS) {
     let brandCount = 0;
-    try {
-      for (let page = 1; page <= MAX_PAGES && brandCount < MAX_PER_BRAND; page++) {
-        const products = await fetchProductsPage(brand.domain, page);
-        if (products.length === 0) break;
-        fetched += products.length;
 
-        for (const product of products) {
-          if (brandCount >= MAX_PER_BRAND) break;
-          const before = staged.size;
-          const reason = stage(product, brand, staged);
-          if (reason) {
-            skipped[reason] = (skipped[reason] ?? 0) + 1;
-          } else if (staged.size > before) {
-            brandCount++;
-          }
+    const take = (products: ShopifyProduct[]) => {
+      for (const product of products) {
+        if (brandCount >= MAX_PER_BRAND) break;
+        const before = staged.size;
+        const reason = stage(product, brand, staged);
+        if (reason) {
+          skipped[reason] = (skipped[reason] ?? 0) + 1;
+        } else if (staged.size > before) {
+          brandCount++;
+        }
+      }
+    };
+
+    try {
+      if (brand.prefer) {
+        // A preference can only be applied to the whole feed, so read every
+        // page before choosing. Preferred products keep their feed order among
+        // themselves — newest first, as everywhere else — and the rest follow
+        // to fill whatever slots are left.
+        const all: ShopifyProduct[] = [];
+        for (let page = 1; page <= MAX_PAGES; page++) {
+          const products = await fetchProductsPage(brand.domain, page);
+          if (products.length === 0) break;
+          fetched += products.length;
+          all.push(...products);
+          await sleep(REQUEST_DELAY_MS);
         }
 
-        await sleep(REQUEST_DELAY_MS);
+        const matches = (product: ShopifyProduct) =>
+          brand.prefer!.test(`${product.product_type ?? ""} ${product.title}`);
+
+        take(all.filter(matches));
+        take(all.filter((product) => !matches(product)));
+      } else {
+        for (let page = 1; page <= MAX_PAGES && brandCount < MAX_PER_BRAND; page++) {
+          const products = await fetchProductsPage(brand.domain, page);
+          if (products.length === 0) break;
+          fetched += products.length;
+          take(products);
+          await sleep(REQUEST_DELAY_MS);
+        }
       }
       console.log(`  ${brand.name.padEnd(24)} → ${brandCount} gifts`);
     } catch (error) {
