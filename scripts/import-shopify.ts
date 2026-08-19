@@ -47,7 +47,20 @@ const MAX_PAGES = 2;
 const MAX_PER_BRAND = 60;
 
 const MIN_PRICE = 8;
-const MAX_PRICE = 600;
+/**
+ * Ceiling for a brand that doesn't set its own.
+ *
+ * Was 600, which quietly excluded the entire collab and luxury end of the
+ * sneaker catalogue — 40 in-stock pairs on the boutiques' first pages alone,
+ * and every Travis Scott or Fragment Jordan that ever reaches a shelf.
+ *
+ * This is not a judgment about what a gift costs — the quiz decides that, and
+ * its slider tops out at "$500 and up", so anything past that only ever
+ * reaches a shopper who asked for it. It is a data-quality guard: feeds carry
+ * mispriced rows, trade-only listings and the occasional five-figure oddity,
+ * and none of those should be able to enter the catalogue silently.
+ */
+const MAX_PRICE = 2500;
 
 interface Brand {
   /** Storefront domain, no protocol. */
@@ -59,6 +72,12 @@ interface Brand {
   ageMin: number;
   ageMax: number;
   gender?: "male" | "female";
+  /**
+   * Ceiling for this brand alone, when the global one is the wrong shape for
+   * what it sells. A sofa is not a gift at any price, so the furniture brands
+   * stay low rather than filling the "$500 and up" band with seating.
+   */
+  maxPrice?: number;
   /**
    * Fills this brand's MAX_PER_BRAND slots with matching products first.
    *
@@ -944,6 +963,8 @@ const BRANDS: Brand[] = [
     occasions: ["Housewarming", "Wedding", "Anniversary", "Christmas"],
     ageMin: 22,
     ageMax: 80,
+    // Sofas and full lighting installations run past $2,000 here.
+    maxPrice: 700,
   },
 
   // --- Small furniture & storage (verified 2026-08-19) ---
@@ -962,6 +983,8 @@ const BRANDS: Brand[] = [
     occasions: ["Housewarming", "Wedding", "Graduation", "Christmas"],
     ageMin: 20,
     ageMax: 60,
+    // Sofas and full lighting installations run past $2,000 here.
+    maxPrice: 700,
   },
   {
     domain: "bendgoods.com",
@@ -970,6 +993,8 @@ const BRANDS: Brand[] = [
     occasions: ["Housewarming", "Wedding", "Anniversary"],
     ageMin: 22,
     ageMax: 75,
+    // Sofas and full lighting installations run past $2,000 here.
+    maxPrice: 600,
   },
   {
     domain: "sixpenny.com",
@@ -978,6 +1003,8 @@ const BRANDS: Brand[] = [
     occasions: ["Housewarming", "Wedding", "Anniversary"],
     ageMin: 22,
     ageMax: 75,
+    // Sofas and full lighting installations run past $2,000 here.
+    maxPrice: 600,
   },
 
   // --- Desk tech & gadgets (verified 2026-08-19) ---
@@ -1284,8 +1311,9 @@ function stage(
   // Shopify sends money as a decimal string.
   const price = Number.parseFloat(variant.price);
   if (!Number.isFinite(price) || price <= 0) return "bad price";
+  const ceiling = brand.maxPrice ?? MAX_PRICE;
   if (price < MIN_PRICE) return `under $${MIN_PRICE}`;
-  if (price > MAX_PRICE) return `over $${MAX_PRICE}`;
+  if (price > ceiling) return `over $${ceiling}`;
 
   const url = productUrl(brand.domain, product.handle);
   if (staged.has(url)) return null;
