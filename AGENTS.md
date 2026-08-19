@@ -52,10 +52,26 @@ purchase") is only true while this holds. `Gift.productUrl` is
 `@map("affiliateUrl")` — the column keeps the old name so the rename needed no
 migration.
 
-**No LLM at request time.** `/api/recommend` is a Postgres query plus pure
-scoring, and runs in ~100–300 ms at zero marginal cost. The only Claude usage is
-`scripts/enrich-tags.ts`, an offline Batch API pass. Adding a model call to the
-request path would break both the latency and the "about 30 seconds" promise.
+**No LLM at request time.** `/api/recommend` and `/api/similar` are both a
+Postgres query plus pure scoring, and run in ~100–300 ms at zero marginal cost.
+The only Claude usage is `scripts/enrich-tags.ts`, an offline Batch API pass.
+Adding a model call to either request path would break both the latency and the
+"about 30 seconds" promise.
+
+**The gift detail view is an overlay, not a route.** Tapping a card opens
+`components/GiftDetail.tsx` in place. There is no `/gift/[id]`, and adding one
+would be a regression rather than an improvement: results live only in the
+tab's memory, computed from quiz answers that are never written to the URL, so
+navigating away and back would either lose the grid or have to re-run the whole
+quiz to rebuild it. The same reason the quiz reveals in place instead of
+routing to `/quiz`.
+
+**`/api/similar` demotes what is already on the page; it must not exclude it.**
+Ranking anchors on the product the shopper tapped, and anything already in
+their results is pushed below every genuine discovery by `SEEN_DEMOTION`.
+Filtering those rows out instead looks tidier and is wrong: on a narrow query
+the grid already holds every eligible candidate, and the panel came back empty
+on the one product they pointed at.
 
 **`findMany` in the recommend route has an explicit `select`.** Without it
 Prisma fetches every column for thousands of candidate rows, and `description`
