@@ -98,6 +98,7 @@ export async function POST(request: Request) {
       interests: true,
       ageMin: true,
       ageMax: true,
+      giftScore: true,
     },
   });
 
@@ -108,6 +109,7 @@ export async function POST(request: Request) {
       giftPrice: price,
       giftAgeMin: gift.ageMin,
       giftAgeMax: gift.ageMax,
+      giftScore: gift.giftScore,
       selectedInterests: body.interests,
       relationship: body.relationship,
       age: body.age,

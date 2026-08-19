@@ -32,6 +32,11 @@ model Gift {
   /// Original listing currency; price is stored in USD (converted at import
   /// time when this isn't "USD"), and the UI shows converted prices as "~$x".
   currency      String   @default("USD")
+  /// 0-100: how well this reads as something a person would enjoy unwrapping,
+  /// as opposed to a useful purchase. Written by scripts/score-gifts.ts, an
+  /// offline Claude pass; null means unscored, which ranking treats as neutral
+  /// so a partial run never penalises rows that were never looked at.
+  giftScore     Int?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

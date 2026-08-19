@@ -27,6 +27,30 @@ export const WEIGHTS = {
  */
 export const MIN_INTEREST_MATCHES = 1;
 
+/**
+ * Below this giftScore a product is demoted; at or above it, nothing happens.
+ *
+ * A threshold rather than a smooth curve because that is what the signal
+ * supports. The scores cluster hard between 55 and 78 and only separate at the
+ * bottom, so treating the middle as meaningful would be reading noise. What it
+ * reliably identifies is the tail: refills, craft supplies, replacement parts.
+ */
+export const GIFT_SCORE_FLOOR = 40;
+
+/**
+ * What a product keeps when it falls below the floor.
+ *
+ * A multiplier, not a fifth weight. Adding a weight would mean renormalising
+ * the other four, which changes the order of every gift in the catalogue to
+ * fix a problem with a few hundred of them. This only ever demotes, and only
+ * what the model actually flagged.
+ *
+ * 0.75 is deliberately survivable: a pack of napkins that genuinely matches
+ * someone's interests should slide down the page, not vanish. Ranking is not
+ * the place to overrule the catalogue.
+ */
+export const GIFT_SCORE_PENALTY = 0.75;
+
 type Relationship = (typeof RELATIONSHIPS)[number];
 type Interest = (typeof INTERESTS)[number];
 
@@ -72,6 +96,12 @@ const RELATIONSHIP_AFFINITY: Record<Relationship, { affinity: Interest[]; avoid:
 
 export interface ScoreInput {
   giftInterests: string[];
+  /**
+   * 0-100 from scripts/score-gifts.ts, or null when the row has never been
+   * scored — which is neutral, so a partial run never penalises rows nobody
+   * has looked at yet.
+   */
+  giftScore?: number | null;
   giftPrice: number;
   giftAgeMin: number;
   giftAgeMax: number;
@@ -193,11 +223,17 @@ export function scoreGift(input: ScoreInput): ScoreBreakdown {
   const budget = budgetScore(input.giftPrice, input.minBudget, input.maxBudget);
   const age = ageScore(input.giftAgeMin, input.giftAgeMax, input.age);
 
-  const total =
+  const base =
     interest * WEIGHTS.interest +
     relationship * WEIGHTS.relationship +
     budget * WEIGHTS.budget +
     age * WEIGHTS.age;
+
+  const giftable =
+    typeof input.giftScore === "number" && input.giftScore < GIFT_SCORE_FLOOR
+      ? GIFT_SCORE_PENALTY
+      : 1;
+  const total = base * giftable;
 
   return {
     total,
