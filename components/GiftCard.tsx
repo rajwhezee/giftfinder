@@ -14,9 +14,15 @@ export function GiftCard({
 
   return (
     <motion.article
-      whileHover={{ y: -3 }}
-      transition={{ type: "spring", stiffness: 300, damping: 24 }}
-      className="card-surface group relative flex h-full flex-col overflow-hidden rounded-2xl"
+      // The whole card moves, price and title included, rather than zooming the
+      // image inside a card that stays put. Lifting one part of an object and
+      // leaving the rest reads as the picture coming loose from its frame.
+      //
+      // hover:z-10 because a scaled card overlaps its neighbours, and without a
+      // stacking order it slides *under* the one to its right.
+      whileHover={{ y: -8, scale: 1.03 }}
+      transition={{ type: "spring", stiffness: 260, damping: 22 }}
+      className="card-surface card-hover group relative z-0 flex h-full flex-col overflow-hidden rounded-2xl hover:z-10"
     >
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-paper">
         <Image
@@ -24,7 +30,7 @@ export function GiftCard({
           alt={gift.name}
           fill
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-          className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+          className="object-cover"
         />
         {gift.matchScore > 1 && (
           <span className="absolute top-3 left-3 z-20 rounded-full bg-surface/90 px-2.5 py-1 text-[11px] font-medium tracking-wide text-plum backdrop-blur-sm">

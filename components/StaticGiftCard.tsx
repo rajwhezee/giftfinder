@@ -23,14 +23,14 @@ export function StaticGiftCard({
   const approximate = gift.originalCurrency !== "USD";
 
   return (
-    <article className="card-surface group flex h-full flex-col overflow-hidden rounded-2xl">
+    <article className="card-surface card-hover card-hover-lift group relative z-0 flex h-full flex-col overflow-hidden rounded-2xl hover:z-10">
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-paper">
         <Image
           src={gift.imageUrl}
           alt={gift.name}
           fill
           sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
-          className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
+          className="object-cover"
         />
       </div>
 

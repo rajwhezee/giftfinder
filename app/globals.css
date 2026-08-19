@@ -213,6 +213,43 @@ body {
   box-shadow: var(--shadow-soft);
 }
 
+/* Product cards lift as one object rather than animating their image.
+ *
+ * The transform lives in components/GiftCard.tsx because motion owns it; only
+ * the shadow and border are here, since neither is a transform and CSS can
+ * cross-fade them without fighting over the same property. */
+.card-hover {
+  transition:
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
+}
+
+.card-hover:hover {
+  box-shadow: var(--shadow-lift);
+  border-color: color-mix(in srgb, var(--terracotta) 30%, var(--rule));
+}
+
+/* The same treatment for the server-rendered cards on the occasion pages,
+ * which have no motion — so the transform is CSS here rather than a prop. Kept
+ * off .card-hover deliberately: GiftCard's transform belongs to motion, and two
+ * writers on one property is how a hover starts flickering. */
+.card-hover-lift {
+  transition:
+    transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s ease,
+    border-color 0.28s ease;
+}
+
+.card-hover-lift:hover {
+  transform: translateY(-8px) scale(1.03);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card-hover-lift:hover {
+    transform: none;
+  }
+}
+
 /* Range inputs: thin rule track, gold thumb. */
 input[type="range"] {
   -webkit-appearance: none;
