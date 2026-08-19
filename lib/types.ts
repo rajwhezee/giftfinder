@@ -30,3 +30,14 @@ export interface RecommendResponse {
   /** Gifts passing occasion/age/budget before interest matching was applied. */
   candidateCount: number;
 }
+
+export interface SimilarRequestBody extends RecommendRequestBody {
+  /** The product the shopper pointed at. Its tags, title and price are the query. */
+  giftId: string;
+  /** Ids already on the page, so the strip offers discoveries rather than repeats. */
+  excludeIds: string[];
+}
+
+export interface SimilarResponse {
+  results: GiftRecommendation[];
+}

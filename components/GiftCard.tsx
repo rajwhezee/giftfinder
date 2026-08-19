@@ -2,14 +2,21 @@ import Image from "next/image";
 import { motion } from "motion/react";
 import type { GiftRecommendation } from "@/lib/types";
 
-export function GiftCard({ gift }: { gift: GiftRecommendation }) {
+export function GiftCard({
+  gift,
+  onSelect,
+}: {
+  gift: GiftRecommendation;
+  /** Opens the detail view. Omitted where the card is already inside one. */
+  onSelect?: () => void;
+}) {
   const approximate = gift.originalCurrency !== "USD";
 
   return (
     <motion.article
       whileHover={{ y: -3 }}
       transition={{ type: "spring", stiffness: 300, damping: 24 }}
-      className="card-surface group flex h-full flex-col overflow-hidden rounded-2xl"
+      className="card-surface group relative flex h-full flex-col overflow-hidden rounded-2xl"
     >
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-paper">
         <Image
@@ -20,7 +27,7 @@ export function GiftCard({ gift }: { gift: GiftRecommendation }) {
           className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.04]"
         />
         {gift.matchScore > 1 && (
-          <span className="absolute top-3 left-3 rounded-full bg-surface/90 px-2.5 py-1 text-[11px] font-medium tracking-wide text-plum backdrop-blur-sm">
+          <span className="absolute top-3 left-3 z-20 rounded-full bg-surface/90 px-2.5 py-1 text-[11px] font-medium tracking-wide text-plum backdrop-blur-sm">
             Strong match
           </span>
         )}
@@ -44,16 +51,34 @@ export function GiftCard({ gift }: { gift: GiftRecommendation }) {
           ${gift.price.toFixed(2)}
         </p>
 
+        {/* z-20 keeps the merchant link above the whole-card button below, so
+            the one explicit action on the card still beats the ambient one. */}
         <a
           href={gift.productUrl}
           target="_blank"
           rel="nofollow noopener"
-          className="rule-hairline mt-auto inline-flex items-center justify-center gap-1.5 rounded-full border px-4 py-2.5 text-sm text-ink transition-colors hover:border-terracotta hover:text-terracotta"
+          className="rule-hairline relative z-20 mt-auto inline-flex items-center justify-center gap-1.5 rounded-full border px-4 py-2.5 text-sm text-ink transition-colors hover:border-terracotta hover:text-terracotta"
         >
           View on {gift.platform}
           <span aria-hidden>→</span>
         </a>
       </div>
+
+      {/* The whole card opens the detail view. Done as a real button covering
+          the card rather than an onClick on the article: it lands in the tab
+          order, answers the keyboard, and announces itself — none of which a
+          clickable <article> does. It sits under the merchant link in z-order
+          and carries no visible chrome of its own, so the card still reads as
+          one object rather than as two stacked controls. */}
+      {onSelect && (
+        <button
+          type="button"
+          onClick={onSelect}
+          className="absolute inset-0 z-10 cursor-pointer rounded-2xl focus-visible:ring-2 focus-visible:ring-terracotta focus-visible:outline-none"
+        >
+          <span className="sr-only">See {gift.name} and similar gifts</span>
+        </button>
+      )}
     </motion.article>
   );
 }

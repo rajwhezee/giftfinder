@@ -1,11 +1,12 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 import confetti from "canvas-confetti";
 import { HOME_RESET_EVENT } from "@/lib/home-reset";
-import type { GiftRecommendation } from "@/lib/types";
+import type { GiftRecommendation, RecommendRequestBody } from "@/lib/types";
 import { GiftCard } from "./GiftCard";
+import { GiftDetail } from "./GiftDetail";
 
 /** Cards revealed per page. Deep enough that the grid reads as a real spread. */
 const PAGE_SIZE = 36;
@@ -25,18 +26,20 @@ function goHome() {
 
 export function GiftResults({
   results,
-  relationship,
-  occasion,
+  answers,
   candidateCount,
 }: {
   results: GiftRecommendation[];
-  relationship: string;
-  occasion: string;
+  /** The quiz answers, kept so "more like this" can honour the same constraints. */
+  answers: RecommendRequestBody;
   candidateCount: number;
 }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [selectedId, setSelectedId] = useState<string | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const { relationship, occasion } = answers;
 
   // Brands actually present in this result set, most-stocked first. Derived
   // rather than taken from a fixed list, so a brand only ever appears as a
@@ -65,6 +68,7 @@ export function GiftResults({
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
     setSelectedBrands([]);
+    setSelectedId(null);
   }, [results]);
 
   // Narrowing the brands should also rewind the reveal — otherwise a filter
@@ -117,6 +121,14 @@ export function GiftResults({
     });
   }, [results.length]);
 
+  const selectedGift = selectedId
+    ? (results.find((gift) => gift.id === selectedId) ?? null)
+    : null;
+
+  // Stable identity, because the detail overlay keys its one fetch per product
+  // off this and a fresh array every render would refire it mid-flight.
+  const resultIds = useMemo(() => results.map((gift) => gift.id), [results]);
+
   return (
     <div className="mx-auto max-w-5xl px-4">
       <header className="rule-hairline mb-8 border-b pb-6">
@@ -147,7 +159,8 @@ export function GiftResults({
 
         {results.length > 0 && (
           <p className="mt-4 text-xs text-ink-faint">
-            Links go straight to the seller. We earn nothing from your purchase.
+            Tap any gift to see it up close, with the nearest things to it. Links go straight to
+            the seller. We earn nothing from your purchase.
           </p>
         )}
       </header>
@@ -222,7 +235,7 @@ export function GiftResults({
                 // "View on…" buttons aligned when titles wrap to different heights.
                 className="h-full"
               >
-                <GiftCard gift={gift} />
+                <GiftCard gift={gift} onSelect={() => setSelectedId(gift.id)} />
               </motion.div>
             ))}
           </div>
@@ -259,6 +272,18 @@ export function GiftResults({
           )}
         </>
       )}
+
+      <AnimatePresence>
+        {selectedGift && (
+          <GiftDetail
+            key={selectedGift.id}
+            gift={selectedGift}
+            answers={answers}
+            excludeIds={resultIds}
+            onClose={() => setSelectedId(null)}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -13,7 +13,12 @@ import {
 } from "@/lib/gift-options";
 import { INTEREST_EMOJI, OCCASION_EMOJI, RELATIONSHIP_EMOJI } from "@/lib/gift-option-icons";
 import { searchOccasions } from "@/lib/occasion-search";
-import type { GiftRecommendation, RecipientGender, RecommendResponse } from "@/lib/types";
+import type {
+  GiftRecommendation,
+  RecipientGender,
+  RecommendRequestBody,
+  RecommendResponse,
+} from "@/lib/types";
 import { GiftResults } from "./GiftResults";
 import { StepTransition } from "./StepTransition";
 
@@ -120,6 +125,11 @@ export function GiftQuiz() {
   const [maxBudget, setMaxBudget] = useState<number>(BUDGET_RANGE_PRESETS[1].max);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
   const [results, setResults] = useState<GiftRecommendation[] | null>(null);
+  // The answers exactly as they were sent. Results outlive the form state, and
+  // "more like this" has to be filtered by the same constraints the results
+  // were — reading the live form state would drift if it were ever editable
+  // behind the results.
+  const [answers, setAnswers] = useState<RecommendRequestBody | null>(null);
   const [candidateCount, setCandidateCount] = useState(0);
 
   // Auto-advance timers must not fire after the user has navigated away
@@ -181,23 +191,25 @@ export function GiftQuiz() {
 
   async function handleSubmit() {
     setStatus("loading");
+    const body: RecommendRequestBody = {
+      relationship,
+      age,
+      gender: gender as RecipientGender,
+      occasion,
+      interests,
+      minBudget,
+      maxBudget,
+    };
     try {
       const res = await fetch("/api/recommend", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          relationship,
-          age,
-          gender,
-          occasion,
-          interests,
-          minBudget,
-          maxBudget,
-        }),
+        body: JSON.stringify(body),
       });
       if (!res.ok) throw new Error("Request failed");
       const data = (await res.json()) as RecommendResponse;
       setResults(data.results);
+      setAnswers(body);
       setCandidateCount(data.candidateCount);
       setStatus("idle");
     } catch {
@@ -205,15 +217,8 @@ export function GiftQuiz() {
     }
   }
 
-  if (results !== null) {
-    return (
-      <GiftResults
-        results={results}
-        relationship={relationship}
-        occasion={occasion}
-        candidateCount={candidateCount}
-      />
-    );
+  if (results !== null && answers !== null) {
+    return <GiftResults results={results} answers={answers} candidateCount={candidateCount} />;
   }
 
   // Steps 1, 2 and 4 advance themselves on selection; only these need a button.

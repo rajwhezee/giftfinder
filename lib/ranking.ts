@@ -215,7 +215,7 @@ const STOP_WORDS = new Set([
   "handmade", "custom", "personalized", "personalised", "womens", "mens", "women", "men",
 ]);
 
-function titleTokens(title: string): Set<string> {
+export function titleTokens(title: string): Set<string> {
   return new Set(
     title
       .toLowerCase()
@@ -225,7 +225,7 @@ function titleTokens(title: string): Set<string> {
   );
 }
 
-function jaccard(a: Set<string>, b: Set<string>): number {
+export function jaccard(a: Set<string>, b: Set<string>): number {
   if (a.size === 0 || b.size === 0) return 0;
   let shared = 0;
   for (const token of a) if (b.has(token)) shared++;
@@ -289,4 +289,84 @@ export function selectDiverse<T extends DiversifiableItem>(items: T[], limit: nu
   }
 
   return chosen;
+}
+
+/* ------------------------------------------------------------------ *
+ * Similarity
+ *
+ * Powers "more like this": the shopper has pointed at one product and asked
+ * for the same idea again. That is a different question from the quiz, which
+ * ranks against a *person*. Here the anchor product is the whole query, so the
+ * quiz answers survive only as the hard filters the API route already applies
+ * (occasion, age, gender, budget) and the anchor decides the ordering.
+ *
+ * Pure, like the rest of this file, and cheap enough to stay off the LLM path.
+ * ------------------------------------------------------------------ */
+
+export const SIMILARITY_WEIGHTS = {
+  /** What the product is *for*. The strongest signal we have per row. */
+  interest: 0.5,
+  /** What it literally is. Catches "leather journal" ~ "leather notebook"
+   *  where the interest tags are identical across a whole category. */
+  title: 0.3,
+  /** Someone who clicked a $28 candle is not shopping the $180 one. */
+  price: 0.15,
+  /** Mild: the same maker often really is the nearest thing, but this is
+   *  deliberately too small to fill the strip with one brand on its own. */
+  platform: 0.05,
+} as const;
+
+/**
+ * Below this the price signal stops discriminating, so a $4 sticker and a $12
+ * one don't read as wildly different products. Also keeps the ratio finite
+ * when the anchor is nearly free.
+ */
+const PRICE_SCALE_FLOOR = 25;
+
+/**
+ * At or above this title overlap, two listings are the same product rather
+ * than a similar one — usually the same item imported from two sellers, or a
+ * size variant. Showing them back as "more like this" reads as a bug.
+ *
+ * Much higher than DUPLICATE_SIMILARITY, which exists to keep a *varied* page
+ * varied. Here near-duplicates are the point, right up until they are the item
+ * the shopper is already looking at.
+ */
+export const SAME_LISTING_SIMILARITY = 0.85;
+
+export interface SimilarityInput {
+  anchorInterests: string[];
+  anchorTitle: string;
+  anchorPrice: number;
+  anchorPlatform: string;
+  candidateInterests: string[];
+  candidateTitle: string;
+  candidatePrice: number;
+  candidatePlatform: string;
+}
+
+export interface SimilarityBreakdown {
+  total: number;
+  /** Title overlap, exposed so callers can drop the same listing outright. */
+  titleOverlap: number;
+}
+
+export function scoreSimilarity(input: SimilarityInput): SimilarityBreakdown {
+  const interest = jaccard(new Set(input.anchorInterests), new Set(input.candidateInterests));
+  const titleOverlap = jaccard(titleTokens(input.anchorTitle), titleTokens(input.candidateTitle));
+
+  // Relative rather than absolute: $10 apart matters on a $20 gift and not on
+  // a $200 one.
+  const scale = Math.max(input.anchorPrice, PRICE_SCALE_FLOOR);
+  const price = 1 - Math.min(Math.abs(input.candidatePrice - input.anchorPrice) / scale, 1);
+
+  const platform = input.candidatePlatform === input.anchorPlatform ? 1 : 0;
+
+  const total =
+    interest * SIMILARITY_WEIGHTS.interest +
+    titleOverlap * SIMILARITY_WEIGHTS.title +
+    price * SIMILARITY_WEIGHTS.price +
+    platform * SIMILARITY_WEIGHTS.platform;
+
+  return { total, titleOverlap };
 }
