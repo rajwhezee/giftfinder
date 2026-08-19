@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StaticGiftCard } from "@/components/StaticGiftCard";
+import { namesADifferentOccasion } from "@/lib/occasion-fit";
 import { OCCASION_EMOJI } from "@/lib/gift-option-icons";
 import { OCCASIONS } from "@/lib/gift-options";
 import { occasionToSlug, slugToOccasion } from "@/lib/occasion-slugs";
@@ -42,6 +43,9 @@ export async function generateMetadata({
  * twelve $9 trinkets reads as junk, and a page of only $900 watches is useless
  * to most visitors.
  */
+/** Quality bar for a landing page. See the fallback below for when it bites. */
+const MIN_LANDING_SCORE = 55;
+
 async function getGiftsForOccasion(occasion: string) {
   const tiers = [
     { lte: 50 },
@@ -49,23 +53,50 @@ async function getGiftsForOccasion(occasion: string) {
     { gt: 150 },
   ];
 
+  const select = {
+    id: true,
+    name: true,
+    price: true,
+    currency: true,
+    imageUrl: true,
+    productUrl: true,
+    platform: true,
+  };
+
   const results = await Promise.all(
-    tiers.map((price) =>
-      prisma.gift.findMany({
-        where: { occasions: { has: occasion }, price },
-        orderBy: { price: "asc" },
-        take: 8,
-        select: {
-          id: true,
-          name: true,
-          price: true,
-          currency: true,
-          imageUrl: true,
-          productUrl: true,
-          platform: true,
-        },
-      }),
-    ),
+    tiers.map(async (price) => {
+      const where = { occasions: { has: occasion }, price };
+
+      // Best first, not cheapest first. Ordering by price ascending put $1-3
+      // Etsy filler at the top of every landing page — a birthday face tattoo
+      // and a custom banner led /gifts/valentines-day — because the cheapest
+      // thing in a tier is reliably the least gift-like thing in it.
+      //
+      // Over-fetches because the mismatch filter below runs in JS: occasions
+      // are an import-query artefact and cannot be trusted in SQL alone.
+      const strong = await prisma.gift.findMany({
+        where: { ...where, giftScore: { gte: MIN_LANDING_SCORE } },
+        orderBy: [{ giftScore: "desc" }, { price: "asc" }],
+        take: 40,
+        select,
+      });
+
+      const fit = strong.filter((g) => !namesADifferentOccasion(g.name, occasion));
+      if (fit.length >= 8) return fit.slice(0, 8);
+
+      // Thin occasions — Vaisakhi, Onam — do not have 8 well-scored gifts in
+      // every price tier, and an empty tier is worse than a mediocre one. Note
+      // `giftScore: { not: null }`: Postgres sorts nulls first on DESC, so
+      // without it the 20 rows that failed scoring would lead the page.
+      const rest = await prisma.gift.findMany({
+        where: { ...where, giftScore: { not: null, lt: MIN_LANDING_SCORE } },
+        orderBy: [{ giftScore: "desc" }, { price: "asc" }],
+        take: 40,
+        select,
+      });
+
+      return [...fit, ...rest.filter((g) => !namesADifferentOccasion(g.name, occasion))].slice(0, 8);
+    }),
   );
 
   return results.flat().map((g) => ({
