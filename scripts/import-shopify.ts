@@ -27,6 +27,7 @@ import {
   type ShopifyProduct,
 } from "../lib/shopify";
 import { INTERESTS, OCCASIONS } from "../lib/gift-options";
+import { assertRulesValid, deriveTags } from "../lib/product-tags";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 /**
@@ -1158,6 +1159,7 @@ function stage(
   product: ShopifyProduct,
   brand: Brand,
   staged: Map<string, StagedGift>,
+  derived: Record<string, number>,
 ): string | null {
   const title = (product.title ?? "").trim();
   const variant = pickVariant(product);
@@ -1181,6 +1183,22 @@ function stage(
 
   const description = htmlToText(product.body_html ?? "");
 
+  // Per-product tags where the listing says enough to earn them, brand-level
+  // tags where it doesn't. These reach the database on create only — an
+  // existing row's interests, age range and gender belong to `enrich:tags` and
+  // the upsert below never writes them on update.
+  const rule = deriveTags({
+    title,
+    productType: product.product_type,
+    tags: product.tags,
+  });
+  if (rule) derived[rule.label] = (derived[rule.label] ?? 0) + 1;
+
+  // A rule that only established gender leaves the interests alone. The brand's
+  // guess is still better than nothing, and better than a category this table
+  // doesn't cover.
+  const interests = rule && rule.interests.length > 0 ? rule.interests : brand.interests;
+
   staged.set(url, {
     name: truncateText(title, 140),
     description: truncateText(description, 400) || title,
@@ -1188,12 +1206,16 @@ function stage(
     // products.json carries no currency field; every brand here is a US
     // storefront selling in USD. Re-check before adding non-US merchants.
     currency: "USD",
-    gender: brand.gender ?? "unisex",
+    // A brand-level gender is a curator's decision about the whole catalogue,
+    // so it outranks a word in one title. Otherwise take what the listing
+    // states outright, and fall back to unisex — which is what keeps a product
+    // eligible for every search rather than half of them.
+    gender: brand.gender ?? rule?.gender ?? "unisex",
     imageUrl,
     productUrl: url,
     platform: brand.name,
     occasions: new Set(brand.occasions),
-    interests: new Set(brand.interests),
+    interests: new Set(interests),
     ageMin: brand.ageMin,
     ageMax: brand.ageMax,
   });
@@ -1202,9 +1224,12 @@ function stage(
 
 async function main() {
   assertTaxonomyValid();
+  assertRulesValid();
 
   const staged = new Map<string, StagedGift>();
   const skipped: Record<string, number> = {};
+  /** Which derivation rule tagged each product, for the run summary. */
+  const derived: Record<string, number> = {};
   let fetched = 0;
 
   for (const brand of BRANDS) {
@@ -1214,7 +1239,7 @@ async function main() {
       for (const product of products) {
         if (brandCount >= MAX_PER_BRAND) break;
         const before = staged.size;
-        const reason = stage(product, brand, staged);
+        const reason = stage(product, brand, staged, derived);
         if (reason) {
           skipped[reason] = (skipped[reason] ?? 0) + 1;
         } else if (staged.size > before) {
@@ -1265,6 +1290,15 @@ async function main() {
   if (Object.keys(skipped).length) {
     console.log("Skipped:");
     for (const [reason, count] of Object.entries(skipped)) console.log(`  ${count} × ${reason}`);
+  }
+
+  const tagged = Object.values(derived).reduce((n, c) => n + c, 0);
+  console.log(
+    `\nPer-product tags derived for ${tagged} of ${staged.size} ` +
+      `(${Math.round((100 * tagged) / Math.max(staged.size, 1))}%); the rest keep their brand's tags.`,
+  );
+  for (const [label, count] of Object.entries(derived).sort((a, b) => b[1] - a[1])) {
+    console.log(`  ${String(count).padStart(5)} × ${label}`);
   }
 
   if (DRY_RUN) {
