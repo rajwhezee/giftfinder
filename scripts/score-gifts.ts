@@ -58,7 +58,7 @@ const POLL_INTERVAL_MS = 20_000;
 const MAX_DESCRIPTION_CHARS = 180;
 
 /** Below this a gift is demoted in ranking; see GIFT_SCORE_FLOOR there. */
-const LOW = 40;
+const LOW = 20;
 
 /**
  * Occasions whose defining gift is often a plain, cheap, ritual object.

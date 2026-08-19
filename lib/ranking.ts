@@ -34,8 +34,25 @@ export const MIN_INTEREST_MATCHES = 1;
  * supports. The scores cluster hard between 55 and 78 and only separate at the
  * bottom, so treating the middle as meaningful would be reading noise. What it
  * reliably identifies is the tail: refills, craft supplies, replacement parts.
+ *
+ * 20, not 40. The full catalogue run made the difference legible, and a
+ * 1,000-row pilot drawn from one end of the id space had not:
+ *
+ *   0-19   labels, stickers, craft charms, wholesale gemstone lots, party
+ *          favours, "Extend Protection Plan", "Mattress Recycling Fee",
+ *          "Serviceability - Side Table Knob", 1000 vinyl record sleeves
+ *   20-39  a stone mortar and pestle, a personalised notepad, a money wallet,
+ *          a hangover kit, a shoe horn set
+ *
+ * The second list is gifts. At 40 the penalty took 13.9% of the catalogue and
+ * fell hardest on whole categories the prompt's own wording condemns —
+ * skincare and coffee as "consumables", chargers and hubs as "accessories
+ * useless without the thing they attach to". Olaplex lost 70% of its
+ * catalogue, Satechi 62%, Trade Coffee 54%. Those are ordinary gifts.
+ *
+ * At 20 it takes 6.1%, which is the junk and nothing else.
  */
-export const GIFT_SCORE_FLOOR = 40;
+export const GIFT_SCORE_FLOOR = 20;
 
 /**
  * What a product keeps when it falls below the floor.
