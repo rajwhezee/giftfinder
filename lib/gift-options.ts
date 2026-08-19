@@ -81,6 +81,13 @@ export const INTERESTS = [
   "Personalized",
   "Reading",
   "Cars",
+  // Deep enough to stand on its own once the sneaker boutiques import: ~1,071
+  // products, ahead of Sports, Tech and Music. Before them it was Fashion +
+  // Sports, which put a Jordan 1 next to a handbag and a yoga mat.
+  "Sneakers",
+  // No existing interest covered someone shopping for a dog owner, and it is
+  // one of the largest gifting categories there is.
+  "Pets",
 ] as const;
 
 export const BUDGET_MIN = 10;

@@ -46,9 +46,17 @@ const RULES: Rule[] = [
     label: "footwear",
     pattern:
       /\bfootwear\b|\bsneakers?\b|\bshoes?\b|\btrainers\b|\bcleats\b|\bdunk\b|air jordan|air max|air force|\byeezy\b|\bsamba\b|\bgazelle\b|new balance|\bloafers?\b|\bsandals?\b/,
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
   },
   { label: "boots", pattern: /\bboots?\b/, interests: ["Fashion", "Outdoors"] },
+
+  // --- Pets. High in the table because "dog bed" and "cat tree" would
+  //     otherwise be read as furniture, and "dog treats" as food. ---
+  {
+    label: "pets",
+    pattern: /\bdogs?\b|\bcats?\b|\bpuppy\b|\bkitten\b|\bpets?\b|\bleash(es)?\b|\bcollars? (and|&)? ?leash\b|\bharness\b|\bcanine\b|\bfeline\b/,
+    interests: ["Pets", "Family"],
+  },
 
   // --- Audio. Before "tech", which would otherwise swallow it. ---
   {

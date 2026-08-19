@@ -211,7 +211,7 @@ const BRANDS: Brand[] = [
   {
     domain: "iliabeauty.com",
     name: "ILIA",
-    interests: ["Beauty", "Self-care", "Health"],
+    interests: ["Beauty", "Self-care", "Fashion", "Health"],
     occasions: ["Birthday", "Christmas", "Mother's Day", "Anniversary"],
     ageMin: 18,
     ageMax: 75,
@@ -715,7 +715,7 @@ const BRANDS: Brand[] = [
   {
     domain: "kith.com",
     name: "Kith",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 45,
@@ -724,7 +724,7 @@ const BRANDS: Brand[] = [
   {
     domain: "undefeated.com",
     name: "Undefeated",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 45,
@@ -733,7 +733,7 @@ const BRANDS: Brand[] = [
   {
     domain: "bdgastore.com",
     name: "Bodega",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 45,
@@ -742,7 +742,7 @@ const BRANDS: Brand[] = [
   {
     domain: "cncpts.com",
     name: "Concepts",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 45,
@@ -751,7 +751,7 @@ const BRANDS: Brand[] = [
   {
     domain: "a-ma-maniere.com",
     name: "A Ma Maniére",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation", "Anniversary"],
     ageMin: 16,
     ageMax: 45,
@@ -760,7 +760,7 @@ const BRANDS: Brand[] = [
   {
     domain: "sneakerpolitics.com",
     name: "Sneaker Politics",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 45,
@@ -769,7 +769,7 @@ const BRANDS: Brand[] = [
   {
     domain: "extrabutterny.com",
     name: "Extra Butter",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 45,
@@ -778,7 +778,7 @@ const BRANDS: Brand[] = [
   {
     domain: "socialstatuspgh.com",
     name: "Social Status",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 45,
@@ -787,7 +787,7 @@ const BRANDS: Brand[] = [
   {
     domain: "notre-shop.com",
     name: "Notre",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 16,
     ageMax: 45,
@@ -796,7 +796,7 @@ const BRANDS: Brand[] = [
   {
     domain: "packershoes.com",
     name: "Packer",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 45,
@@ -805,7 +805,7 @@ const BRANDS: Brand[] = [
   {
     domain: "renarts.com",
     name: "Renarts",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 45,
@@ -814,7 +814,7 @@ const BRANDS: Brand[] = [
   {
     domain: "lapstoneandhammer.com",
     name: "Lapstone & Hammer",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 16,
     ageMax: 45,
@@ -823,7 +823,7 @@ const BRANDS: Brand[] = [
   {
     domain: "solefly.com",
     name: "SoleFly",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 45,
@@ -832,7 +832,7 @@ const BRANDS: Brand[] = [
   {
     domain: "wishatl.com",
     name: "Wish ATL",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 45,
@@ -841,7 +841,7 @@ const BRANDS: Brand[] = [
   {
     domain: "xhibition.co",
     name: "Xhibition",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 45,
@@ -850,7 +850,7 @@ const BRANDS: Brand[] = [
   {
     domain: "shoepalace.com",
     name: "Shoe Palace",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 10,
     ageMax: 45,
@@ -859,7 +859,7 @@ const BRANDS: Brand[] = [
   {
     domain: "shoegallerymiami.com",
     name: "Shoe Gallery",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 45,
@@ -868,7 +868,7 @@ const BRANDS: Brand[] = [
   {
     domain: "dtlr.com",
     name: "DTLR",
-    interests: ["Fashion", "Sports"],
+    interests: ["Sneakers", "Fashion", "Sports"],
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 12,
     ageMax: 45,
@@ -1104,6 +1104,115 @@ const BRANDS: Brand[] = [
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 14,
     ageMax: 55,
+  },
+
+  // --- Pets (verified 2026-08-19) ---
+  //
+  // The catalogue had 24 pet products in 9,866 rows, which is close to nothing
+  // for one of the largest gifting categories there is — people buy for other
+  // people's dogs constantly. The `Pets` interest exists because of these.
+  {
+    domain: "wildone.com",
+    name: "Wild One",
+    interests: ["Pets", "Home Decor"],
+    occasions: ["Birthday", "Christmas", "Housewarming", "Thank You"],
+    ageMin: 18,
+    ageMax: 75,
+  },
+  {
+    domain: "maxbone.com",
+    name: "Maxbone",
+    interests: ["Pets", "Fashion"],
+    occasions: ["Birthday", "Christmas", "Housewarming"],
+    ageMin: 18,
+    ageMax: 70,
+  },
+  {
+    domain: "thefoggydog.com",
+    name: "The Foggy Dog",
+    interests: ["Pets", "Home Decor", "Personalized"],
+    occasions: ["Birthday", "Christmas", "Housewarming", "Thank You"],
+    ageMin: 18,
+    ageMax: 75,
+  },
+  {
+    domain: "lambwolf.co",
+    name: "Lambwolf Collective",
+    interests: ["Pets", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Thank You"],
+    ageMin: 18,
+    ageMax: 65,
+  },
+  {
+    domain: "diggs.pet",
+    name: "Diggs",
+    interests: ["Pets", "Home Decor"],
+    occasions: ["Birthday", "Christmas", "Housewarming", "New Year"],
+    ageMin: 18,
+    ageMax: 70,
+  },
+  {
+    domain: "pupford.com",
+    name: "Pupford",
+    interests: ["Pets", "Health"],
+    occasions: ["Birthday", "Christmas", "Thank You"],
+    ageMin: 18,
+    ageMax: 75,
+  },
+
+  // --- Barware & spirits accessories (verified 2026-08-19) ---
+  //
+  // 52 rows before this. Deliberately *not* given a new interest: unlike
+  // sneakers and pets, this already has a home under Cooking, Food and Home
+  // Decor, and a chip per category is how a six-question quiz turns into a
+  // form.
+  {
+    domain: "viski.com",
+    name: "Viski",
+    interests: ["Cooking", "Home Decor", "Food"],
+    occasions: ["Christmas", "Birthday", "Housewarming", "Father's Day", "Wedding"],
+    ageMin: 21,
+    ageMax: 75,
+  },
+  {
+    domain: "cocktailkingdom.com",
+    name: "Cocktail Kingdom",
+    interests: ["Cooking", "Food", "Creativity"],
+    occasions: ["Christmas", "Birthday", "Housewarming", "Father's Day"],
+    ageMin: 21,
+    ageMax: 75,
+  },
+  {
+    domain: "elevatedcraft.com",
+    name: "Elevated Craft",
+    interests: ["Cooking", "Food", "Outdoors"],
+    occasions: ["Christmas", "Birthday", "Father's Day", "Housewarming"],
+    ageMin: 21,
+    ageMax: 70,
+  },
+  {
+    domain: "thewhiskeyball.com",
+    name: "The Whiskey Ball",
+    interests: ["Food", "Home Decor", "Personalized"],
+    occasions: ["Christmas", "Birthday", "Father's Day", "Anniversary", "Retirement"],
+    ageMin: 21,
+    ageMax: 80,
+  },
+  {
+    domain: "wandpdesign.com",
+    name: "W&P",
+    interests: ["Cooking", "Food", "Home Decor"],
+    occasions: ["Housewarming", "Christmas", "Birthday", "Wedding"],
+    ageMin: 18,
+    ageMax: 70,
+  },
+  {
+    domain: "corkcicle.com",
+    name: "Corkcicle",
+    interests: ["Food", "Travel", "Outdoors"],
+    occasions: ["Birthday", "Christmas", "Father's Day", "Thank You", "Graduation"],
+    ageMin: 14,
+    ageMax: 80,
   },
 ];
 

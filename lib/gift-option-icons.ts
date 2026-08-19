@@ -91,4 +91,6 @@ export const INTEREST_EMOJI: Record<string, string> = {
   Personalized: "🏷️",
   Reading: "📚",
   Cars: "🏎️",
+  Sneakers: "👟",
+  Pets: "🐾",
 };

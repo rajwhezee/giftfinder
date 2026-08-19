@@ -45,25 +45,27 @@ const RELATIONSHIP_AFFINITY: Record<Relationship, { affinity: Interest[]; avoid:
     avoid: [],
   },
   Friend: {
-    affinity: ["Games", "Music", "Fashion", "Outdoors", "Food", "Gaming"],
+    affinity: ["Games", "Music", "Fashion", "Outdoors", "Food", "Gaming", "Sneakers", "Pets"],
     avoid: ["Romance"],
   },
   Parent: {
-    affinity: ["Home Decor", "Cooking", "Gardening", "Self-care", "Reading"],
+    affinity: ["Home Decor", "Cooking", "Gardening", "Self-care", "Reading", "Pets"],
     avoid: ["Romance", "Gaming"],
   },
   Sibling: {
-    affinity: ["Gaming", "Music", "Fashion", "Games", "Tech"],
+    affinity: ["Gaming", "Music", "Fashion", "Games", "Tech", "Sneakers"],
     avoid: ["Romance"],
   },
   Child: {
-    affinity: ["Games", "STEM", "Creativity", "Reading", "Art"],
+    affinity: ["Games", "STEM", "Creativity", "Reading", "Art", "Sneakers"],
     avoid: ["Romance", "Beauty", "Jewelry", "Self-care"],
   },
   Coworker: {
     // Low-intimacy, safely impersonal gifts.
     affinity: ["Coffee", "Food", "Home Decor", "Writing"],
-    avoid: ["Romance", "Jewelry", "Personalized", "Beauty", "Self-care", "Fashion"],
+    // Sneakers join the list for the same reason Fashion is on it: both need a
+    // size, and asking a colleague theirs is the problem.
+    avoid: ["Romance", "Jewelry", "Personalized", "Beauty", "Self-care", "Fashion", "Sneakers"],
   },
   Other: { affinity: [], avoid: [] },
 };
