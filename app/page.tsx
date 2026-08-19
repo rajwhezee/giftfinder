@@ -61,16 +61,25 @@ export default async function Home() {
       <GiftMark />
 
       <div className="relative z-10">
-        <div className="mx-auto max-w-2xl text-center">
+        <div className="mx-auto max-w-3xl text-center">
           {/* One "over" carries the rounding for the whole line, so the dot is
               the only separator and the only symbol doing any work. Mixing "+"
               with "·" read as two competing punctuation systems. */}
-          <p className="text-xs tracking-[0.2em] text-ink-faint uppercase text-balance">
-            Over {roundedFloor(giftCount, 1000).toLocaleString("en-US")} gifts ·{" "}
-            {roundedFloor(platforms.length, 5)} brands · {OCCASIONS.length} occasions
+          <p className="text-xs tracking-[0.2em] text-ink-faint uppercase text-balance sm:text-sm">
+            {/* Each count is bound to its own noun, and each separator to the
+                item before it: at this tracking the line wraps on a phone, and
+                without this it breaks between "135" and "brands". Same trick as
+                the launcher's meta line below. */}
+            <span className="whitespace-nowrap">
+              Over {roundedFloor(giftCount, 1000).toLocaleString("en-US")} gifts ·
+            </span>{" "}
+            <span className="whitespace-nowrap">
+              {roundedFloor(platforms.length, 5)} brands ·
+            </span>{" "}
+            <span className="whitespace-nowrap">{OCCASIONS.length} occasions</span>
           </p>
 
-          <h1 className="font-display mt-6 text-4xl leading-[1.08] font-semibold text-balance sm:text-6xl">
+          <h1 className="font-display mt-7 text-5xl leading-[1.05] font-semibold text-balance sm:text-7xl">
             The gift they didn&rsquo;t know to <span className="accent-word">ask</span> for.
           </h1>
 
@@ -87,22 +96,22 @@ export default async function Home() {
               Note this says roughly what QuizLauncher says a few lines below
               ("Answer six quick questions about them and we'll find the one").
               One of the two should probably go. */}
-          <p className="mx-auto mt-5 max-w-lg text-lg leading-relaxed text-balance text-ink">
+          <p className="mx-auto mt-6 max-w-xl text-xl leading-relaxed text-balance text-ink sm:text-2xl">
             Tell us who it&rsquo;s for and what they like, we&rsquo;ll handle the rest{" "}
             <span className="whitespace-nowrap">&#x1F4AA;</span>
           </p>
 
           <div
             aria-hidden
-            className="mx-auto mt-8 flex items-center justify-center gap-3 text-ink-faint"
+            className="mx-auto mt-9 flex items-center justify-center gap-3 text-ink-faint"
           >
-            <span className="h-px w-10 bg-rule" />
-            <span className="text-sm">✦</span>
-            <span className="h-px w-10 bg-rule" />
+            <span className="h-px w-12 bg-rule" />
+            <span className="text-base">✦</span>
+            <span className="h-px w-12 bg-rule" />
           </div>
         </div>
 
-        <div className="mt-10">
+        <div className="mt-11">
           <QuizLauncher />
         </div>
 

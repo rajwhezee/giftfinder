@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { HOME_RESET_EVENT } from "@/lib/home-reset";
 import { GiftQuiz } from "./GiftQuiz";
 
@@ -20,6 +20,29 @@ import { GiftQuiz } from "./GiftQuiz";
 export function QuizLauncher() {
   const [launched, setLaunched] = useState(false);
   const quizRef = useRef<HTMLDivElement>(null);
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
+
+  /**
+   * The button grows slightly as it rises through the viewport.
+   *
+   * Tied to the element's own position rather than to raw scroll distance, so
+   * it behaves the same whether the hero is tall on a desktop or crammed on a
+   * phone. "start end" is the moment its top edge meets the bottom of the
+   * screen; "center center" is when it reaches the middle. Past that it holds
+   * at full size rather than continuing to grow, which would read as a glitch.
+   */
+  const { scrollYProgress } = useScroll({
+    target: ctaRef,
+    offset: ["start end", "center center"],
+  });
+  // Both ranges start at the button's resting state, never below it. If these
+  // never run — a stalled rAF, a backgrounded tab, motion failing to load —
+  // the button is left exactly as its CSS draws it. Animating *up* from
+  // nothing would mean the primary call to action is invisible when the
+  // animation is the thing that broke.
+  const scale = useTransform(scrollYProgress, [0, 1], [1, 1.04]);
+  const lift = useTransform(scrollYProgress, [0, 1], [8, 0]);
 
   // The wordmark in the header asks for this when it is clicked on "/". Dropping
   // back to the un-launched state unmounts the quiz, which is what discards the
@@ -46,25 +69,43 @@ export function QuizLauncher() {
 
   if (!launched) {
     return (
-      <div className="flex flex-col items-center gap-3">
+      <div ref={ctaRef} className="flex flex-col items-center gap-3">
         {/* Says the whole proposition in one sentence, in plain words, right
             where the decision to click is made. The headline above is doing
             tone; this is doing comprehension. */}
-        <p className="mb-2 max-w-md text-center text-base leading-relaxed text-pretty text-ink-soft">
+        <p className="mb-3 max-w-lg text-center text-lg leading-relaxed text-pretty text-ink-soft">
           Answer six quick questions about them and we&apos;ll find the one.
         </p>
 
-        <motion.button
-          type="button"
-          onClick={() => setLaunched(true)}
-          whileTap={{ scale: 0.98 }}
-          className="btn-primary btn-launch inline-flex items-center gap-2.5 rounded-full px-10 py-4.5 text-base font-medium"
+        {/* Two wrappers, because three animations want the same two properties
+            and each element can only own one writer per property: the outer one
+            plays once on arrival, the inner one tracks scroll, and whileTap on
+            the button itself handles the press.
+
+            The arrival animation is what carries the emphasis on a desktop,
+            where the hero is short enough that the button already sits past the
+            middle of the screen on load and the scroll transform is finished
+            before anyone touches the wheel. On a phone it is the other way
+            round. */}
+        <motion.div
+          initial={reduceMotion ? false : { y: 16, scale: 0.97 }}
+          animate={{ y: 0, scale: 1 }}
+          transition={{ type: "spring", stiffness: 210, damping: 20, delay: 0.12 }}
         >
-          Launch Gift Finder
-          <span aria-hidden className="btn-arrow">
-            →
-          </span>
-        </motion.button>
+          <motion.div style={reduceMotion ? undefined : { scale, y: lift }}>
+            <motion.button
+              type="button"
+              onClick={() => setLaunched(true)}
+              whileTap={{ scale: 0.98 }}
+              className="btn-primary btn-launch inline-flex items-center gap-3 rounded-full px-12 py-5 text-lg font-medium"
+            >
+              Launch Gift Finder
+              <span aria-hidden className="btn-arrow">
+                →
+              </span>
+            </motion.button>
+          </motion.div>
+        </motion.div>
 
         {/* Naming the cost is what actually converts — the button can only make
             itself seen, this makes it feel cheap to press. The third item is the
@@ -77,7 +118,7 @@ export function QuizLauncher() {
             any break between items rather than through one, and binding each
             separator to the item before it stops a line starting with a bare
             middot. */}
-        <p className="text-center text-xs tracking-[0.14em] text-balance text-ink-faint uppercase">
+        <p className="mt-1 text-center text-[13px] tracking-[0.14em] text-balance text-ink-faint uppercase">
           <span className="whitespace-nowrap">About 30 seconds ·</span>{" "}
           <span className="whitespace-nowrap">No sign-up ·</span>{" "}
           <span className="whitespace-nowrap">No sponsors</span>
