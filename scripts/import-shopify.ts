@@ -105,6 +105,12 @@ interface Brand {
  * ("air jordan", not "jordan") because the bare brand word appears on tees and
  * hats throughout the same feeds.
  */
+/**
+ * Same idea as FOOTWEAR, for brands that sell bags alongside clothing —
+ * Everlane and STAUD would otherwise spend their slots on knitwear.
+ */
+const BAGS = /\bbags?\b|\bhandbags?\b|\btotes?\b|\bbackpacks?\b|\bcrossbody\b|\bsatchels?\b|\bclutch(es)?\b|\bhobo\b|\bduffels?\b|\bluggage\b|\bsuitcases?\b|\bweekender\b|\bpurses?\b/i;
+
 const FOOTWEAR = /footwear|sneakers?|\bshoes?\b|\bboots?\b|\btrainers\b|\bcleats\b|\bdunk\b|air jordan|air max|air force|\byeezy\b|\bsamba\b|\bgazelle\b|new balance/i;
 
 const BRANDS: Brand[] = [
@@ -1249,6 +1255,98 @@ const BRANDS: Brand[] = [
     occasions: ["Birthday", "Christmas", "Father's Day", "Thank You", "Graduation"],
     ageMin: 14,
     ageMax: 80,
+  },
+
+  // --- Bags & handbags (verified 2026-08-19) ---
+  //
+  // Polène and Strathberry were both asked for by name and neither could be
+  // taken: polene-paris.com serves EUR and has no reachable US domain, and
+  // Strathberry's US store exposes no feed while strathberry.com is the UK
+  // site whose currency could not be confirmed. Importing either would file
+  // euro and sterling prices as dollars, which is the one mistake this
+  // catalogue cannot detect after the fact.
+  //
+  // Cuyana and Béis were already here and already carry bags.
+  {
+    domain: "hammitt.com",
+    name: "Hammitt",
+    interests: ["Bags", "Fashion"],
+    occasions: ["Birthday", "Christmas", "Mother's Day", "Anniversary", "Graduation"],
+    ageMin: 18,
+    ageMax: 75,
+    prefer: BAGS,
+  },
+  {
+    domain: "mansurgavriel.com",
+    name: "Mansur Gavriel",
+    interests: ["Bags", "Fashion"],
+    occasions: ["Birthday", "Christmas", "Anniversary", "Mother's Day"],
+    ageMin: 20,
+    ageMax: 70,
+    prefer: BAGS,
+  },
+  {
+    domain: "dagnedover.com",
+    name: "Dagne Dover",
+    interests: ["Bags", "Travel", "Fashion"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Mother's Day", "New Year"],
+    ageMin: 18,
+    ageMax: 65,
+    prefer: BAGS,
+  },
+  {
+    domain: "songmont.com",
+    name: "Songmont",
+    interests: ["Bags", "Fashion"],
+    occasions: ["Birthday", "Christmas", "Anniversary", "Lunar New Year"],
+    ageMin: 18,
+    ageMax: 65,
+    prefer: BAGS,
+  },
+  {
+    domain: "portlandleathergoods.com",
+    name: "Portland Leather Goods",
+    interests: ["Bags", "Personalized", "Fashion"],
+    occasions: ["Birthday", "Christmas", "Mother's Day", "Anniversary", "Graduation"],
+    ageMin: 18,
+    ageMax: 75,
+    prefer: BAGS,
+  },
+  {
+    domain: "parisawang.com",
+    name: "Parisa Wang",
+    interests: ["Bags", "Fashion"],
+    occasions: ["Birthday", "Christmas", "Anniversary", "Valentine's Day"],
+    ageMin: 20,
+    ageMax: 65,
+    prefer: BAGS,
+  },
+  {
+    domain: "calpaktravel.com",
+    name: "CALPAK",
+    interests: ["Bags", "Travel"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Wedding", "Retirement"],
+    ageMin: 16,
+    ageMax: 75,
+    prefer: BAGS,
+  },
+  {
+    domain: "staud.clothing",
+    name: "STAUD",
+    interests: ["Bags", "Fashion"],
+    occasions: ["Birthday", "Christmas", "Anniversary"],
+    ageMin: 20,
+    ageMax: 60,
+    prefer: BAGS,
+  },
+  {
+    domain: "everlane.com",
+    name: "Everlane",
+    interests: ["Bags", "Fashion", "Travel"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Thank You"],
+    ageMin: 18,
+    ageMax: 70,
+    prefer: BAGS,
   },
 ];
 

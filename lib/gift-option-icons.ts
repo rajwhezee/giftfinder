@@ -93,4 +93,5 @@ export const INTEREST_EMOJI: Record<string, string> = {
   Cars: "🏎️",
   Sneakers: "👟",
   Pets: "🐾",
+  Bags: "👜",
 };

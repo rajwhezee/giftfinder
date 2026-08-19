@@ -41,15 +41,15 @@ type Interest = (typeof INTERESTS)[number];
  */
 const RELATIONSHIP_AFFINITY: Record<Relationship, { affinity: Interest[]; avoid: Interest[] }> = {
   Partner: {
-    affinity: ["Romance", "Jewelry", "Personalized", "Self-care", "Travel"],
+    affinity: ["Romance", "Jewelry", "Personalized", "Self-care", "Travel", "Bags"],
     avoid: [],
   },
   Friend: {
-    affinity: ["Games", "Music", "Fashion", "Outdoors", "Food", "Gaming", "Sneakers", "Pets"],
+    affinity: ["Games", "Music", "Fashion", "Outdoors", "Food", "Gaming", "Sneakers", "Pets", "Bags"],
     avoid: ["Romance"],
   },
   Parent: {
-    affinity: ["Home Decor", "Cooking", "Gardening", "Self-care", "Reading", "Pets"],
+    affinity: ["Home Decor", "Cooking", "Gardening", "Self-care", "Reading", "Pets", "Bags"],
     avoid: ["Romance", "Gaming"],
   },
   Sibling: {

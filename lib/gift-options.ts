@@ -88,6 +88,9 @@ export const INTERESTS = [
   // No existing interest covered someone shopping for a dog owner, and it is
   // one of the largest gifting categories there is.
   "Pets",
+  // Handbags, totes and carry. Was Fashion + Travel, which is also a scarf and
+  // a suitcase; the bag brands are a category people shop by name.
+  "Bags",
 ] as const;
 
 export const BUDGET_MIN = 10;

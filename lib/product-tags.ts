@@ -40,12 +40,26 @@ interface Rule {
  * as a lamp before "light" catches an LED strip.
  */
 const RULES: Rule[] = [
-  // --- Footwear. Ahead of apparel because a sneaker boutique labels half its
-  //     catalogue with the same brand words. ---
+  // --- Footwear, in two passes with the apparel rules in between.
+  //
+  //     This pass is the nouns that can only be a shoe. It runs first so a
+  //     "Bondage Belt Sandal" is a sandal rather than a belt.
+  //
+  //     The lookahead on "shoe" is not fussiness: Shoe Palace prints its own
+  //     name into every title it sells, so without it their jackets, hoodies
+  //     and jerseys all classify as footwear. Any retailer whose name contains
+  //     a category word will need the same treatment.
+  //
+  //     The model names — air jordan, new balance, air max — are NOT here.
+  //     They live in a second pass below apparel, because a sneaker boutique
+  //     puts them on jerseys, hoodies, scarves and track pants too: "Air
+  //     Jordan x Free The Youth Football Jersey" was being filed under
+  //     Sneakers, and so was a New Balance fleece hoodie. An apparel noun has
+  //     to beat a brand name, or "Sneakers" stops meaning shoes. ---
   {
     label: "footwear",
     pattern:
-      /\bfootwear\b|\bsneakers?\b|\bshoes?\b|\btrainers\b|\bcleats\b|\bdunk\b|air jordan|air max|air force|\byeezy\b|\bsamba\b|\bgazelle\b|new balance|\bloafers?\b|\bsandals?\b/,
+      /\bfootwear\b|\bsneakers?\b|\bshoes?\b(?! palace)|\btrainers\b|\bcleats\b|\bloafers?\b|\bsandals?\b|\bmules?\b|\bclogs?\b|\bslides?\b|\bmoccasins?\b|\bmocs?\b/,
     interests: ["Sneakers", "Fashion", "Sports"],
   },
   { label: "boots", pattern: /\bboots?\b/, interests: ["Fashion", "Outdoors"] },
@@ -147,7 +161,7 @@ const RULES: Rule[] = [
   },
   {
     label: "rugs, throws & textiles",
-    pattern: /\brugs?\b|\bthrows?\b|\bblankets?\b|\bcushions?\b|\bpillows?\b|\bduvet\b|\bcurtains?\b/,
+    pattern: /\brugs?\b|\bthrows?\b|\bblankets?\b|\bcushions?\b|\bpillows?\b|\bduvet\b|\bcurtains?\b|\btowels?\b|\bbathrobes?\b/,
     interests: ["Home Decor", "Self-care"],
   },
   {
@@ -182,8 +196,8 @@ const RULES: Rule[] = [
   },
   {
     label: "bags & luggage",
-    pattern: /\bbackpacks?\b|\bduffels?\b|\btotes?\b|\bluggage\b|\bsuitcases?\b|\bcarry[- ]on\b|\bcrossbody\b|\bhandbags?\b|\bpouch(es)?\b|\bbags?\b/,
-    interests: ["Fashion", "Travel"],
+    pattern: /\bbackpacks?\b|\bduffels?\b|\btotes?\b|\bluggage\b|\bsuitcases?\b|\bcarry[- ]on\b|\bcrossbody\b|\bhandbags?\b|\bpouch(es)?\b|\bbags?\b|\bsatchels?\b|\bclutch(es)?\b|\bhobo\b|\bshoulder bag\b|\bweekender\b/,
+    interests: ["Bags", "Fashion", "Travel"],
   },
   {
     label: "wallets & small leather",
@@ -211,8 +225,17 @@ const RULES: Rule[] = [
   {
     label: "apparel",
     pattern:
-      /\bapparel\b|\bt[- ]?shirts?\b|\btees?\b|\bhood(ie|ies)\b|\bsweatshirts?\b|\bcrewnecks?\b|\bjackets?\b|\bcoats?\b|\b\w*pants\b|\b\w*shorts\b|\bjeans\b|\bjoggers?\b|\btracksuits?\b|\bsocks?\b|\bshirts?\b|\bdress(es)?\b|\bskirts?\b|\bsweaters?\b|\bknitwear\b/,
+      /\bapparel\b|\bt[- ]?shirts?\b|\btees?\b|\bhood(ie|ies)\b|\bsweatshirts?\b|\bcrewnecks?\b|\bjackets?\b|\bcoats?\b|\b\w*pants\b|\b\w*shorts\b|\bjeans\b|\bjoggers?\b|\btracksuits?\b|\bsocks?\b|\bshirts?\b|\bdress(es)?\b|\bskirts?\b|\bsweaters?\b|\bknitwear\b|\bjerseys?\b|\bscarv(es)?\b|\bscarf\b|\bgloves?\b|\bmittens?\b|\bbelts?\b|\bhoodies?\b|\btracksuits?\b|\bfleece\b|\bvests?\b/,
     interests: ["Fashion"],
+  },
+
+  // Model names only, and only now that every apparel and accessory rule above
+  // has had its say. A title that says "Air Jordan" and nothing else about
+  // what the product is, is a shoe.
+  {
+    label: "footwear (model)",
+    pattern: /\bdunk\b|air jordan|air max|air force|\byeezy\b|\bsamba\b|\bgazelle\b|new balance|\bgel-\w|\bxt-\d/,
+    interests: ["Sneakers", "Fashion", "Sports"],
   },
 
   // --- Everything else worth separating ---
