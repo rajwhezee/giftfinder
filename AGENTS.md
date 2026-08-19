@@ -135,6 +135,14 @@ only exist on the resale market.
 first; `tag-backup-*.json` at the repo root is gitignored and is the only way
 back short of re-running every import.
 
+**The importers must never write those three fields on update.** They are set on
+create, from brand-level defaults, and from then on `enrich:tags` owns them.
+`import-shopify.ts` did carry them in its `update` until 2026-08-19, so
+re-running it reverted every enriched row to its brand default — 4,050 rows
+across 71 brands, discarding a paid Batch API run and printing nothing. Prices,
+titles, images and occasions are still refreshed on update; `--retag` restores
+the old behaviour deliberately, for when a brand's entry was wrong.
+
 ## Design system
 
 "Champagne on Ivory", **light mode only**. Warm ivory `#faf7f0`, near-black

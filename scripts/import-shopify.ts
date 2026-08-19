@@ -29,6 +29,14 @@ import {
 import { INTERESTS, OCCASIONS } from "../lib/gift-options";
 
 const DRY_RUN = process.argv.includes("--dry-run");
+/**
+ * Push brand-level interests, age range and gender back over existing rows.
+ *
+ * Destructive: it discards whatever `enrich:tags` decided per product. Only
+ * reach for it when a brand's own entry in BRANDS was wrong and you intend to
+ * re-run the tagging pass afterwards.
+ */
+const RETAG = process.argv.includes("--retag");
 
 /** Polite pacing — these are small merchants' storefronts, not an API tier. */
 const REQUEST_DELAY_MS = 900;
@@ -1275,24 +1283,40 @@ async function main() {
   let upserted = 0;
   try {
     for (const gift of staged.values()) {
-      const data = {
+      // What the merchant owns: it changes on their side and should always be
+      // refreshed. Prices move, images get replaced, titles get rewritten.
+      const listing = {
         name: gift.name,
         description: gift.description,
         price: gift.price,
         currency: gift.currency,
-        gender: gift.gender,
         imageUrl: gift.imageUrl,
         productUrl: gift.productUrl,
         platform: gift.platform,
+        // Curated here rather than derived per product, so this file stays the
+        // source of truth for it and a re-import is how you widen coverage.
         occasions: [...gift.occasions],
+      };
+
+      // What `enrich:tags` owns once it has run. These are brand-level guesses
+      // — every product from one brand gets the same three values — and the
+      // tagging pass replaces them with per-product judgments.
+      //
+      // So they are written on create and never on update. Before this split,
+      // `update` carried them too, and re-running the importer silently reverted
+      // every enriched row to its brand default: 4,050 rows across 71 brands,
+      // undoing a paid Batch API run without printing a word about it.
+      const taxonomy = {
+        gender: gift.gender,
         interests: [...gift.interests],
         ageMin: gift.ageMin,
         ageMax: gift.ageMax,
       };
+
       await prisma.gift.upsert({
         where: { productUrl: gift.productUrl },
-        update: data,
-        create: data,
+        update: RETAG ? { ...listing, ...taxonomy } : listing,
+        create: { ...listing, ...taxonomy },
       });
       upserted++;
     }
