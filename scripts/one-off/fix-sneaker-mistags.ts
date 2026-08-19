@@ -32,11 +32,12 @@ async function main() {
     // is left alone. Only two labels are trusted, and only when nothing in the
     // title suggests footwear.
     if (!["bags & luggage", "apparel", "headwear", "rugs, throws & textiles", "jewellery"].includes(d.label)) continue;
+    if (/\bshoes?\b(?! palace| compartment| bags?\b| pockets?| organiz)/i.test(r.name)) continue;
     // Only the nouns that can only be a shoe — model names are exactly what
     // gets printed on the jerseys, so they must not veto a correction here.
     // "Shoe Palace" is a retailer, not a shoe. Without the lookahead their
     // name satisfies the veto and none of their apparel is ever corrected.
-    if (/\bshoes?\b(?! palace)|sneaker|\bmule\b|\bclog\b|\bslides?\b|trainer|\bsandal|\bloafer|\bmocs?\b|\bcleat|\bboots?\b/i.test(r.name)) continue;
+    if (/sneaker|\bmule\b|\bclog\b|\bslides?\b|trainer|\bsandal|\bloafer|\bmocs?\b|\bcleat|\bboots?\b/i.test(r.name)) continue;
     // Sneaker nicknames that collide with apparel nouns. "The Glove" is Gary
     // Payton's Nike Air Zoom Flight, not a glove.
     if (/the glove|zoom flight|\bwindrunner\b|\bblazers?\b/i.test(r.name)) continue;

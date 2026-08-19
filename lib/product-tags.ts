@@ -45,10 +45,12 @@ const RULES: Rule[] = [
   //     This pass is the nouns that can only be a shoe. It runs first so a
   //     "Bondage Belt Sandal" is a sandal rather than a belt.
   //
-  //     The lookahead on "shoe" is not fussiness: Shoe Palace prints its own
+  //     The lookahead on "shoe" is not fussiness. Shoe Palace prints its own
   //     name into every title it sells, so without it their jackets, hoodies
-  //     and jerseys all classify as footwear. Any retailer whose name contains
-  //     a category word will need the same treatment.
+  //     and jerseys all classify as footwear; any retailer whose name contains
+  //     a category word needs the same treatment. The rest of the lookahead is
+  //     luggage: a duffel "with shoe compartment" and a backpack tagged "shoe
+  //     pocket" are bags, and they were landing in Sneakers.
   //
   //     The model names — air jordan, new balance, air max — are NOT here.
   //     They live in a second pass below apparel, because a sneaker boutique
@@ -59,7 +61,7 @@ const RULES: Rule[] = [
   {
     label: "footwear",
     pattern:
-      /\bfootwear\b|\bsneakers?\b|\bshoes?\b(?! palace)|\btrainers\b|\bcleats\b|\bloafers?\b|\bsandals?\b|\bmules?\b|\bclogs?\b|\bslides?\b|\bmoccasins?\b|\bmocs?\b/,
+      /\bfootwear\b|\bsneakers?\b|\bshoes?\b(?! palace| compartment| bags?\b| pockets?| organiz)|\btrainers\b|\bcleats\b|\bloafers?\b|\bsandals?\b|\bmules?\b|\bclogs?\b|\bslides?\b|\bmoccasins?\b|\bmocs?\b/,
     interests: ["Sneakers", "Fashion", "Sports"],
   },
   { label: "boots", pattern: /\bboots?\b/, interests: ["Fashion", "Outdoors"] },
