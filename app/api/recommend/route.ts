@@ -19,6 +19,24 @@ import type { GiftRecommendation } from "@/lib/types";
  */
 const MAX_RESULTS = 150;
 
+/**
+ * How many of the top-scoring candidates the diversity pass considers.
+ *
+ * selectDiverse is greedy: every slot rescans everything still in the running,
+ * and each rescan does a title-token comparison. That is fine over hundreds of
+ * candidates and quadratic-feeling over thousands — a broad query put ~11,000
+ * rows through 150 slots, and the route measured 610 ms on a laptop but 1.4 s
+ * on the function, which is the shape of a CPU bound rather than a database
+ * one.
+ *
+ * Four times the result cap. The penalties diversity applies are small — 0.055
+ * per platform repeat, 0.3 for a near-duplicate — so a candidate sitting more
+ * than 450 places below the cut could only reach the page if almost everything
+ * above it were penalised at once, which cannot happen when the pool is this
+ * much larger than the page.
+ */
+const DIVERSITY_POOL = MAX_RESULTS * 4;
+
 export async function POST(request: Request) {
   const json = await request.json().catch(() => null);
   const body = parseRecommendBody(json);
@@ -113,8 +131,11 @@ export async function POST(request: Request) {
     (a, b) => b.breakdown.total - a.breakdown.total || b.price - a.price,
   );
 
+  // Only the strongest candidates reach the diversity pass; see DIVERSITY_POOL.
+  const pool = ordered.slice(0, DIVERSITY_POOL);
+
   const picked = selectDiverse(
-    ordered.map((entry) => ({
+    pool.map((entry) => ({
       score: entry.breakdown.total,
       platform: entry.gift.platform,
       name: entry.gift.name,
@@ -124,7 +145,7 @@ export async function POST(request: Request) {
     body.interests,
   );
 
-  const chosen = picked.map((index) => ordered[index]);
+  const chosen = picked.map((index) => pool[index]);
 
   // The display half, for the survivors only. `description` is deliberately
   // still not fetched — nothing renders it.
