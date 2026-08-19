@@ -77,27 +77,13 @@ export default async function Home() {
           {/* States the deal in one line: what the visitor supplies, and what
               they get back. It replaced a rhetorical question ("What do you get
               someone who already has everything?"), which set the problem up
-              without promising anything.
+              without promising anything, and the tone line that followed it.
 
-              Note this now says roughly what QuizLauncher says a few lines
-              below ("Answer six quick questions about them and we'll find the
-              one"). One of the two should probably go. */}
+              Note this says roughly what QuizLauncher says a few lines below
+              ("Answer six quick questions about them and we'll find the one").
+              One of the two should probably go. */}
           <p className="mx-auto mt-5 max-w-lg text-lg leading-relaxed text-balance text-ink">
             Tell us who it&rsquo;s for and what they like, we&rsquo;ll handle the rest.
-          </p>
-
-          {/* Carries the tone the line above cannot. Joined with "but" rather
-              than left as two clipped sentences, which read as monotonous next
-              to each other: naming the lazy default earns the turn, and the
-              turn is what makes it a promise instead of a jab. "Maybee",
-              "wanna" and the trailing :) are all deliberate and were chosen
-              after the misreading risk was raised. The doubled e stretches the
-              word the way it is said out loud, "wanna" is the one colloquial
-              word on the page, and the smiley closes the sentence in place of a
-              full stop. None of them is a typo. Do not correct them in a
-              tidy-up pass. */}
-          <p className="mx-auto mt-3 max-w-lg text-base leading-relaxed text-pretty text-ink-soft">
-            Maybee not a gift card, but something they&rsquo;d actually wanna keep :)
           </p>
 
           <div
