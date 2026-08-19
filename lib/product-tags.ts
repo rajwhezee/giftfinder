@@ -19,6 +19,8 @@ import { INTERESTS } from "./gift-options";
  * Pure and dependency-free, so it can be reasoned about and tested directly.
  */
 
+/** Every shelf the rules can produce, for validation and for the UI's order. */
+
 export interface DerivedTags {
   /** Always a subset of INTERESTS. */
   interests: string[];
@@ -29,6 +31,13 @@ export interface DerivedTags {
 interface Rule {
   /** For the importer's summary line, so a misfiring rule is findable. */
   label: string;
+  /**
+   * The shelf a shopper sees. Several rules share one — bulbs and lamps are
+   * both "Lamps" to someone browsing — because the rules are split by what
+   * they need to *match*, and that is finer than what anyone wants to filter
+   * by.
+   */
+  category: string;
   /** Tested against `${product_type} ${title}`, lowercased. */
   pattern: RegExp;
   interests: string[];
@@ -60,16 +69,19 @@ const RULES: Rule[] = [
   //     to beat a brand name, or "Sneakers" stops meaning shoes. ---
   {
     label: "footwear",
+    category: "Shoes",
     pattern:
       /\bfootwear\b|\bsneakers?\b|\bshoes?\b(?! palace| compartment| bags?\b| pockets?| organiz)|\btrainers\b|\bcleats\b|\bloafers?\b|\bsandals?\b|\bmules?\b|\bclogs?\b|\bslides?\b|\bmoccasins?\b|\bmocs?\b/,
     interests: ["Sneakers", "Fashion", "Sports"],
   },
-  { label: "boots", pattern: /\bboots?\b/, interests: ["Fashion", "Outdoors"] },
+  { label: "boots",
+    category: "Shoes", pattern: /\bboots?\b/, interests: ["Fashion", "Outdoors"] },
 
   // --- Pets. High in the table because "dog bed" and "cat tree" would
   //     otherwise be read as furniture, and "dog treats" as food. ---
   {
     label: "pets",
+    category: "Pets",
     pattern: /\bdogs?\b|\bcats?\b|\bpuppy\b|\bkitten\b|\bpets?\b|\bleash(es)?\b|\bcollars? (and|&)? ?leash\b|\bharness\b|\bcanine\b|\bfeline\b/,
     interests: ["Pets", "Family"],
   },
@@ -77,6 +89,7 @@ const RULES: Rule[] = [
   // --- Audio. Before "tech", which would otherwise swallow it. ---
   {
     label: "audio",
+    category: "Headphones & Speakers",
     pattern: /\bheadphones?\b|\bearbuds?\b|\bearphones?\b|\bspeakers?\b|\bsoundbar\b|\bturntable\b/,
     interests: ["Music", "Tech"],
   },
@@ -89,21 +102,25 @@ const RULES: Rule[] = [
   //     "Sparq Arc LED Floor Lamp" into [Tech, Home Decor, Gaming]. ---
   {
     label: "lamps & fixtures",
+    category: "Lamps",
     pattern: /\blamps?\b|\bsconce\b|\bpendant\b|\bchandelier\b|\blantern\b|floor light|table light/,
     interests: ["Home Decor", "Reading"],
   },
   {
     label: "smart/RGB lighting",
+    category: "Smart Lighting",
     pattern: /\brgb\b|light strip|\blightstrip\b|smart bulb|light panel|neon sign|colou?r[- ]changing|led (display|matrix|panel)|pixel art/,
     interests: ["Tech", "Home Decor", "Gaming"],
   },
   {
     label: "bulbs & fittings",
+    category: "Lamps",
     pattern: /\bbulbs?\b|\bled\b/,
     interests: ["Home Decor", "Tech"],
   },
   {
     label: "string & festive lights",
+    category: "String Lights",
     pattern: /string lights?|fairy lights?|\bgarland\b|christmas lights?/,
     interests: ["Home Decor", "Creativity"],
   },
@@ -111,26 +128,33 @@ const RULES: Rule[] = [
   // --- Desk tech ---
   {
     label: "keyboards & input",
-    pattern: /\bkeyboards?\b|\bkeycaps?\b|\bmouse\b|\bmousepad\b|\bswitches\b|\btrackpad\b/,
+    category: "Keyboards",
+    // "mouse" needs the guard: a Mickey Mouse bag charm was filing itself
+    // under Keyboards.
+    pattern: /\bkeyboards?\b|\bkeycaps?\b|(?<!mickey )(?<!minnie )\bmouse\b|\bmousepad\b|\bswitches\b|\btrackpad\b/,
     interests: ["Tech", "Gaming", "Writing"],
   },
   {
     label: "power & charging",
+    category: "Chargers & Power",
     pattern: /\bchargers?\b|power bank|\bpowerbank\b|\bcables?\b|charging (pad|stand|dock)|\badapters?\b|\bbatter(y|ies)\b/,
     interests: ["Tech", "Travel"],
   },
   {
     label: "phone & laptop accessories",
+    category: "Phone & Laptop",
     pattern: /phone (case|stand|grip|mount)|laptop (stand|sleeve|case)|\btablet stand\b|\bdocks?\b|\bhubs?\b|screen protector/,
     interests: ["Tech"],
   },
   {
     label: "cameras & photography",
+    category: "Cameras",
     pattern: /\bcameras?\b|\blens(es)?\b|\btripod\b|\bgimbal\b|instant film/,
     interests: ["Photography", "Creativity"],
   },
   {
     label: "wearables & trackers",
+    category: "Watches & Trackers",
     pattern: /smart ?watch|fitness tracker|\bsmartband\b/,
     interests: ["Tech", "Fitness"],
   },
@@ -147,16 +171,19 @@ const RULES: Rule[] = [
   // Sneakers, which is exactly what these rules exist to prevent.
   {
     label: "outdoors",
+    category: "Outdoor Gear",
     pattern: /\btents?\b|\bsleeping bags?\b|\bhiking\b|\bcamping\b|\bcoolers?\b|\bhammock\b/,
     interests: ["Outdoors", "Travel"],
   },
   {
     label: "bags & luggage",
+    category: "Bags",
     pattern: /\bbackpacks?\b|\bduffels?\b|\btotes?\b|\bluggage\b|\bsuitcases?\b|\bcarry[- ]on\b|\bcrossbody\b|\bhandbags?\b|\bpouch(es)?\b|\bbags?\b|\bsatchels?\b|\bclutch(es)?\b|\bhobo\b|\bshoulder bag\b|\bweekender\b/,
     interests: ["Bags", "Fashion", "Travel"],
   },
   {
     label: "wallets & small leather",
+    category: "Wallets",
     pattern: /\bwallets?\b|\bcard ?holder\b|\bkey ?chain\b|\bkey ?ring\b|\bkey ?organiz(er|ers)\b/,
     interests: ["Fashion", "Personalized"],
   },
@@ -164,36 +191,43 @@ const RULES: Rule[] = [
   // --- Home ---
   {
     label: "furniture",
+    category: "Furniture",
     pattern: /\bsofa\b|\bcouch\b|\bchairs?\b|\bstools?\b|\btables?\b|\bdesks?\b|\bshelv(es|ing)\b|\bbookcase\b|\bottoman\b|\bbench\b|\bbed frame\b|\bdressers?\b|\bnightstand\b/,
     interests: ["Home Decor"],
   },
   {
     label: "storage & organisation",
+    category: "Storage",
     pattern: /\bstorage\b|\bbaskets?\b|\bbins?\b|\borganiz(er|ers)\b|\borganis(er|ers)\b|\bhooks?\b|\bracks?\b|\bhampers?\b/,
     interests: ["Home Decor"],
   },
   {
     label: "candles & home fragrance",
+    category: "Candles",
     pattern: /\bcandles?\b|\bdiffusers?\b|room spray|\bincense\b/,
     interests: ["Home Decor", "Self-care"],
   },
   {
     label: "kitchen & drinkware",
+    category: "Kitchen & Drinkware",
     pattern: /\bmugs?\b|\btumblers?\b|\bglassware\b|\bcookware\b|\bkettles?\b|\bcutting board\b|\bplates?\b|\bbowls?\b|\bflatware\b/,
     interests: ["Cooking", "Home Decor"],
   },
   {
     label: "coffee & tea",
+    category: "Coffee & Tea",
     pattern: /\bcoffee\b|\bespresso\b|\bgrinders?\b|\bpour[- ]?over\b|\bfrench press\b|\bteapots?\b|\btea\b/,
     interests: ["Coffee", "Food"],
   },
   {
     label: "rugs, throws & textiles",
+    category: "Throws & Textiles",
     pattern: /\brugs?\b|\bthrows?\b|\bblankets?\b|\bcushions?\b|\bpillows?\b|\bduvet\b|\bcurtains?\b|\btowels?\b|\bbathrobes?\b/,
     interests: ["Home Decor", "Self-care"],
   },
   {
     label: "wall art & prints",
+    category: "Wall Art",
     pattern: /\bwall art\b|\bposters?\b|\bprints?\b|\bframes?\b|\bartwork\b/,
     interests: ["Art", "Home Decor"],
   },
@@ -202,11 +236,13 @@ const RULES: Rule[] = [
   // Gardening.
   {
     label: "skincare & beauty",
+    category: "Skincare & Beauty",
     pattern: /\bskincare\b|\bserums?\b|\bmoisturiz(er|ers)\b|\bcleansers?\b|\bbody wash\b|\bsoaps?\b|\blotions?\b|\bshampoo\b|\bconditioner\b|\blip \b|\bmakeup\b|\bfragrance\b|\bperfume\b|\bcologne\b/,
     interests: ["Beauty", "Self-care"],
   },
   {
     label: "plants & garden",
+    category: "Plants & Garden",
     pattern: /\bplants?\b(?![- ]based)|\bplanters?\b|\bseeds?\b|\bgarden\b|\bsucculent\b/,
     interests: ["Gardening", "Home Decor"],
   },
@@ -215,21 +251,25 @@ const RULES: Rule[] = [
   //     headwear all get their say first. ---
   {
     label: "headwear",
+    category: "Hats",
     pattern: /\bheadwear\b|\bhats?\b|\bcaps?\b|\bbeanies?\b|\bsnapback\b|\bbucket hat\b/,
     interests: ["Fashion"],
   },
   {
     label: "jewellery",
+    category: "Jewellery",
     pattern: /\bjewell?ery\b|\bnecklaces?\b|\bbracelets?\b|\bearrings?\b|\brings?\b|\bpendants?\b|\bchains?\b/,
     interests: ["Jewelry", "Fashion"],
   },
   {
     label: "eyewear",
+    category: "Sunglasses",
     pattern: /\bsunglasses\b|\beyewear\b|\bglasses\b/,
     interests: ["Fashion", "Travel"],
   },
   {
     label: "apparel",
+    category: "Clothing",
     pattern:
       /\bapparel\b|\bt[- ]?shirts?\b|\btees?\b|\bhood(ie|ies)\b|\bsweatshirts?\b|\bcrewnecks?\b|\bjackets?\b|\bcoats?\b|\b\w*pants\b|\b\w*shorts\b|\bjeans\b|\bjoggers?\b|\btracksuits?\b|\bsocks?\b|\bshirts?\b|\bdress(es)?\b|\bskirts?\b|\bsweaters?\b|\bknitwear\b|\bjerseys?\b|\bscarv(es)?\b|\bscarf\b|\bgloves?\b|\bmittens?\b|\bbelts?\b|\bhoodies?\b|\btracksuits?\b|\bfleece\b|\bvests?\b/,
     interests: ["Fashion"],
@@ -240,6 +280,7 @@ const RULES: Rule[] = [
   // what the product is, is a shoe.
   {
     label: "footwear (model)",
+    category: "Shoes",
     pattern: /\bdunk\b|air jordan|air max|air force|\byeezy\b|\bsamba\b|\bgazelle\b|new balance|\bgel-\w|\bxt-\d/,
     interests: ["Sneakers", "Fashion", "Sports"],
   },
@@ -247,30 +288,37 @@ const RULES: Rule[] = [
   // --- Everything else worth separating ---
   {
     label: "games & puzzles",
+    category: "Games & Puzzles",
     pattern: /\bboard game\b|\bpuzzles?\b|\bcard game\b|\bjigsaw\b|\bdice\b/,
     interests: ["Games", "Family"],
   },
   {
     label: "gaming",
+    category: "Gaming",
     pattern: /\bcontrollers?\b|\bconsole\b|\bgaming\b|\bheadset\b/,
     interests: ["Gaming", "Tech"],
   },
   {
     label: "stationery & writing",
+    category: "Stationery",
     pattern: /\bnotebooks?\b|\bjournals?\b|\bpens?\b|\bpencils?\b|\bplanners?\b|\bstationery\b/,
     interests: ["Writing", "Creativity"],
   },
   {
     label: "books & reading",
+    category: "Books",
     pattern: /\bbooks?\b|\bnovels?\b|\bcookbook\b/,
     interests: ["Reading"],
   },
   {
     label: "fitness",
+    category: "Fitness",
     pattern: /\byoga\b|\bdumbbells?\b|\bresistance bands?\b|\bfoam roller\b|\bworkout\b/,
     interests: ["Fitness", "Health"],
   },
 ];
+
+export const CATEGORIES = [...new Set(RULES.map((r) => r.category))].sort();
 
 /**
  * Explicit only. "Women's Shoes" is a fact about the listing; a floral print is
@@ -311,7 +359,9 @@ export interface DeriveInput {
  * Returns null when nothing matches, which the caller should read as "keep the
  * brand's tags" rather than as an empty tag set.
  */
-export function deriveTags(input: DeriveInput): (DerivedTags & { label: string }) | null {
+export function deriveTags(
+  input: DeriveInput,
+): (DerivedTags & { label: string; category: string | null }) | null {
   const haystack = [input.productType ?? "", input.title, ...(input.tags ?? [])]
     .join(" ")
     .toLowerCase();
@@ -327,9 +377,9 @@ export function deriveTags(input: DeriveInput): (DerivedTags & { label: string }
 
   for (const rule of RULES) {
     if (rule.pattern.test(haystack)) {
-      return { interests: rule.interests, gender, label: rule.label };
+      return { interests: rule.interests, gender, label: rule.label, category: rule.category };
     }
   }
 
-  return gender ? { interests: [], label: "gender only", gender } : null;
+  return gender ? { interests: [], label: "gender only", category: null, gender } : null;
 }

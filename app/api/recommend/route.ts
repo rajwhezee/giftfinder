@@ -99,6 +99,7 @@ export async function POST(request: Request) {
       ageMin: true,
       ageMax: true,
       giftScore: true,
+      category: true,
     },
   });
 
@@ -170,6 +171,7 @@ export async function POST(request: Request) {
         imageUrl: row.imageUrl,
         productUrl: row.productUrl,
         platform: gift.platform,
+        category: gift.category,
         matchScore: breakdown.interestMatches,
       },
     ];

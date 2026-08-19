@@ -1356,6 +1356,7 @@ interface StagedGift {
   price: number;
   currency: string;
   gender: "male" | "female" | "unisex";
+  category: string | null;
   imageUrl: string;
   productUrl: string;
   platform: string;
@@ -1455,6 +1456,9 @@ function stage(
     // states outright, and fall back to unisex — which is what keeps a product
     // eligible for every search rather than half of them.
     gender: brand.gender ?? rule?.gender ?? "unisex",
+    // What the thing is. Unlike interests, this is safe to refresh on update:
+    // no offline pass owns it, and a rule fix should reach existing rows.
+    category: rule?.category ?? null,
     imageUrl,
     productUrl: url,
     platform: brand.name,
@@ -1574,6 +1578,9 @@ async function main() {
         // Curated here rather than derived per product, so this file stays the
         // source of truth for it and a re-import is how you widen coverage.
         occasions: [...gift.occasions],
+        // Same argument: the rules own it, so a rule fix should land on
+        // re-import rather than needing a backfill every time.
+        category: gift.category,
       };
 
       // What `enrich:tags` owns once it has run. These are brand-level guesses

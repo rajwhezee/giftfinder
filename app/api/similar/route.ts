@@ -107,6 +107,7 @@ export async function POST(request: Request) {
       productUrl: true,
       platform: true,
       interests: true,
+      category: true,
     },
   });
 
@@ -161,6 +162,7 @@ export async function POST(request: Request) {
       imageUrl: gift.imageUrl,
       productUrl: gift.productUrl,
       platform: gift.platform,
+      category: gift.category,
       // Against the quiz answers, not the anchor — the badge means the same
       // thing here as it does everywhere else on the page.
       matchScore: gift.interests.filter((interest) => body.interests.includes(interest)).length,

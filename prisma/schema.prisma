@@ -37,10 +37,15 @@ model Gift {
   /// offline Claude pass; null means unscored, which ranking treats as neutral
   /// so a partial run never penalises rows that were never looked at.
   giftScore     Int?
+  /// What the thing *is* — "Keyboards", "Candles", "Shoes" — as opposed to who
+  /// it suits, which is `interests`. Derived by lib/product-tags.ts at import
+  /// time. Null where no rule matched, which the UI groups as "Everything else".
+  category      String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
   @@index([platform])
   @@index([occasions], type: Gin)
   @@index([interests], type: Gin)
+  @@index([category])
 }

@@ -22,6 +22,8 @@ export interface GiftRecommendation {
   imageUrl: string;
   productUrl: string;
   platform: string;
+  /** What the thing is — "Keyboards", "Shoes". Null when no rule matched it. */
+  category: string | null;
   matchScore: number;
 }
 

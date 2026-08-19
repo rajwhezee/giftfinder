@@ -11,6 +11,9 @@ import { GiftDetail } from "./GiftDetail";
 /** Cards revealed per page. Deep enough that the grid reads as a real spread. */
 const PAGE_SIZE = 36;
 
+/** Where products the rules could not classify are gathered. */
+const UNCATEGORISED = "Everything else";
+
 /**
  * Once results are on screen the quiz is finished, so the useful next move is a
  * fresh start for a different person — not question one with the previous
@@ -35,30 +38,60 @@ export function GiftResults({
   candidateCount: number;
 }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const { relationship, occasion } = answers;
 
-  // Brands actually present in this result set, most-stocked first. Derived
-  // rather than taken from a fixed list, so a brand only ever appears as a
-  // filter when there is something behind it to show.
+  // What these gifts *are*, most-stocked first. The first question a shopper
+  // asks is "show me the keyboards", not "show me Keychron" — interests
+  // describe who a gift suits, and one interest spans a lot of unlike objects.
+  const categories = useMemo(() => {
+    const counts = new Map<string, number>();
+    for (const gift of results) {
+      const key = gift.category ?? UNCATEGORISED;
+      counts.set(key, (counts.get(key) ?? 0) + 1);
+    }
+    return [...counts.entries()].sort(
+      ([nameA, countA], [nameB, countB]) =>
+        // The catch-all sits last however big it is; it is a residue, not a shelf.
+        (nameA === UNCATEGORISED ? 1 : 0) - (nameB === UNCATEGORISED ? 1 : 0) ||
+        countB - countA ||
+        nameA.localeCompare(nameB),
+    );
+  }, [results]);
+
+  // Everything the chosen category holds. Brands are computed from this rather
+  // than from the whole result set, so picking "Keyboards" leaves only the
+  // brands that actually sell keyboards.
+  const inCategory = useMemo(
+    () =>
+      selectedCategory === null
+        ? results
+        : results.filter((gift) => (gift.category ?? UNCATEGORISED) === selectedCategory),
+    [results, selectedCategory],
+  );
+
+  // Brands actually present, most-stocked first. Derived rather than taken from
+  // a fixed list, so a brand only ever appears as a filter when there is
+  // something behind it to show.
   const brands = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const gift of results) counts.set(gift.platform, (counts.get(gift.platform) ?? 0) + 1);
+    for (const gift of inCategory) counts.set(gift.platform, (counts.get(gift.platform) ?? 0) + 1);
     return [...counts.entries()].sort(
       ([nameA, countA], [nameB, countB]) => countB - countA || nameA.localeCompare(nameB),
     );
-  }, [results]);
+  }, [inCategory]);
 
   // No selection means no filter, rather than an empty page.
   const filtered = useMemo(
     () =>
       selectedBrands.length === 0
-        ? results
-        : results.filter((gift) => selectedBrands.includes(gift.platform)),
-    [results, selectedBrands],
+        ? inCategory
+        : inCategory.filter((gift) => selectedBrands.includes(gift.platform)),
+    [inCategory, selectedBrands],
   );
 
   const visible = filtered.slice(0, visibleCount);
@@ -165,6 +198,42 @@ export function GiftResults({
         )}
       </header>
 
+      {/* What, before who. Only worth showing when there is a real choice. */}
+      {categories.length > 1 && (
+        <div className="mb-6">
+          <p className="mb-3 text-xs tracking-[0.18em] text-ink-faint uppercase">Browse by</p>
+          <div className="flex flex-wrap gap-2">
+            <motion.button
+              type="button"
+              onClick={() => setSelectedCategory(null)}
+              data-selected={selectedCategory === null}
+              aria-pressed={selectedCategory === null}
+              whileTap={{ scale: 0.96 }}
+              className="chip rounded-full px-4 py-2 text-sm"
+            >
+              Everything
+              <span className="ml-1.5 text-xs tabular-nums opacity-60">{results.length}</span>
+            </motion.button>
+            {categories.map(([category, count]) => (
+              <motion.button
+                key={category}
+                type="button"
+                onClick={() =>
+                  setSelectedCategory((current) => (current === category ? null : category))
+                }
+                data-selected={selectedCategory === category}
+                aria-pressed={selectedCategory === category}
+                whileTap={{ scale: 0.96 }}
+                className="chip rounded-full px-4 py-2 text-sm"
+              >
+                {category}
+                <span className="ml-1.5 text-xs tabular-nums opacity-60">{count}</span>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Only worth showing when there is a choice to make — a single brand
           would render a filter that can only narrow to what is already there. */}
       {brands.length > 1 && (
@@ -172,7 +241,9 @@ export function GiftResults({
           <div className="mb-3 flex items-baseline justify-between gap-4">
             <p className="text-xs tracking-[0.18em] text-ink-faint uppercase">
               {selectedBrands.length === 0
-                ? "Shop from"
+                ? selectedCategory
+                  ? `${selectedCategory} from`
+                  : "Shop from"
                 : `Shopping from ${selectedBrands.length} of ${brands.length}`}
             </p>
             {selectedBrands.length > 0 && (
