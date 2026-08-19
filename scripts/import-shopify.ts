@@ -43,8 +43,17 @@ const RETAG = process.argv.includes("--retag");
 const REQUEST_DELAY_MS = 900;
 /** Pages per brand; 250 products/page, so 2 pages is plenty for a curated feed. */
 const MAX_PAGES = 2;
-/** Cap per brand so one large catalogue can't dominate the results grid. */
-const MAX_PER_BRAND = 60;
+/**
+ * Cap per brand so one large catalogue can't dominate the results grid.
+ *
+ * Raised from 60 once it became clear this, not MAX_PRICE, was what limited
+ * the sneaker haul: the boutiques were filling all 60 slots with footwear and
+ * leaving several hundred in-band pairs unread on the same page. The diversity
+ * pass in lib/ranking.ts is what actually keeps one brand off the grid —
+ * PLATFORM_REPEAT_PENALTY discounts each additional pick from a platform
+ * already on the page — so this cap governs catalogue depth, not page balance.
+ */
+const MAX_PER_BRAND = 120;
 
 const MIN_PRICE = 8;
 /**

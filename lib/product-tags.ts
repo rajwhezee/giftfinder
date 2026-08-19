@@ -170,9 +170,19 @@ const RULES: Rule[] = [
   },
 
   // --- Bags & carry ---
+  //
+  // Outdoors goes first so a *sleeping* bag isn't luggage. The bare word
+  // "bag" is matched deliberately: without it a $1,750 canvas bag from a
+  // sneaker boutique fell through to the brand's tags and was filed under
+  // Sneakers, which is exactly what these rules exist to prevent.
+  {
+    label: "outdoors",
+    pattern: /\btents?\b|\bsleeping bags?\b|\bhiking\b|\bcamping\b|\bcoolers?\b|\bhammock\b/,
+    interests: ["Outdoors", "Travel"],
+  },
   {
     label: "bags & luggage",
-    pattern: /\bbackpacks?\b|\bduffels?\b|\btotes?\b|\bluggage\b|\bsuitcases?\b|\bcarry[- ]on\b|\bcrossbody\b|\bhandbags?\b|\bpouch(es)?\b/,
+    pattern: /\bbackpacks?\b|\bduffels?\b|\btotes?\b|\bluggage\b|\bsuitcases?\b|\bcarry[- ]on\b|\bcrossbody\b|\bhandbags?\b|\bpouch(es)?\b|\bbags?\b/,
     interests: ["Fashion", "Travel"],
   },
   {
@@ -201,7 +211,7 @@ const RULES: Rule[] = [
   {
     label: "apparel",
     pattern:
-      /\bapparel\b|\bt[- ]?shirts?\b|\btees?\b|\bhood(ie|ies)\b|\bsweatshirts?\b|\bcrewnecks?\b|\bjackets?\b|\bcoats?\b|\bpants\b|\bshorts\b|\bjeans\b|\bsocks?\b|\bshirts?\b|\bdress(es)?\b|\bskirts?\b|\bsweaters?\b|\bknitwear\b/,
+      /\bapparel\b|\bt[- ]?shirts?\b|\btees?\b|\bhood(ie|ies)\b|\bsweatshirts?\b|\bcrewnecks?\b|\bjackets?\b|\bcoats?\b|\b\w*pants\b|\b\w*shorts\b|\bjeans\b|\bjoggers?\b|\btracksuits?\b|\bsocks?\b|\bshirts?\b|\bdress(es)?\b|\bskirts?\b|\bsweaters?\b|\bknitwear\b/,
     interests: ["Fashion"],
   },
 
@@ -230,11 +240,6 @@ const RULES: Rule[] = [
     label: "fitness",
     pattern: /\byoga\b|\bdumbbells?\b|\bresistance bands?\b|\bfoam roller\b|\bworkout\b/,
     interests: ["Fitness", "Health"],
-  },
-  {
-    label: "outdoors",
-    pattern: /\btents?\b|\bsleeping bags?\b|\bhiking\b|\bcamping\b|\bcoolers?\b|\bhammock\b/,
-    interests: ["Outdoors", "Travel"],
   },
 ];
 
