@@ -15,6 +15,16 @@ const PAGE_SIZE = 36;
 const UNCATEGORISED = "Everything else";
 
 /**
+ * Brand chips shown before the row collapses behind a toggle.
+ *
+ * The diversity pass spreads a page across as many makers as it can, so a
+ * broad search can put 29 brands on 36 cards and the filter row becomes a wall
+ * of names nobody asked for. The ones worth showing are the ones with enough
+ * behind them to be worth narrowing to.
+ */
+const BRANDS_SHOWN = 10;
+
+/**
  * Once results are on screen the quiz is finished, so the useful next move is a
  * fresh start for a different person — not question one with the previous
  * answers cleared. This is the same reset the header wordmark broadcasts:
@@ -40,6 +50,7 @@ export function GiftResults({
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [allBrandsShown, setAllBrandsShown] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const sentinelRef = useRef<HTMLDivElement>(null);
 
@@ -258,20 +269,38 @@ export function GiftResults({
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {brands.map(([brand, count]) => (
-              <motion.button
-                key={brand}
+            {/* A selected brand stays visible even when it sits past the cut,
+                or collapsing the row would hide the filter that is in force. */}
+            {brands
+              .filter(
+                ([brand], index) =>
+                  allBrandsShown || index < BRANDS_SHOWN || selectedBrands.includes(brand),
+              )
+              .map(([brand, count]) => (
+                <motion.button
+                  key={brand}
+                  type="button"
+                  onClick={() => toggleBrand(brand)}
+                  data-selected={selectedBrands.includes(brand)}
+                  aria-pressed={selectedBrands.includes(brand)}
+                  whileTap={{ scale: 0.96 }}
+                  className="chip rounded-full px-4 py-2 text-sm"
+                >
+                  {brand}
+                  <span className="ml-1.5 text-xs tabular-nums opacity-60">{count}</span>
+                </motion.button>
+              ))}
+
+            {brands.length > BRANDS_SHOWN && (
+              <button
                 type="button"
-                onClick={() => toggleBrand(brand)}
-                data-selected={selectedBrands.includes(brand)}
-                aria-pressed={selectedBrands.includes(brand)}
-                whileTap={{ scale: 0.96 }}
-                className="chip rounded-full px-4 py-2 text-sm"
+                onClick={() => setAllBrandsShown((shown) => !shown)}
+                aria-expanded={allBrandsShown}
+                className="rounded-full px-3 py-2 text-sm text-ink-soft transition-colors hover:text-terracotta"
               >
-                {brand}
-                <span className="ml-1.5 text-xs tabular-nums opacity-60">{count}</span>
-              </motion.button>
-            ))}
+                {allBrandsShown ? "Show fewer" : `+${brands.length - BRANDS_SHOWN} more`}
+              </button>
+            )}
           </div>
         </div>
       )}
