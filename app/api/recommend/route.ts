@@ -35,20 +35,40 @@ export async function POST(request: Request) {
 
   // Hard constraints in SQL: anything failing these can never be a good gift.
   // A gender pick keeps unisex products — it only excludes the opposite tag.
+  //
+  // The interest overlap belongs here too, and used to be applied in JS after
+  // the fact. MIN_INTEREST_MATCHES means a gift sharing no interest with the
+  // selection can never be returned, so fetching those rows only to drop them
+  // was pure waste — and it grew with the catalogue: a broad query pulled
+  // 14,468 rows across the wire to keep about 3,900, and the route went from
+  // its documented 100-300 ms to over 1.5 s. `hasSome` runs on the existing GIN
+  // index over interests.
+  //
+  // Guarded on a non-empty selection because `hasSome: []` matches nothing;
+  // with no interests chosen every gift would fail MIN_INTEREST_MATCHES anyway,
+  // so the two agree.
+  const where = {
+    price: uncapped
+      ? { gte: body.minBudget }
+      : { gte: body.minBudget, lte: body.maxBudget },
+    ageMin: { lte: body.age },
+    ageMax: { gte: body.age },
+    occasions: { has: body.occasion },
+    ...(body.gender !== "any" && { gender: { in: [body.gender, "unisex"] } }),
+  };
+
   const gifts = await prisma.gift.findMany({
     where: {
-      price: uncapped
-        ? { gte: body.minBudget }
-        : { gte: body.minBudget, lte: body.maxBudget },
-      ageMin: { lte: body.age },
-      ageMax: { gte: body.age },
-      occasions: { has: body.occasion },
-      ...(body.gender !== "any" && { gender: { in: [body.gender, "unisex"] } }),
+      ...where,
+      ...(body.interests.length > 0 && { interests: { hasSome: body.interests } }),
     },
-    // Only what scoring, diversity, and the response actually read. Without
-    // this Prisma fetches every column, and `description` alone — used by
-    // none of the three — was about half the bytes on a broad query
-    // (1.5 MB of 3.1 MB across 6,076 candidate rows).
+    // Only what *scoring and diversity* read — not what the response renders.
+    //
+    // `description` was dropped long ago for being half the bytes; the same
+    // argument applies to imageUrl, productUrl and currency, which no scoring
+    // step touches and which are long strings. They are fetched below for the
+    // 150 rows that survive, instead of for every candidate: on a broad query
+    // that is 150 rows carrying URLs rather than 11,232.
     //
     // `gender` and `occasions` are filtered on above but never read after, so
     // they stay out too.
@@ -56,9 +76,6 @@ export async function POST(request: Request) {
       id: true,
       name: true,
       price: true,
-      currency: true,
-      imageUrl: true,
-      productUrl: true,
       platform: true,
       interests: true,
       ageMin: true,
@@ -107,25 +124,41 @@ export async function POST(request: Request) {
     body.interests,
   );
 
-  const results: GiftRecommendation[] = picked
-    .map((index) => ordered[index])
-    // `description` is deliberately not sent — nothing renders it, and at 72
-    // results its ~400 chars each would dominate the payload.
-    .map(({ gift, price, breakdown }) => ({
-      id: gift.id,
-      name: gift.name,
-      price,
-      originalCurrency: gift.currency,
-      imageUrl: gift.imageUrl,
-      productUrl: gift.productUrl,
-      platform: gift.platform,
-      matchScore: breakdown.interestMatches,
-    }));
+  const chosen = picked.map((index) => ordered[index]);
 
-  return NextResponse.json({
-    results,
-    // Lets the UI distinguish "nothing fit your interests" from "nothing fit
-    // your occasion/age/budget at all", which need different advice.
-    candidateCount: gifts.length,
+  // The display half, for the survivors only. `description` is deliberately
+  // still not fetched — nothing renders it.
+  const display = await prisma.gift.findMany({
+    where: { id: { in: chosen.map((entry) => entry.gift.id) } },
+    select: { id: true, currency: true, imageUrl: true, productUrl: true },
   });
+  const byId = new Map(display.map((row) => [row.id, row]));
+
+  const results: GiftRecommendation[] = chosen.flatMap(({ gift, price, breakdown }) => {
+    const row = byId.get(gift.id);
+    // Only possible if a row was deleted between the two queries.
+    if (!row) return [];
+    return [
+      {
+        id: gift.id,
+        name: gift.name,
+        price,
+        originalCurrency: row.currency,
+        imageUrl: row.imageUrl,
+        productUrl: row.productUrl,
+        platform: gift.platform,
+        matchScore: breakdown.interestMatches,
+      },
+    ];
+  });
+
+  // Lets the UI distinguish "nothing fit your interests" from "nothing fit your
+  // occasion/age/budget at all", which need different advice. Only worth a
+  // query when there is nothing to show — on the happy path the number is
+  // never rendered, and counting rows the SQL above deliberately skipped would
+  // give back the cost this route just saved.
+  const candidateCount =
+    results.length > 0 ? gifts.length : await prisma.gift.count({ where });
+
+  return NextResponse.json({ results, candidateCount });
 }
