@@ -1,4 +1,5 @@
 import { BUDGET_MAX, INTERESTS, RELATIONSHIPS } from "./gift-options";
+import { KNOWN_BRANDS, RECOGNITION_BOOST } from "./known-brands";
 
 /**
  * Composite scoring for gift recommendations.
@@ -113,6 +114,8 @@ const RELATIONSHIP_AFFINITY: Record<Relationship, { affinity: Interest[]; avoid:
 
 export interface ScoreInput {
   giftInterests: string[];
+  /** The seller, for the recognition nudge. See lib/known-brands.ts. */
+  platform?: string;
   /**
    * 0-100 from scripts/score-gifts.ts, or null when the row has never been
    * scored — which is neutral, so a partial run never penalises rows nobody
@@ -250,7 +253,10 @@ export function scoreGift(input: ScoreInput): ScoreBreakdown {
     typeof input.giftScore === "number" && input.giftScore < GIFT_SCORE_FLOOR
       ? GIFT_SCORE_PENALTY
       : 1;
-  const total = base * giftable;
+  // A tiebreaker, not a thumb on the scale: see lib/known-brands.ts for why
+  // this is 6% and not more.
+  const recognised = input.platform && KNOWN_BRANDS.has(input.platform) ? RECOGNITION_BOOST : 1;
+  const total = base * giftable * recognised;
 
   return {
     total,

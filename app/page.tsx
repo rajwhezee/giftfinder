@@ -74,25 +74,28 @@ export default async function Home() {
             The gift they didn&rsquo;t know to <span className="accent-word">ask</span> for.
           </h1>
 
-          {/* Opens on the question the visitor is actually stuck on, rather than
-              describing the catalogue. The mechanics ("six quick questions",
-              "about 30 seconds") belong to QuizLauncher a few lines below, so
-              repeating them here would state the same promise twice in one
-              viewport. This half stays emotional and hands off. */}
+          {/* States the deal in one line: what the visitor supplies, and what
+              they get back. It replaced a rhetorical question ("What do you get
+              someone who already has everything?"), which set the problem up
+              without promising anything.
+
+              Note this now says roughly what QuizLauncher says a few lines
+              below ("Answer six quick questions about them and we'll find the
+              one"). One of the two should probably go. */}
           <p className="mx-auto mt-5 max-w-lg text-lg leading-relaxed text-balance text-ink">
-            What do you get someone who already has everything?
+            Tell us who it&rsquo;s for and what they like, we&rsquo;ll handle the rest.
           </p>
 
-          {/* Answers the question above rather than restating the pitch. Joined
-              with "but" rather than left as two clipped sentences, which read as
-              monotonous next to each other: naming the lazy default earns the
-              turn, and the turn is what makes it a promise instead of a jab.
-              "Maybee", "wanna" and the trailing :) are all deliberate and were
-              chosen after the misreading risk was raised. The doubled e
-              stretches the word the way it is said out loud, "wanna" is the one
-              colloquial word on the page, and the smiley closes the sentence in
-              place of a full stop. None of them is a typo. Do not correct them
-              in a tidy-up pass. */}
+          {/* Carries the tone the line above cannot. Joined with "but" rather
+              than left as two clipped sentences, which read as monotonous next
+              to each other: naming the lazy default earns the turn, and the
+              turn is what makes it a promise instead of a jab. "Maybee",
+              "wanna" and the trailing :) are all deliberate and were chosen
+              after the misreading risk was raised. The doubled e stretches the
+              word the way it is said out loud, "wanna" is the one colloquial
+              word on the page, and the smiley closes the sentence in place of a
+              full stop. None of them is a typo. Do not correct them in a
+              tidy-up pass. */}
           <p className="mx-auto mt-3 max-w-lg text-base leading-relaxed text-pretty text-ink-soft">
             Maybee not a gift card, but something they&rsquo;d actually wanna keep :)
           </p>

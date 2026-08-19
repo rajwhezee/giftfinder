@@ -111,6 +111,7 @@ export async function POST(request: Request) {
       giftAgeMin: gift.ageMin,
       giftAgeMax: gift.ageMax,
       giftScore: gift.giftScore,
+      platform: gift.platform,
       selectedInterests: body.interests,
       relationship: body.relationship,
       age: body.age,
