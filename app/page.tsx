@@ -79,11 +79,17 @@ export default async function Home() {
               someone who already has everything?"), which set the problem up
               without promising anything, and the tone line that followed it.
 
+              The 💪 closes the sentence in place of a full stop, the same trick
+              the old second line used with its smiley — a period after it reads
+              as punctuation stranded behind a picture. Kept unbreakable so it
+              can never wrap onto a line of its own.
+
               Note this says roughly what QuizLauncher says a few lines below
               ("Answer six quick questions about them and we'll find the one").
               One of the two should probably go. */}
           <p className="mx-auto mt-5 max-w-lg text-lg leading-relaxed text-balance text-ink">
-            Tell us who it&rsquo;s for and what they like, we&rsquo;ll handle the rest.
+            Tell us who it&rsquo;s for and what they like, we&rsquo;ll handle the rest{" "}
+            <span className="whitespace-nowrap">&#x1F4AA;</span>
           </p>
 
           <div
