@@ -217,6 +217,27 @@ body {
   }
 }
 
+/* Visible only while focused: it must not appear for mouse users, and it must
+ * be unmissable for anyone tabbing. Positioned rather than display:none so it
+ * stays in the accessibility tree. */
+.skip-link {
+  position: absolute;
+  left: 50%;
+  top: 0.5rem;
+  z-index: 100;
+  translate: -50% -150%;
+  border-radius: 999px;
+  background-color: var(--terracotta);
+  padding: 0.6rem 1.4rem;
+  font-size: 0.875rem;
+  color: var(--paper);
+  transition: translate 0.18s ease;
+}
+
+.skip-link:focus-visible {
+  translate: -50% 0;
+}
+
 .card-surface {
   background-color: var(--surface);
   border: 1px solid var(--rule);

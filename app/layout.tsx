@@ -50,15 +50,37 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${inter.variable} ${fraunces.variable} h-full antialiased`}>
       <body className="paper-grain flex min-h-full flex-col">
+        {/* First thing in the tab order, invisible until focused. Without it a
+            keyboard or screen-reader user walks the wordmark, the Home link and
+            "What is this?" before reaching the page on every route. */}
+        <a href="#main" className="skip-link">
+          Skip to content
+        </a>
         <Header />
-        <div className="relative z-10 flex-1">{children}</div>
+        {/* A div, not a <main>: every page supplies its own, and two main
+            landmarks is worse for a screen reader than the wrapper being
+            generic. This only needs to be a focus target. */}
+        <div id="main" tabIndex={-1} className="relative z-10 flex-1">
+          {children}
+        </div>
         <footer className="rule-hairline relative z-10 border-t px-4 py-8">
           <div className="mx-auto flex max-w-5xl flex-col items-center gap-2 text-center">
-            <p className="font-display text-base text-ink">Gift Finder</p>
+            <Link
+              href="/"
+              className="font-display text-base text-ink transition-colors hover:text-terracotta"
+            >
+              Gift Finder
+            </Link>
             <p className="text-xs text-ink-faint">
               Handpicked from independent makers and trusted shops. We never take a cut.
             </p>
-            <div className="mt-1 flex items-center gap-4 text-xs text-ink-soft">
+            <div className="mt-1 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-xs text-ink-soft">
+              <Link href="/" className="transition-colors hover:text-terracotta">
+                Home
+              </Link>
+              <span aria-hidden className="text-ink-faint">
+                ·
+              </span>
               <Link href="/privacy" className="transition-colors hover:text-terracotta">
                 Privacy
               </Link>

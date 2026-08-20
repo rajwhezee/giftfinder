@@ -55,8 +55,23 @@ export function Header() {
             </span>
           </span>
         </Link>
-        <div className="flex items-center gap-5">
-          <p className="hidden text-xs tracking-[0.18em] text-ink-faint uppercase sm:block">
+        <div className="flex items-center gap-3 sm:gap-4">
+          {/* Only off the home page. The wordmark already goes home, but a
+              logo is a convention people have to know, and this is the same
+              journey spelled out. On "/" it would be a button that does
+              nothing, so it is not rendered there. */}
+          {pathname !== "/" && (
+            <Link
+              href="/"
+              className="rule-hairline rounded-full border px-3.5 py-1.5 text-[11px] tracking-[0.16em] text-ink-soft uppercase transition-colors hover:border-terracotta hover:text-terracotta"
+            >
+              <span aria-hidden className="mr-1">
+                ←
+              </span>
+              Home
+            </Link>
+          )}
+          <p className="hidden text-xs tracking-[0.18em] text-ink-faint uppercase md:block">
             Any occasion · Any culture
           </p>
           {/* On "/" this is a same-page jump; from an occasion page it
