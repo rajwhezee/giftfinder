@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { BUDGET_UNCAPPED_AT } from "@/lib/gift-options";
 import { prisma } from "@/lib/prisma";
+import { looksNonEnglish } from "@/lib/language";
+import { namesADifferentOccasion } from "@/lib/occasion-fit";
 import { parseRecommendBody } from "@/lib/recommend-request";
 import { MIN_INTEREST_MATCHES, scoreGift, selectDiverse } from "@/lib/ranking";
 import type { GiftRecommendation } from "@/lib/types";
@@ -125,8 +127,17 @@ export async function POST(request: Request) {
   });
 
   // Accuracy over volume: never pad with items that share no interests.
+  //
+  // The other two tests are the same ones the occasion landing pages already
+  // apply, and there was no reason for the quiz — the main path — to be the
+  // lenient one. Occasions come from the import query rather than the product,
+  // so a "Custom Face Birthday Banner" keeps a Valentine's tag its own title
+  // contradicts; and Etsy returns sellers' listings in their own language.
   const eligible = scored.filter(
-    (entry) => entry.breakdown.interestMatches >= MIN_INTEREST_MATCHES,
+    (entry) =>
+      entry.breakdown.interestMatches >= MIN_INTEREST_MATCHES &&
+      !namesADifferentOccasion(entry.gift.name, body.occasion) &&
+      !looksNonEnglish(entry.gift.name),
   );
 
   // Relevance ordering first, then a diversity pass. Without it a single brand
@@ -144,9 +155,11 @@ export async function POST(request: Request) {
       platform: entry.gift.platform,
       name: entry.gift.name,
       interests: entry.gift.interests,
+      price: entry.price,
     })),
     MAX_RESULTS,
     body.interests,
+    { min: body.minBudget, max: uncapped ? Number.POSITIVE_INFINITY : body.maxBudget },
   );
 
   const chosen = picked.map((index) => pool[index]);

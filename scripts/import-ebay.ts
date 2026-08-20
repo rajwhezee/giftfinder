@@ -31,6 +31,7 @@ import {
   type EbayItemSummary,
 } from "../lib/ebay";
 import { INTERESTS, OCCASIONS } from "../lib/gift-options";
+import { looksNonEnglish } from "../lib/language";
 
 const CLIENT_ID = process.env.EBAY_CLIENT_ID;
 const CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET;
@@ -619,6 +620,7 @@ function stage(
   if (!title) return "missing title";
   if (!item.itemWebUrl) return "missing url";
   if (EXCLUDED.test(title)) return "excluded listing type";
+  if (looksNonEnglish(title)) return "not English";
   if (!imageUrl) return "no image";
   if (!Number.isFinite(price) || price <= 0) return "bad price";
   if (item.price?.currency && item.price.currency !== "USD") {

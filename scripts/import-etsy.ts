@@ -26,6 +26,7 @@ import {
   type EtsyListing,
 } from "../lib/etsy";
 import { INTERESTS, OCCASIONS } from "../lib/gift-options";
+import { looksNonEnglish } from "../lib/language";
 
 const KEYSTRING = process.env.ETSY_KEYSTRING;
 const SHARED_SECRET = process.env.ETSY_SHARED_SECRET;
@@ -780,6 +781,9 @@ function stage(
   if (!listing.listing_id) return "missing listing_id";
   // "download" is a digital file (SVGs, printables) — not a shippable gift.
   if (listing.listing_type === "download") return "digital download";
+  // Etsy serves sellers' own listings, so a German or French title arrives
+  // intact. The site is English-only, and one led /gifts/retirement.
+  if (looksNonEnglish(title)) return "not English";
   if (!Number.isFinite(rawPrice) || rawPrice <= 0) {
     return `bad price (${JSON.stringify(listing.price)})`;
   }

@@ -69,6 +69,18 @@ export const GIFT_SCORE_FLOOR = 20;
  */
 export const GIFT_SCORE_PENALTY = 0.75;
 
+/**
+ * Above this a product is nudged up rather than merely left alone.
+ *
+ * The floor removes junk; this promotes the genuinely gift-shaped. 13% of the
+ * catalogue scores 80 or better, so it is a real top slice rather than a
+ * rounding band, and the occasion landing pages already rank on giftScore
+ * outright — the quiz had no reason to use only half the signal.
+ */
+export const GIFT_SCORE_CEILING = 80;
+/** Deliberately smaller than the penalty: promoting is riskier than demoting. */
+export const GIFT_SCORE_BONUS = 1.05;
+
 type Relationship = (typeof RELATIONSHIPS)[number];
 type Interest = (typeof INTERESTS)[number];
 
@@ -250,9 +262,13 @@ export function scoreGift(input: ScoreInput): ScoreBreakdown {
     age * WEIGHTS.age;
 
   const giftable =
-    typeof input.giftScore === "number" && input.giftScore < GIFT_SCORE_FLOOR
-      ? GIFT_SCORE_PENALTY
-      : 1;
+    typeof input.giftScore !== "number"
+      ? 1
+      : input.giftScore < GIFT_SCORE_FLOOR
+        ? GIFT_SCORE_PENALTY
+        : input.giftScore >= GIFT_SCORE_CEILING
+          ? GIFT_SCORE_BONUS
+          : 1;
   // A tiebreaker, not a thumb on the scale: see lib/known-brands.ts for why
   // this is 6% and not more.
   const recognised = input.platform && KNOWN_BRANDS.has(input.platform) ? RECOGNITION_BOOST : 1;
@@ -300,6 +316,20 @@ export const PLATFORM_REPEAT_PENALTY = 0.055;
  * interest is barely penalised at all.
  */
 export const INTEREST_REPEAT_PENALTY = 0.02;
+
+/**
+ * Per already-selected item from the same fifth of the chosen budget band.
+ *
+ * Budget scoring gives a flat 1.0 to anything in the upper half of the band,
+ * so when a category's tags are uniform — every sneaker is [Sneakers, Fashion,
+ * Sports] — budget is the only term left moving and the page collapses to a
+ * price sort. A $75-250 search returned 150 results and not one under $165:
+ * the shopper never saw the bottom 60% of their own budget.
+ *
+ * Spreading across fifths is the same trick as the platform and interest
+ * penalties, and it costs nothing when a page is already varied.
+ */
+export const PRICE_BAND_REPEAT_PENALTY = 0.025;
 /** Applied once if the title is a near-duplicate of something already picked. */
 export const NEAR_DUPLICATE_PENALTY = 0.3;
 /** Jaccard overlap of title tokens above which two products count as the same idea. */
@@ -335,6 +365,8 @@ export interface DiversifiableItem {
   name: string;
   /** The gift's own interests, used to spread the page across the chosen ones. */
   interests?: string[];
+  /** Price, used to spread the page across the shopper's budget. */
+  price?: number;
 }
 
 /**
@@ -347,6 +379,8 @@ export function selectDiverse<T extends DiversifiableItem>(
   limit: number,
   /** The shopper's chosen interests. Omit to skip interest balancing. */
   selected: string[] = [],
+  /** The chosen budget, for price spread. Omit to skip it. */
+  budget?: { min: number; max: number },
 ): number[] {
   const tokens = items.map((item) => titleTokens(item.name));
   const remaining = new Set(items.map((_, i) => i));
@@ -358,6 +392,19 @@ export function selectDiverse<T extends DiversifiableItem>(
   const answered = items.map((item) =>
     (item.interests ?? []).filter((i) => selected.includes(i)),
   );
+
+  // Which fifth of the budget each gift sits in. Uncapped searches have no
+  // ceiling to divide, so the span falls back to the most expensive candidate.
+  const bandCounts = new Map<number, number>();
+  const ceiling =
+    budget && Number.isFinite(budget.max)
+      ? budget.max
+      : Math.max(...items.map((i) => i.price ?? 0), budget?.min ?? 0);
+  const span = budget ? Math.max(ceiling - budget.min, 1) : 0;
+  const bandOf = (price?: number) =>
+    budget && typeof price === "number"
+      ? Math.min(4, Math.max(0, Math.floor(((price - budget.min) / span) * 5)))
+      : -1;
 
   // Near-duplicate status is monotonic: the chosen set only grows, so once an
   // item duplicates something already picked it can never become distinct
@@ -381,10 +428,14 @@ export function selectDiverse<T extends DiversifiableItem>(
         ? Math.min(...mine.map((i) => interestCounts.get(i) ?? 0))
         : 0;
 
+      const band = bandOf(item.price);
+      const bandRepeats = band >= 0 ? (bandCounts.get(band) ?? 0) : 0;
+
       const adjusted =
         item.score -
         repeats * PLATFORM_REPEAT_PENALTY -
         interestRepeats * INTEREST_REPEAT_PENALTY -
+        bandRepeats * PRICE_BAND_REPEAT_PENALTY -
         (duplicate.has(index) ? NEAR_DUPLICATE_PENALTY : 0);
 
       if (adjusted > bestAdjusted) {
@@ -399,6 +450,8 @@ export function selectDiverse<T extends DiversifiableItem>(
     const platform = items[bestIndex].platform;
     platformCounts.set(platform, (platformCounts.get(platform) ?? 0) + 1);
     for (const i of answered[bestIndex]) interestCounts.set(i, (interestCounts.get(i) ?? 0) + 1);
+    const chosenBand = bandOf(items[bestIndex].price);
+    if (chosenBand >= 0) bandCounts.set(chosenBand, (bandCounts.get(chosenBand) ?? 0) + 1);
 
     for (const index of remaining) {
       if (!duplicate.has(index) && jaccard(tokens[index], tokens[bestIndex]) >= DUPLICATE_SIMILARITY) {
