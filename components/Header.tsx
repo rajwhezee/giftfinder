@@ -22,7 +22,13 @@ export function Header() {
 
   return (
     <header className="rule-hairline sticky top-0 z-50 border-b bg-paper/80 backdrop-blur-md">
-      <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
+      {/* Wider than the max-w-5xl the page content uses.
+          
+          At 5xl the bar is centred, so on a laptop the wordmark started a
+          couple of hundred pixels inside the left edge and read as floating
+          rather than anchored. A header is chrome and can span wider than the
+          column it sits above. */}
+      <div className="mx-auto flex max-w-[1600px] items-center justify-between px-5 py-4 sm:px-8">
         <Link
           href="/"
           onClick={handleWordmarkClick}
