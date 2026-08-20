@@ -169,10 +169,12 @@ export default async function Home() {
             every occasion, every budget. Someone who reads it should be able to
             think of two people they need something for.
 
-            The specifics are load-bearing. "The coworker retiring on Friday"
-            does more than "all relationships" because it is somebody the reader
-            can picture. The counts are real and come from the same query the
-            eyebrow at the top uses.
+            Built on "or" pairs, each one spanning that distance in a single
+            breath. The specifics are load-bearing: "the one you drew in Secret
+            Santa" does more than "someone you barely know" because it is a
+            situation the reader has actually been in, and the last pair names
+            the two genuinely hard cases rather than describing them. The counts
+            are real and come from the same query the eyebrow at the top uses.
 
             Every claim here is one the site can make: no affiliate layer
             exists. If that changes, this changes with it. */}
@@ -189,9 +191,9 @@ export default async function Home() {
 
           <div className="mx-auto mt-8 max-w-2xl space-y-5 text-center text-base leading-relaxed text-pretty text-ink-soft sm:text-lg">
             <p>
-              The person you know better than anyone, and the one down the hall whose surname you
-              had to look up. Your mum. Your best friend. The teenager who already owns everything.
-              The coworker retiring on Friday.
+              The person who knows your passwords, or the one you drew in Secret Santa. The friend
+              you have had since school, or the colleague whose last day is Friday. The teenager
+              who already owns everything, or the parent who insists you get them nothing.
             </p>
             <p>
               Birthdays and weddings. Diwali, Eid, Lunar New Year. A housewarming, a graduation, a
