@@ -70,13 +70,6 @@ export function QuizLauncher() {
   if (!launched) {
     return (
       <div ref={ctaRef} className="flex flex-col items-center gap-3">
-        {/* Says the whole proposition in one sentence, in plain words, right
-            where the decision to click is made. The headline above is doing
-            tone; this is doing comprehension. */}
-        <p className="mb-3 max-w-lg text-center text-lg leading-relaxed text-pretty text-ink-soft">
-          Answer six quick questions about them and we&apos;ll find the one.
-        </p>
-
         {/* Two wrappers, because three animations want the same two properties
             and each element can only own one writer per property: the outer one
             plays once on arrival, the inner one tracks scroll, and whileTap on

@@ -83,27 +83,24 @@ export default async function Home() {
             The gift they didn&rsquo;t know to <span className="accent-word">ask</span> for.
           </h1>
 
-          {/* States the deal in one line: what the visitor supplies, and what
-              they get back. It replaced a rhetorical question ("What do you get
-              someone who already has everything?"), which set the problem up
-              without promising anything, and the tone line that followed it.
+          {/* The whole proposition in one line: what the visitor supplies, what
+              it costs them, and what they get back.
 
-              Sized and coloured as supporting copy — ink-soft, a step above
-              body — rather than as a second headline. At text-2xl in full ink
-              it was the only large full-strength Inter on a page where
-              everything else is either Fraunces display or small quiet Inter,
-              and it read as neither one thing nor the other.
+              This was two lines saying the same thing five rows apart — this
+              one, and "Answer six quick questions about them and we'll find the
+              one" above the button. Merging them is what removed the echo; the
+              cost figure survives in the meta line under the button.
 
-              The 💪 closes the sentence in place of a full stop, the same trick
-              the old second line used with its smiley — a period after it reads
-              as punctuation stranded behind a picture. Kept unbreakable so it
-              can never wrap onto a line of its own.
+              Sized and coloured as supporting copy, ink-soft, a step above
+              body. At text-2xl in full ink it was the only large
+              full-strength Inter on a page where everything else is either
+              Fraunces display or small quiet Inter, and it read as neither.
 
-              Note this says roughly what QuizLauncher says a few lines below
-              ("Answer six quick questions about them and we'll find the one").
-              One of the two should probably go. */}
-          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-balance text-ink-soft sm:text-xl">
-            Tell us who it&rsquo;s for and what they like, we&rsquo;ll handle the rest{" "}
+              The 💪 closes the sentence in place of a full stop. Kept
+              unbreakable so it can never wrap onto a line of its own. */}
+          <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-balance text-ink-soft sm:text-xl">
+            Six quick questions about who it&rsquo;s for and what they like, we&rsquo;ll handle
+            the rest{" "}
             <span className="whitespace-nowrap">&#x1F4AA;</span>
           </p>
 
