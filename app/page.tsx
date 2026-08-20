@@ -44,6 +44,24 @@ const FEATURED_OCCASIONS = [
   "Raksha Bandhan",
 ];
 
+/**
+ * The occasions the paragraph below names outright.
+ *
+ * Kept as a list rather than a hardcoded "28 more" so the count is derived: add
+ * an occasion to lib/gift-options.ts and the sentence corrects itself. Naming
+ * seven and silently ignoring the rest undersold the range, and this site's
+ * whole claim is that it covers occasions other gift sites do not.
+ */
+const NAMED_IN_COPY = [
+  "Birthday",
+  "Wedding",
+  "Diwali",
+  "Eid al-Fitr",
+  "Lunar New Year",
+  "Housewarming",
+  "Graduation",
+] as const;
+
 export default async function Home() {
   // groupBy over platform rather than a distinct count: Prisma has no
   // countDistinct, and the group list is small enough that its length is the
@@ -177,9 +195,10 @@ export default async function Home() {
             </p>
             <p>
               Birthdays and weddings. Diwali, Eid, Lunar New Year. A housewarming, a graduation, a
-              leaving card for someone in accounts. Ten dollars, or fifteen hundred. Something they
-              will keep for years, or something that simply needs to look like you thought about
-              it, because sometimes that is the honest brief.
+              leaving card for someone in accounts, and {OCCASIONS.length - NAMED_IN_COPY.length}{" "}
+              more from around the world. Ten dollars, or fifteen hundred. Something they will keep
+              for years, or something that simply needs to look like you thought about it, because
+              sometimes that is the honest brief.
             </p>
             <p className="text-ink">
               Six questions, about thirty seconds, and a page of real things from real shops, ranked

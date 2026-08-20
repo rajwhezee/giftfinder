@@ -47,6 +47,10 @@ interface Floater {
 // large parcel occupies the centre. Middle-column entries are held to lower
 // opacity and smaller sizes: the headline and CTA sit directly over them, and
 // once the quiz launches the opaque card covers that column entirely.
+//
+// The centre was still visibly thinner than the rest for that reason, so it
+// gets a second pass below rather than a change to the opacity ceiling —
+// density is what was missing, not weight.
 const FLOATERS: Floater[] = [
   // Left edge
   { left: "2%", top: "12%", size: 44, opacity: 0.26, tilt: -12, dur: 11, delay: 0, smallScreen: true },
@@ -75,6 +79,22 @@ const FLOATERS: Floater[] = [
   { left: "52%", top: "50%", size: 17, opacity: 0.085, tilt: -5, dur: 13.1, delay: 1.8 },
   { left: "45%", top: "68%", size: 24, opacity: 0.15, tilt: 9, dur: 10.8, delay: 1.7, smallScreen: true },
   { left: "50%", top: "90%", size: 31, opacity: 0.2, tilt: -14, dur: 12.4, delay: 2.6, reverse: true },
+
+  // Centre, second pass. The column was the sparsest part of the field because
+  // it is the one the headline and the CTA sit on, so these stay small and
+  // faint: nothing above 0.13, nothing wider than 22px in the upper half where
+  // the type is. Below 60% there is no text on the home page until the occasion
+  // chips, so a few can carry a little more weight.
+  { left: "38%", top: "18%", size: 15, opacity: 0.085, tilt: 9, dur: 13.3, delay: 0.9, reverse: true },
+  { left: "46%", top: "41%", size: 16, opacity: 0.08, tilt: -21, dur: 11.8, delay: 2.7 },
+  { left: "40%", top: "56%", size: 19, opacity: 0.11, tilt: 4, dur: 12.6, delay: 1.2, reverse: true },
+  { left: "54%", top: "19%", size: 14, opacity: 0.075, tilt: -10, dur: 14.4, delay: 3.2 },
+  { left: "55%", top: "38%", size: 16, opacity: 0.085, tilt: 19, dur: 10.9, delay: 0.2, reverse: true },
+  { left: "49%", top: "60%", size: 22, opacity: 0.13, tilt: -12, dur: 13.8, delay: 2.0, smallScreen: true },
+  { left: "42%", top: "78%", size: 26, opacity: 0.17, tilt: 7, dur: 11.3, delay: 1.5, reverse: true },
+  { left: "56%", top: "74%", size: 20, opacity: 0.13, tilt: -16, dur: 12.2, delay: 0.7 },
+  { left: "37%", top: "94%", size: 24, opacity: 0.16, tilt: 13, dur: 13.0, delay: 2.9, reverse: true },
+  { left: "53%", top: "5%", size: 15, opacity: 0.08, tilt: -6, dur: 12.9, delay: 1.6 },
 
   // Centre-right
   { left: "60%", top: "6%", size: 28, opacity: 0.19, tilt: -14, dur: 13.5, delay: 0.8, reverse: true },
