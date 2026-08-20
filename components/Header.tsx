@@ -55,9 +55,19 @@ export function Header() {
             </span>
           </span>
         </Link>
-        <p className="hidden text-xs tracking-[0.18em] text-ink-faint uppercase sm:block">
-          Any occasion · Any culture
-        </p>
+        <div className="flex items-center gap-5">
+          <p className="hidden text-xs tracking-[0.18em] text-ink-faint uppercase sm:block">
+            Any occasion · Any culture
+          </p>
+          {/* On "/" this is a same-page jump; from an occasion page it
+              navigates home and lands on the section. */}
+          <Link
+            href="/#about"
+            className="text-xs tracking-[0.18em] text-ink-faint uppercase transition-colors hover:text-terracotta"
+          >
+            What is this?
+          </Link>
+        </div>
       </div>
     </header>
   );

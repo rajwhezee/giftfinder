@@ -114,7 +114,8 @@ export default async function Home() {
           </div>
         </div>
 
-        <div className="mt-11">
+        {/* Target for the "Find their gift" button at the foot of the page. */}
+        <div id="launch" className="mt-11 scroll-mt-28">
           <QuizLauncher />
         </div>
 
@@ -137,6 +138,84 @@ export default async function Home() {
               </Link>
             ))}
           </div>
+        </section>
+
+        {/* Sits at the foot of the page, not above the button. Anyone ready
+            to press "Launch" should not have to read a paragraph first; the
+            people who scroll this far are the unconvinced ones, and the header
+            link brings anyone here sooner who wants it.
+
+            Written as a pitch rather than an explanation. The job is not to
+            describe the mechanism, which the hero already does in one line, but
+            to show the range: the closest person and the one you barely know,
+            every occasion, every budget. Someone who reads it should be able to
+            think of two people they need something for.
+
+            The specifics are load-bearing. "The coworker retiring on Friday"
+            does more than "all relationships" because it is somebody the reader
+            can picture. The counts are real and come from the same query the
+            eyebrow at the top uses.
+
+            Every claim here is one the site can make: no affiliate layer
+            exists. If that changes, this changes with it. */}
+        <section
+          id="about"
+          className="rule-hairline mx-auto mt-24 max-w-3xl scroll-mt-24 border-t pt-14"
+        >
+          <p className="text-center text-xs tracking-[0.2em] text-ink-faint uppercase">
+            What this is
+          </p>
+          <h2 className="font-display mx-auto mt-4 max-w-2xl text-center text-3xl leading-tight font-semibold text-balance sm:text-4xl">
+            For everyone you have to buy for.
+          </h2>
+
+          <div className="mx-auto mt-8 max-w-2xl space-y-5 text-center text-base leading-relaxed text-pretty text-ink-soft sm:text-lg">
+            <p>
+              The person you know better than anyone, and the one down the hall whose surname you
+              had to look up. Your mum. Your best friend. The teenager who already owns everything.
+              The coworker retiring on Friday.
+            </p>
+            <p>
+              Birthdays and weddings. Diwali, Eid, Lunar New Year. A housewarming, a graduation, a
+              leaving card for someone in accounts. Ten dollars, or fifteen hundred. Something they
+              will keep for years, or something that simply needs to look like you thought about
+              it, because sometimes that is the honest brief.
+            </p>
+            <p className="text-ink">
+              Six questions, about thirty seconds, and a page of real things from real shops, ranked
+              for the person you just described. Nothing on it paid to be there.
+            </p>
+          </div>
+
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 text-xs tracking-[0.16em] text-ink-faint uppercase">
+            <span className="whitespace-nowrap">
+              {roundedFloor(giftCount, 1000).toLocaleString("en-US")} gifts
+            </span>
+            <span aria-hidden>·</span>
+            <span className="whitespace-nowrap">{roundedFloor(platforms.length, 5)} brands</span>
+            <span aria-hidden>·</span>
+            <span className="whitespace-nowrap">{OCCASIONS.length} occasions</span>
+            <span aria-hidden>·</span>
+            <span className="whitespace-nowrap">$10 to $1,500</span>
+          </div>
+
+          <div className="mt-10 text-center">
+            <a
+              href="#launch"
+              className="btn-primary inline-flex items-center gap-2.5 rounded-full px-9 py-4 text-base font-medium"
+            >
+              Find their gift
+              <span aria-hidden>→</span>
+            </a>
+          </div>
+
+          <p className="mt-8 text-center text-sm text-ink-soft">
+            How this is paid for, and why nothing here is,{" "}
+            <Link href="/disclosure" className="text-terracotta underline underline-offset-4">
+              on the disclosure page
+            </Link>
+            .
+          </p>
         </section>
       </div>
     </main>

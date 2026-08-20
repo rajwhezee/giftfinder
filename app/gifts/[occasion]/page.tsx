@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StaticGiftCard } from "@/components/StaticGiftCard";
-import { namesADifferentOccasion } from "@/lib/occasion-fit";
+import { namesADifferentOccasion, occasionCategoryFit } from "@/lib/occasion-fit";
 import { OCCASION_EMOJI } from "@/lib/gift-option-icons";
 import { OCCASIONS } from "@/lib/gift-options";
 import { occasionToSlug, slugToOccasion } from "@/lib/occasion-slugs";
@@ -61,6 +61,8 @@ async function getGiftsForOccasion(occasion: string) {
     imageUrl: true,
     productUrl: true,
     platform: true,
+    giftScore: true,
+    category: true,
   };
 
   const results = await Promise.all(
@@ -81,7 +83,18 @@ async function getGiftsForOccasion(occasion: string) {
         select,
       });
 
-      const fit = strong.filter((g) => !namesADifferentOccasion(g.name, occasion));
+      // giftScore alone is occasion-blind, which is why a special-edition
+      // Wuthering Heights led housewarming, wedding and anniversary at once.
+      // Re-ranked on giftScore weighted by how well the category suits the
+      // occasion, so what belongs at a housewarming leads a housewarming.
+      const byFit = <T extends { giftScore: number | null; category: string | null }>(rows: T[]) =>
+        [...rows].sort(
+          (a, b) =>
+            (b.giftScore ?? 0) * occasionCategoryFit(occasion, b.category) -
+            (a.giftScore ?? 0) * occasionCategoryFit(occasion, a.category),
+        );
+
+      const fit = byFit(strong.filter((g) => !namesADifferentOccasion(g.name, occasion)));
       if (fit.length >= 8) return fit.slice(0, 8);
 
       // Thin occasions — Vaisakhi, Onam — do not have 8 well-scored gifts in
@@ -95,7 +108,10 @@ async function getGiftsForOccasion(occasion: string) {
         select,
       });
 
-      return [...fit, ...rest.filter((g) => !namesADifferentOccasion(g.name, occasion))].slice(0, 8);
+      return [
+        ...fit,
+        ...byFit(rest.filter((g) => !namesADifferentOccasion(g.name, occasion))),
+      ].slice(0, 8);
     }),
   );
 

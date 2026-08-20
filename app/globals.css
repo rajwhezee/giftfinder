@@ -207,6 +207,16 @@ body {
   color: var(--on-accent);
 }
 
+/* Anchor jumps glide rather than teleport — the "What is this?" link in the
+ * header lands at the foot of a long page. Off for anyone who asked for less
+ * motion, where an instant jump is the correct behaviour rather than a
+ * degraded one. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 .card-surface {
   background-color: var(--surface);
   border: 1px solid var(--rule);
