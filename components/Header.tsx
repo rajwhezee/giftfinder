@@ -60,10 +60,18 @@ export function Header() {
             Any occasion · Any culture
           </p>
           {/* On "/" this is a same-page jump; from an occasion page it
-              navigates home and lands on the section. */}
+              navigates home and lands on the section.
+
+              Given a border because it sat in the same grey uppercase as the
+              "Any occasion · Any culture" line beside it, which is decoration
+              and not a link — so the one control in the header read as more
+              decoration. The outline is what says "this does something".
+              Deliberately small and still ink-soft: it is for the minority who
+              want more before they commit, and it should not compete with the
+              button the page is actually built around. */}
           <Link
             href="/#about"
-            className="text-xs tracking-[0.18em] text-ink-faint uppercase transition-colors hover:text-terracotta"
+            className="rule-hairline rounded-full border px-3.5 py-1.5 text-[11px] tracking-[0.16em] text-ink-soft uppercase transition-colors hover:border-terracotta hover:text-terracotta"
           >
             What is this?
           </Link>
