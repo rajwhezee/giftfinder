@@ -82,7 +82,9 @@ const RULES: Rule[] = [
   {
     label: "pets",
     category: "Pets",
-    pattern: /\bdogs?\b|\bcats?\b|\bpuppy\b|\bkitten\b|\bpets?\b|\bleash(es)?\b|\bcollars? (and|&)? ?leash\b|\bharness\b|\bcanine\b|\bfeline\b/,
+    // "dog tag" is military ID jewellery far more often than pet gear, and
+    // Etsy sells a lot of the engraved kind.
+    pattern: /\bdogs?\b(?! ?tags?\b)|\bcats?\b|\bpuppy\b|\bkitten\b|\bpets?\b|\bleash(es)?\b|\bcollars? (and|&)? ?leash\b|\bharness\b|\bcanine\b|\bfeline\b/,
     interests: ["Pets", "Family"],
   },
 
@@ -103,7 +105,9 @@ const RULES: Rule[] = [
   {
     label: "lamps & fixtures",
     category: "Lamps",
-    pattern: /\blamps?\b|\bsconce\b|\bpendant\b|\bchandelier\b|\blantern\b|floor light|table light/,
+    // "pendant" and "shade" only as light fittings: a pendant *necklace*
+    // was filing itself under Lamps, and Etsy sells a lot of them.
+    pattern: /\blamps?\b|\bsconce\b|\bchandelier\b|\blantern\b|floor light|table light|pendant (light|lamp|shade)/,
     interests: ["Home Decor", "Reading"],
   },
   {
@@ -228,7 +232,9 @@ const RULES: Rule[] = [
   {
     label: "wall art & prints",
     category: "Wall Art",
-    pattern: /\bwall art\b|\bposters?\b|\bprints?\b|\bframes?\b|\bartwork\b/,
+    // Not a bare "print": "Supercar Back Print Shirt" is a t-shirt, and
+    // "print" appears on a large share of Etsy apparel titles.
+    pattern: /\bwall art\b|\bposters?\b|\bartwork\b|\bart prints?\b|\bframed print\b|\bpicture frames?\b|\bcanvas (print|art|wall)\b|\bwall print\b|\bwall hanging\b/,
     interests: ["Art", "Home Decor"],
   },
   // Beauty before plants, and "plant" no longer matches "plant-based" — that
@@ -319,6 +325,21 @@ const RULES: Rule[] = [
 ];
 
 export const CATEGORIES = [...new Set(RULES.map((r) => r.category))].sort();
+
+/**
+ * The interests each shelf implies, merged across the rules that feed it.
+ *
+ * Lets a stored tag set be sanity-checked against what the product visibly is:
+ * a duffel bag tagged [Coffee, Food] shares nothing with what Bags means, and
+ * that is a tagging error rather than an unusual product.
+ */
+export const CATEGORY_INTERESTS: Record<string, string[]> = RULES.reduce(
+  (acc, rule) => {
+    acc[rule.category] = [...new Set([...(acc[rule.category] ?? []), ...rule.interests])];
+    return acc;
+  },
+  {} as Record<string, string[]>,
+);
 
 /**
  * Explicit only. "Women's Shoes" is a fact about the listing; a floral print is
