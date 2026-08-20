@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { BUDGET_UNCAPPED_AT } from "@/lib/gift-options";
 import { prisma } from "@/lib/prisma";
+import { clientKey, rateLimit, tooManyRequests } from "@/lib/rate-limit";
 import { parseRecommendBody } from "@/lib/recommend-request";
 import { SAME_LISTING_SIMILARITY, scoreSimilarity, selectDiverse } from "@/lib/ranking";
 import type { GiftRecommendation, SimilarRequestBody } from "@/lib/types";
@@ -51,7 +52,18 @@ function parseSimilarBody(body: unknown): SimilarRequestBody | null {
   return { ...answers, giftId, excludeIds: (excludeIds ?? []).slice(0, MAX_EXCLUDED) };
 }
 
+/**
+ * Higher than /api/recommend because this fires on a tap rather than on a
+ * completed quiz — a shopper comparing products opens several strips in a
+ * minute, and each is cheaper than a full search.
+ */
+const RATE_LIMIT = 40;
+const RATE_WINDOW_MS = 60_000;
+
 export async function POST(request: Request) {
+  const limit = rateLimit(`similar:${clientKey(request)}`, RATE_LIMIT, RATE_WINDOW_MS);
+  if (!limit.ok) return tooManyRequests(limit.retryAfter);
+
   const json = await request.json().catch(() => null);
   const body = parseSimilarBody(json);
 

@@ -3,6 +3,7 @@ import { BUDGET_UNCAPPED_AT } from "@/lib/gift-options";
 import { prisma } from "@/lib/prisma";
 import { looksNonEnglish } from "@/lib/language";
 import { namesADifferentOccasion } from "@/lib/occasion-fit";
+import { clientKey, rateLimit, tooManyRequests } from "@/lib/rate-limit";
 import { parseRecommendBody } from "@/lib/recommend-request";
 import { MIN_INTEREST_MATCHES, scoreGift, selectDiverse } from "@/lib/ranking";
 import type { GiftRecommendation } from "@/lib/types";
@@ -39,7 +40,19 @@ const MAX_RESULTS = 150;
  */
 const DIVERSITY_POOL = MAX_RESULTS * 4;
 
+/**
+ * A shopper runs a handful of searches in a session, not dozens a minute. The
+ * ceiling is set well above real use and well below what it costs to be
+ * scraped: each call scans thousands of rows, so this is a bill as much as a
+ * load.
+ */
+const RATE_LIMIT = 20;
+const RATE_WINDOW_MS = 60_000;
+
 export async function POST(request: Request) {
+  const limit = rateLimit(`recommend:${clientKey(request)}`, RATE_LIMIT, RATE_WINDOW_MS);
+  if (!limit.ok) return tooManyRequests(limit.retryAfter);
+
   const json = await request.json().catch(() => null);
   const body = parseRecommendBody(json);
 
