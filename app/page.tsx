@@ -88,6 +88,12 @@ export default async function Home() {
               someone who already has everything?"), which set the problem up
               without promising anything, and the tone line that followed it.
 
+              Sized and coloured as supporting copy — ink-soft, a step above
+              body — rather than as a second headline. At text-2xl in full ink
+              it was the only large full-strength Inter on a page where
+              everything else is either Fraunces display or small quiet Inter,
+              and it read as neither one thing nor the other.
+
               The 💪 closes the sentence in place of a full stop, the same trick
               the old second line used with its smiley — a period after it reads
               as punctuation stranded behind a picture. Kept unbreakable so it
@@ -96,7 +102,7 @@ export default async function Home() {
               Note this says roughly what QuizLauncher says a few lines below
               ("Answer six quick questions about them and we'll find the one").
               One of the two should probably go. */}
-          <p className="mx-auto mt-6 max-w-xl text-xl leading-relaxed text-balance text-ink sm:text-2xl">
+          <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-balance text-ink-soft sm:text-xl">
             Tell us who it&rsquo;s for and what they like, we&rsquo;ll handle the rest{" "}
             <span className="whitespace-nowrap">&#x1F4AA;</span>
           </p>
