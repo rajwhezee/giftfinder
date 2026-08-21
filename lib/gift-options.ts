@@ -130,7 +130,7 @@ export const INTERESTS = [
  *   the thinnest, so the chips people read first are the ones with something
  *   behind them. MIN_INTEREST_MATCHES is 1, which means a single thin pick is
  *   the whole search: choosing only Painting searched 144 rows.
- * - The first twelve reach 96.6% of the catalogue between them, which is what
+ * - The first twelve reach 97.0% of the catalogue between them, which is what
  *   makes it safe for the quiz to show twelve and fold the rest away.
  *
  * `tags` is what a chip selects. Most select one. A few select two, where the
@@ -155,12 +155,11 @@ export const INTEREST_CHOICES: InterestChoice[] = [
   { label: "Cooking & Food", tags: ["Cooking", "Food"] },
   { label: "Sneakers", tags: ["Sneakers"] },
   { label: "Tech", tags: ["Tech"] },
-  { label: "Personalized", tags: ["Personalized"] },
   { label: "Art", tags: ["Art", "Painting"] },
   { label: "Family", tags: ["Family"] },
   { label: "Gaming", tags: ["Gaming", "Games"] },
-  // Everything below here is behind the "more" cut in the quiz.
   { label: "Creativity", tags: ["Creativity"] },
+  // Everything below here is behind the "more" cut in the quiz.
   { label: "Jewelry", tags: ["Jewelry"] },
   { label: "Writing", tags: ["Writing"] },
   { label: "Outdoors", tags: ["Outdoors"] },
@@ -176,6 +175,13 @@ export const INTEREST_CHOICES: InterestChoice[] = [
   { label: "Cars", tags: ["Cars"] },
   { label: "Photography", tags: ["Photography"] },
   { label: "STEM", tags: ["STEM"] },
+  // Last, out of depth order on purpose. It is ninth by volume at 9.7%, but it
+  // describes how a gift is made rather than anything a person is into, so it
+  // reads as the odd one out in a row of them. It costs nothing to move: it
+  // overlaps heavily with the shelves above it, so promoting Creativity into
+  // the twelfth slot in its place took the visible dozen from 96.6% of the
+  // catalogue to 97.0%.
+  { label: "Personalized", tags: ["Personalized"] },
 ];
 
 /** How many chips the quiz shows before folding the rest behind "more". */
