@@ -82,16 +82,27 @@ graphify query "which components render the results grid" --budget 1500
 Use it to scope, then read only what it named. Raise `--budget` when the result
 truncates, or narrow the question rather than reading everything it returned.
 
-**The decisions in section 12 are graph communities.** `No LLM Runtime`,
-`Gift Detail Overlay`, `Similar API Demotion`, `No Affiliate Layer`,
-`Unisex Reach Strategy`, `Diversity Pool Cap`. If a query for your change
-surfaces one of those communities, the constraint it names is live for the work
-you are about to do, and section 12 applies. That is the cheapest available
-check against redesigning something into a shape the architecture has already
-ruled out.
+**The decisions in section 12 are graph communities.** They cluster as their
+own communities, usually suffixed `Rule`. As of 2026-08-21 they are
+`No Runtime LLM Rule`, `Gift Detail Overlay Rule`, `Similar API Demotion Rule`,
+`No Affiliate Layer Rule`, `Diversity Pool Cap Rule`, `Brand Slot Filling Rule`
+and `Unisex Reach Strategy`.
+
+Do not match those strings literally. `graphify label` re-derives every name
+with an LLM, so they drift on each relabel - these seven have already been
+through two different naming rounds. List what exists now instead:
 
 ```bash
-graphify explain "Gift Detail Overlay"
+python3 -c "import json;print(sorted({n.get('community_name') for n in json.load(open('graphify-out/graph.json'))['nodes'] if n.get('community_name')}))"
+```
+
+If a scoping query surfaces one of those decision communities, the constraint
+it names is live for the work you are about to do, and section 12 applies. That
+is the cheapest available check against redesigning something into a shape the
+architecture has already ruled out.
+
+```bash
+graphify explain "Gift Detail Overlay Rule"
 ```
 
 **Check freshness first.** The graph records the commit it was built from:
@@ -103,6 +114,15 @@ python3 -c "import json;print(json.load(open('graphify-out/graph.json'))['built_
 Compare against `git rev-parse HEAD`. If they differ, the graph predates your
 working tree and may point at code that moved. `graphify update .` re-extracts
 only what changed and costs no API tokens.
+
+`update` can leave communities named after their hub file rather than in
+prose, which is a labeling gap, not a broken graph. `graphify label` fixes it,
+but unlike `update` it calls an LLM: it needs the `anthropic` package in the
+same interpreter that `which graphify` resolves to, and it needs
+`ANTHROPIC_API_KEY` exported. This project keeps the key in `.env`, which
+graphify does not read, so pass it on the command rather than assuming the
+shell has it. Without the package it does not fail loudly, it falls back to
+`Community N` placeholders and writes them.
 
 ---
 
