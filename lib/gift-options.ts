@@ -154,14 +154,14 @@ export interface InterestChoice {
 }
 
 export const INTEREST_CHOICES: InterestChoice[] = [
-  // Cars and Bags lead by request rather than by depth. Both are thin next to
-  // what follows them - Cars is 209 rows and Bags 654, against Fashion's 7,381
-  // - so this is a deliberate exception to the ordering rule below, not a gap
-  // in it. Revisit if either shelf stays small.
-  { label: "Cars", tags: ["Cars"] },
-  { label: "Bags", tags: ["Bags"] },
   { label: "Fashion", tags: ["Fashion"] },
   { label: "Home Decor", tags: ["Home Decor"] },
+  // Cars and Bags sit high by request rather than by depth, but not first:
+  // leading with a 209-row shelf is the same mistake the old order made with
+  // Music. Third and fourth keeps them in the first line people read while the
+  // two largest shelves still open the list.
+  { label: "Cars", tags: ["Cars"] },
+  { label: "Bags", tags: ["Bags"] },
   { label: "Beauty & Self-care", tags: ["Beauty", "Self-care"] },
   { label: "Travel", tags: ["Travel"] },
   { label: "Sports", tags: ["Sports"] },
