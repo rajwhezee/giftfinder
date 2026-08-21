@@ -23,7 +23,7 @@ If the live site is missing a change that is on `main`, this is why. Confirm a
 deploy by fetching the page and grepping for the new copy, not by trusting the
 push.
 
-**CI needs a real database.** `next build` prerenders `/` and the 35
+**CI needs a real database.** `next build` prerenders `/` and the 36
 `/gifts/[occasion]` routes from Postgres, so a placeholder connection string
 fails with `Error occurred prerendering page "/"` — a message naming neither
 Postgres nor the credential. `DATABASE_URL` comes from a repository secret.
@@ -66,9 +66,9 @@ migration.
 Postgres query plus pure scoring, at zero marginal cost. Measured on production
 2026-08-19 at ~18,900 gifts: a one-interest search ~300–360 ms, two interests
 ~280 ms, and a five-interest search with no budget limits ~790 ms.
-The only Claude usage is `scripts/enrich-tags.ts`, an offline Batch API pass.
-Adding a model call to either request path would break both the latency and the
-"about 30 seconds" promise.
+The only Claude usage is `scripts/enrich-tags.ts` and `scripts/score-gifts.ts`,
+both offline Batch API passes. Adding a model call to either request path would
+break both the latency and the "about 30 seconds" promise.
 
 **The gift detail view is an overlay, not a route.** Tapping a card opens
 `components/GiftDetail.tsx` in place. There is no `/gift/[id]`, and adding one
@@ -118,8 +118,8 @@ the effective catalogue for everyone.
 
 ## Catalogue
 
-Roughly 9,900 gifts across ~70 sources. Every source is a plain developer API or
-public endpoint — no affiliate membership anywhere.
+Roughly 20,700 gifts across ~70 sources, counted 2026-08-21. Every source is a
+plain developer API or public endpoint — no affiliate membership anywhere.
 
 | Script | Source | Credential |
 | --- | --- | --- |
@@ -128,6 +128,21 @@ public endpoint — no affiliate membership anywhere.
 | `npm run import:shopify` | ~70 DTC brands' public `/products.json` | none |
 | `npm run import:bestbuy` | Best Buy Products API | free key, **needs a business-domain email** |
 | `npm run enrich:tags` | Claude Batch API | `ANTHROPIC_API_KEY` |
+| `npm run score:gifts` | Claude Batch API | `ANTHROPIC_API_KEY` |
+
+**An import is not finished until it is scored.** New rows arrive with
+`giftScore` null, and the occasion pages ask for `giftScore >= 55` in one tier
+and `{ not: null, lt: 55 }` in the other, so an unscored row matches neither and
+appears on no landing page at all. Run `npm run score:gifts -- --only-missing`
+after every import.
+
+The failure is silent in the worst way. The products are in the database, the
+quiz finds them — `scoreGift` treats a null score as neutral rather than
+penalising it — so the only broken surface is the 36 pages nobody checks
+immediately. 2,064 Etsy toys imported on 2026-08-21 were reachable through the
+quiz within minutes and invisible on `/gifts/birthday` until they were scored;
+what looked like a deploy that had not shipped was a pipeline step that had not
+run.
 
 Every script takes `--dry-run`. Verify a Shopify domain serves `/products.json`
 before adding it to `BRANDS` — about half of tested brands block it, and some
@@ -163,11 +178,15 @@ back short of re-running every import.
 
 **The importers must never write those three fields on update.** They are set on
 create, from brand-level defaults, and from then on `enrich:tags` owns them.
-`import-shopify.ts` did carry them in its `update` until 2026-08-19, so
-re-running it reverted every enriched row to its brand default — 4,050 rows
-across 71 brands, discarding a paid Batch API run and printing nothing. Prices,
-titles, images and occasions are still refreshed on update; `--retag` restores
-the old behaviour deliberately, for when a brand's entry was wrong.
+Two importers have carried them in `update` and had to be fixed:
+`import-shopify.ts` until 2026-08-19, where re-running it reverted every
+enriched row to its brand default — 4,050 rows across 71 brands, discarding a
+paid Batch API run and printing nothing — and `import-etsy.ts` until
+2026-08-21, which had the same shape over 4,037 rows and was caught before it
+ran rather than after. Check this in any new importer before running it once;
+it is invisible afterwards. Prices, titles, images and occasions are still
+refreshed on update; `--retag` restores the old behaviour deliberately, for
+when a query or brand entry was wrong.
 
 ## Design system
 
