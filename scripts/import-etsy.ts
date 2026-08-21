@@ -31,6 +31,8 @@ import { looksNonEnglish } from "../lib/language";
 const KEYSTRING = process.env.ETSY_KEYSTRING;
 const SHARED_SECRET = process.env.ETSY_SHARED_SECRET;
 const DRY_RUN = process.argv.includes("--dry-run");
+/** Let the query manifest overwrite tags that enrich-tags now owns. */
+const RETAG = process.argv.includes("--retag");
 
 /** Etsy's documented limit is ~10 requests/second; stay well under it. */
 const REQUEST_DELAY_MS = 400;
@@ -1002,24 +1004,39 @@ async function main() {
   let upserted = 0;
   try {
     for (const gift of staged.values()) {
-      const data = {
+      // What the listing says about itself. Safe to refresh on every run: a
+      // price drops, a title is edited, a seller swaps the photo.
+      const listing = {
         name: gift.name,
         description: gift.description,
         price: gift.price,
         currency: gift.currency,
-        gender: gift.gender,
         imageUrl: gift.imageUrl!,
         productUrl: gift.productUrl,
         platform: gift.platform,
         occasions: [...gift.occasions],
+      };
+
+      // What the *query* guessed about the recipient. Set once, on create, and
+      // owned by enrich-tags from then on.
+      //
+      // These used to be written on update too, which is the bug import-shopify
+      // carried until 2026-08-19: re-running the importer quietly reverted every
+      // enriched row to its query-level default and discarded a paid Batch API
+      // pass. Etsy is 4,037 rows, so this was the same incident waiting to
+      // happen in a different file. --retag restores the old behaviour
+      // deliberately, for when a query's own tagging was wrong.
+      const taxonomy = {
+        gender: gift.gender,
         interests: [...gift.interests],
         ageMin: gift.ageMin,
         ageMax: gift.ageMax,
       };
+
       await prisma.gift.upsert({
         where: { productUrl: gift.productUrl },
-        update: data,
-        create: data,
+        update: RETAG ? { ...listing, ...taxonomy } : listing,
+        create: { ...listing, ...taxonomy },
       });
       upserted++;
     }
