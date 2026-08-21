@@ -59,6 +59,12 @@ not a reference. If you cannot render it, you do not have one.
 files, and know precisely what it does and does not cover, because the split
 matters for visual work.
 
+**It is gitignored, so it may not exist.** The graph is a derived artifact and
+does not travel with a clone. If `graphify-out/graph.json` is absent, this
+section is optional, not blocked: either rebuild it once with `graphify .`, or
+skip to section 3 and find files by reading them. Never stall on a missing
+graph, and never describe a blast radius you did not actually query.
+
 **It does not index CSS.** `app/globals.css` contributes zero nodes; extraction
 is AST-based over TS, TSX and config. The entire design system - every token,
 `.chip`, `.card-surface`, `.btn-primary` - is invisible to it. So the graph

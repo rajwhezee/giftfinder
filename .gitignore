@@ -46,3 +46,6 @@ next-env.d.ts
 
 # Tag snapshots taken before an enrich-tags run
 tag-backup-*.json
+
+# graphify knowledge graph (derived; regenerate with: graphify .)
+graphify-out/
