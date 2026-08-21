@@ -123,9 +123,25 @@ export function GiftResults({
   }, [selectedBrands, selectedCategories]);
 
   function toggleCategory(category: string) {
-    setSelectedCategories((current) =>
-      current.includes(category) ? current.filter((c) => c !== category) : [...current, category],
-    );
+    const next = selectedCategories.includes(category)
+      ? selectedCategories.filter((c) => c !== category)
+      : [...selectedCategories, category];
+    setSelectedCategories(next);
+
+    // A brand picked while the grid was wider can stock nothing in the shelf
+    // just chosen. Its chip stops being rendered at that moment, because the
+    // row is derived from what the category holds — so keeping the selection
+    // would filter the grid down to nothing behind a filter the shopper can no
+    // longer see or clear. Drop only the brands that went empty; a brand that
+    // still has stock here keeps narrowing as it did before.
+    if (selectedBrands.length === 0) return;
+    const scope =
+      next.length === 0
+        ? results
+        : results.filter((gift) => next.includes(gift.category ?? UNCATEGORISED));
+    const available = new Set(scope.map((gift) => gift.platform));
+    const kept = selectedBrands.filter((brand) => available.has(brand));
+    if (kept.length !== selectedBrands.length) setSelectedBrands(kept);
   }
 
   function toggleBrand(brand: string) {
