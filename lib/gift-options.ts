@@ -112,6 +112,76 @@ export const INTERESTS = [
 ] as const;
 
 /**
+ * What the quiz actually shows for "what are they into", as opposed to the tag
+ * vocabulary above.
+ *
+ * INTERESTS is the vocabulary the tagger writes and the API validates, and it
+ * stays exactly as it is. This is the reading order, and it exists because the
+ * two jobs had been conflated: the quiz rendered INTERESTS directly, so the
+ * order products happened to be tagged in became the order 33 chips were read
+ * in, and those turned out to be unrelated. Music led the list at 2.8% of the
+ * catalogue and Photography sat fourth at 1.1%, while Fashion, the largest
+ * shelf at 39.3%, was twenty-fifth.
+ *
+ * Two things follow from that, both measured against the live catalogue on
+ * 2026-08-21 at 18,792 gifts:
+ *
+ * - Ordered by depth. The first row is now the densest five rather than two of
+ *   the thinnest, so the chips people read first are the ones with something
+ *   behind them. MIN_INTEREST_MATCHES is 1, which means a single thin pick is
+ *   the whole search: choosing only Painting searched 144 rows.
+ * - The first twelve reach 96.6% of the catalogue between them, which is what
+ *   makes it safe for the quiz to show twelve and fold the rest away.
+ *
+ * `tags` is what a chip selects. Most select one. A few select two, where the
+ * vocabulary drew a line shoppers do not: Beauty and Self-care are 2,082 and
+ * 3,111 rows but only 3,205 together, so they were largely the same products
+ * asking to be told apart. Merging at this layer costs nothing downstream,
+ * because the tags themselves are untouched and enrich-tags still owns them.
+ */
+export interface InterestChoice {
+  /** What the chip says. */
+  label: string;
+  /** The tags it selects. The first also supplies the chip's emoji. */
+  tags: string[];
+}
+
+export const INTEREST_CHOICES: InterestChoice[] = [
+  { label: "Fashion", tags: ["Fashion"] },
+  { label: "Home Decor", tags: ["Home Decor"] },
+  { label: "Beauty & Self-care", tags: ["Beauty", "Self-care"] },
+  { label: "Travel", tags: ["Travel"] },
+  { label: "Sports", tags: ["Sports"] },
+  { label: "Cooking & Food", tags: ["Cooking", "Food"] },
+  { label: "Sneakers", tags: ["Sneakers"] },
+  { label: "Tech", tags: ["Tech"] },
+  { label: "Personalized", tags: ["Personalized"] },
+  { label: "Art", tags: ["Art", "Painting"] },
+  { label: "Family", tags: ["Family"] },
+  { label: "Gaming", tags: ["Gaming", "Games"] },
+  // Everything below here is behind the "more" cut in the quiz.
+  { label: "Creativity", tags: ["Creativity"] },
+  { label: "Jewelry", tags: ["Jewelry"] },
+  { label: "Writing", tags: ["Writing"] },
+  { label: "Outdoors", tags: ["Outdoors"] },
+  { label: "Health & Fitness", tags: ["Health", "Fitness"] },
+  { label: "Bags", tags: ["Bags"] },
+  { label: "Coffee", tags: ["Coffee"] },
+  { label: "Reading", tags: ["Reading"] },
+  { label: "Pets", tags: ["Pets"] },
+  { label: "Music", tags: ["Music"] },
+  { label: "Romance", tags: ["Romance"] },
+  { label: "Gardening", tags: ["Gardening"] },
+  { label: "Astronomy", tags: ["Astronomy"] },
+  { label: "Cars", tags: ["Cars"] },
+  { label: "Photography", tags: ["Photography"] },
+  { label: "STEM", tags: ["STEM"] },
+];
+
+/** How many chips the quiz shows before folding the rest behind "more". */
+export const INTERESTS_SHOWN = 12;
+
+/**
  * The slider's stops, non-linear on purpose.
  *
  * The catalogue's median gift is $60 and its 90th percentile is $298, but it

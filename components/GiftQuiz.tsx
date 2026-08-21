@@ -9,7 +9,8 @@ import {
   BUDGET_SCALE,
   BUDGET_UNCAPPED_AT,
   budgetIndexOf,
-  INTERESTS,
+  INTEREST_CHOICES,
+  INTERESTS_SHOWN,
   RELATIONSHIPS,
 } from "@/lib/gift-options";
 import { INTEREST_EMOJI, OCCASION_EMOJI, RELATIONSHIP_EMOJI } from "@/lib/gift-option-icons";
@@ -122,6 +123,7 @@ export function GiftQuiz() {
   const [age, setAge] = useState(AGE_DEFAULT);
   const [occasion, setOccasion] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
+  const [allInterestsShown, setAllInterestsShown] = useState(false);
   const [minBudget, setMinBudget] = useState<number>(BUDGET_RANGE_PRESETS[1].min);
   const [maxBudget, setMaxBudget] = useState<number>(BUDGET_RANGE_PRESETS[1].max);
   const [status, setStatus] = useState<"idle" | "loading" | "error">("idle");
@@ -190,9 +192,13 @@ export function GiftQuiz() {
     setMaxBudget(BUDGET_SCALE[Math.max(index, minIndex + 1)]);
   }
 
-  function toggleInterest(interest: string) {
+  // A chip owns one or two tags and moves them together, so the pair it merges
+  // can never end up half-selected.
+  function toggleInterest(tags: string[]) {
     setInterests((prev) =>
-      prev.includes(interest) ? prev.filter((i) => i !== interest) : [...prev, interest],
+      tags.every((tag) => prev.includes(tag))
+        ? prev.filter((i) => !tags.includes(i))
+        : [...prev, ...tags.filter((tag) => !prev.includes(tag))],
     );
   }
 
@@ -321,16 +327,45 @@ export function GiftQuiz() {
             <StepHeading hint="Pick as many as you like. The more you add, the better we can match.">
               What are they into?
             </StepHeading>
+            {/* Twelve, then the rest on request.
+
+                Twenty-eight chips at once made the one step that decides the
+                whole search the one people skim, and the tail is thin: these
+                twelve reach 96.6% of the catalogue between them, so folding the
+                other sixteen away costs almost no reach and removes two thirds
+                of the reading.
+
+                Anything already picked stays visible past the cut, or
+                collapsing the row would hide a choice that is still in force.
+                Same rule as the brand filter on the results grid. */}
             <div className="flex flex-wrap gap-2">
-              {INTERESTS.map((option) => (
+              {INTEREST_CHOICES.filter(
+                (choice, index) =>
+                  allInterestsShown ||
+                  index < INTERESTS_SHOWN ||
+                  choice.tags.some((tag) => interests.includes(tag)),
+              ).map((choice) => (
                 <Chip
-                  key={option}
-                  label={option}
-                  emoji={INTEREST_EMOJI[option]}
-                  selected={interests.includes(option)}
-                  onClick={() => toggleInterest(option)}
+                  key={choice.label}
+                  label={choice.label}
+                  emoji={INTEREST_EMOJI[choice.tags[0]]}
+                  selected={choice.tags.every((tag) => interests.includes(tag))}
+                  onClick={() => toggleInterest(choice.tags)}
                 />
               ))}
+
+              {INTEREST_CHOICES.length > INTERESTS_SHOWN && (
+                <button
+                  type="button"
+                  onClick={() => setAllInterestsShown((shown) => !shown)}
+                  aria-expanded={allInterestsShown}
+                  className="rounded-full px-4 py-2.5 text-sm text-ink-soft transition-colors hover:text-terracotta"
+                >
+                  {allInterestsShown
+                    ? "Show fewer"
+                    : `+${INTEREST_CHOICES.length - INTERESTS_SHOWN} more`}
+                </button>
+              )}
             </div>
           </fieldset>
         )}
