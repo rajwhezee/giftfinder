@@ -30,7 +30,7 @@ import {
   searchItems,
   type EbayItemSummary,
 } from "../lib/ebay";
-import { INTERESTS, OCCASIONS } from "../lib/gift-options";
+import { INTERESTS, JUST_BECAUSE, OCCASIONS } from "../lib/gift-options";
 import { looksNonEnglish } from "../lib/language";
 
 const CLIENT_ID = process.env.EBAY_CLIENT_ID;
@@ -539,6 +539,122 @@ const QUERIES: CuratedQuery[] = [
     occasions: ["Birthday", "Christmas", "Graduation"],
     ageMin: 8,
     ageMax: 75,
+  },
+  // --- Toys for children ---
+  //
+  // Added because the catalogue barely served anyone under about ten: 507 of
+  // 18,792 gifts fitted a five-year-old, and "hot wheels" matched no title at
+  // all. The existing "Cars" tag was collector diecast aged 8 and up, mostly
+  // 1:18 Batmobiles, so a parent picking Cars for a small child got model cars
+  // built for adults.
+  //
+  // The age floors are the real point of this block. Everything here starts at
+  // 3 to 5 rather than the 8 to 18 the rest of the manifest uses, because
+  // ageMin/ageMax is a hard SQL filter on the recommend route and nothing else
+  // in the catalogue reaches down this far.
+  //
+  // There is no "Toys" interest, and these must be values that already exist in
+  // lib/gift-options.ts or assertTaxonomyValid throws, so each query is filed
+  // under what the toy is about: Cars for vehicles, Creativity for building and
+  // making, Games for play, STEM for the science kits.
+  {
+    label: "Hot Wheels cars",
+    q: "hot wheels cars",
+    mode: "new",
+    minPrice: 5,
+    maxPrice: 60,
+    interests: ["Cars", "Games"],
+    occasions: ["Birthday", "Christmas", JUST_BECAUSE],
+    ageMin: 3,
+    ageMax: 12,
+  },
+  {
+    label: "Hot Wheels track sets",
+    q: "hot wheels track set",
+    mode: "new",
+    minPrice: 15,
+    maxPrice: 120,
+    interests: ["Cars", "Games"],
+    occasions: ["Birthday", "Christmas"],
+    ageMin: 4,
+    ageMax: 12,
+  },
+  {
+    label: "Matchbox and diecast toy cars",
+    q: "matchbox diecast toy cars kids",
+    mode: "new",
+    minPrice: 5,
+    maxPrice: 60,
+    interests: ["Cars", "Games"],
+    occasions: ["Birthday", "Christmas", JUST_BECAUSE],
+    ageMin: 3,
+    ageMax: 12,
+  },
+  {
+    label: "Remote control cars for kids",
+    q: "remote control car kids",
+    mode: "new",
+    minPrice: 15,
+    maxPrice: 150,
+    interests: ["Cars", "Games"],
+    occasions: ["Birthday", "Christmas"],
+    ageMin: 5,
+    ageMax: 14,
+  },
+  {
+    label: "Lego sets for children",
+    q: "lego set kids",
+    mode: "new",
+    minPrice: 15,
+    maxPrice: 200,
+    interests: ["Creativity", "Games"],
+    occasions: ["Birthday", "Christmas", JUST_BECAUSE],
+    ageMin: 4,
+    ageMax: 14,
+  },
+  {
+    label: "Wooden toys",
+    q: "wooden toys toddler melissa doug",
+    mode: "new",
+    minPrice: 10,
+    maxPrice: 100,
+    interests: ["Creativity", "Games"],
+    occasions: ["Birthday", "Christmas", JUST_BECAUSE],
+    ageMin: 3,
+    ageMax: 8,
+  },
+  {
+    label: "Children's board games and puzzles",
+    q: "kids board game puzzle age 5",
+    mode: "new",
+    minPrice: 8,
+    maxPrice: 60,
+    interests: ["Games", "Family"],
+    occasions: ["Birthday", "Christmas", "Family Gathering"],
+    ageMin: 4,
+    ageMax: 12,
+  },
+  {
+    label: "STEM kits for children",
+    q: "stem science kit kids",
+    mode: "new",
+    minPrice: 12,
+    maxPrice: 120,
+    interests: ["STEM", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 5,
+    ageMax: 14,
+  },
+  {
+    label: "Art sets for children",
+    q: "kids art set crayons painting",
+    mode: "new",
+    minPrice: 8,
+    maxPrice: 80,
+    interests: ["Art", "Creativity"],
+    occasions: ["Birthday", "Christmas", JUST_BECAUSE],
+    ageMin: 3,
+    ageMax: 12,
   },
 ];
 

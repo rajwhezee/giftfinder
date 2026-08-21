@@ -690,6 +690,64 @@ const QUERIES: CuratedQuery[] = [
     ageMax: 99,
     maxPrice: 80,
   },
+  // --- Toys for children ---
+  //
+  // The catalogue reached almost no one under ten: 507 of 18,792 gifts fitted a
+  // five-year-old. These age floors start at 3, where the rest of the manifest
+  // starts at 14, because ageMin/ageMax is a hard SQL filter on the recommend
+  // route and nothing else here reaches down that far.
+  //
+  // Etsy is handmade, so this is wooden and personalised toys rather than
+  // branded diecast. Hot Wheels and remote-control cars live in the eBay
+  // manifest, which needs its own credentials.
+  {
+    keywords: "wooden toy car kids",
+    interests: ["Cars", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Just Because"],
+    ageMin: 3,
+    ageMax: 10,
+    maxPrice: 80,
+  },
+  {
+    keywords: "handmade wooden toys toddler",
+    interests: ["Creativity", "Games"],
+    occasions: ["Birthday", "Christmas", "Just Because"],
+    ageMin: 3,
+    ageMax: 8,
+    maxPrice: 90,
+  },
+  {
+    keywords: "montessori toys for kids",
+    interests: ["Creativity", "STEM"],
+    occasions: ["Birthday", "Christmas"],
+    ageMin: 3,
+    ageMax: 10,
+    maxPrice: 120,
+  },
+  {
+    keywords: "personalized kids puzzle name",
+    interests: ["Games", "Personalized"],
+    occasions: ["Birthday", "Christmas", "Just Because"],
+    ageMin: 3,
+    ageMax: 10,
+    maxPrice: 70,
+  },
+  {
+    keywords: "kids art craft kit",
+    interests: ["Art", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Just Because"],
+    ageMin: 4,
+    ageMax: 12,
+    maxPrice: 70,
+  },
+  {
+    keywords: "dinosaur toy for kids",
+    interests: ["Games", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Just Because"],
+    ageMin: 3,
+    ageMax: 10,
+    maxPrice: 80,
+  },
 ];
 
 interface StagedGift {
