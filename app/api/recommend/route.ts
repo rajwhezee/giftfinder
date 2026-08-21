@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { BUDGET_UNCAPPED_AT } from "@/lib/gift-options";
+import { BUDGET_UNCAPPED_AT, JUST_BECAUSE } from "@/lib/gift-options";
 import { prisma } from "@/lib/prisma";
 import { looksNonEnglish } from "@/lib/language";
 import { namesADifferentOccasion, occasionCategoryFit } from "@/lib/occasion-fit";
@@ -86,7 +86,9 @@ export async function POST(request: Request) {
       : { gte: body.minBudget, lte: body.maxBudget },
     ageMin: { lte: body.age },
     ageMax: { gte: body.age },
-    occasions: { has: body.occasion },
+    // "Just Because" is the absence of an occasion, so it filters on none.
+    // Every other value is a tag the import query wrote.
+    ...(body.occasion !== JUST_BECAUSE && { occasions: { has: body.occasion } }),
     ...(body.gender !== "any" && { gender: { in: [body.gender, "unisex"] } }),
   };
 

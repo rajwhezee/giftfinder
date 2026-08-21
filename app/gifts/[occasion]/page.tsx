@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { StaticGiftCard } from "@/components/StaticGiftCard";
 import { namesADifferentOccasion, occasionCategoryFit } from "@/lib/occasion-fit";
 import { OCCASION_EMOJI } from "@/lib/gift-option-icons";
-import { OCCASIONS } from "@/lib/gift-options";
+import { JUST_BECAUSE, OCCASIONS } from "@/lib/gift-options";
 import { occasionToSlug, slugToOccasion } from "@/lib/occasion-slugs";
 import { jsonLdScript } from "@/lib/json-ld";
 import { prisma } from "@/lib/prisma";
@@ -68,7 +68,12 @@ async function getGiftsForOccasion(occasion: string) {
 
   const results = await Promise.all(
     tiers.map(async (price) => {
-      const where = { occasions: { has: occasion }, price };
+      // "Just Because" carries no tag: it means no occasion constraint, so
+      // the clause is dropped rather than matched. See JUST_BECAUSE.
+      const where = {
+        ...(occasion !== JUST_BECAUSE && { occasions: { has: occasion } }),
+        price,
+      };
 
       // Best first, not cheapest first. Ordering by price ascending put $1-3
       // Etsy filler at the top of every landing page — a birthday face tattoo

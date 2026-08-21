@@ -10,7 +10,25 @@ export const RELATIONSHIPS = [
 
 // Keep in sync with prisma/seed.ts and the query manifest in scripts/import-etsy.ts —
 // an occasion here with no matching import query will always return zero results.
+/**
+ * The reason that isn't one: seeing someone after a long time, or simply
+ * feeling like it.
+ *
+ * Unlike every other entry it is not a tag any gift carries. Occasions come
+ * from the import query, so tagging ~19,000 rows "Just Because" would be
+ * inventing data to express the absence of a constraint. It is a *filter that
+ * isn't applied* instead — both query sites drop the `occasions` clause for
+ * it, so the whole catalogue is in scope.
+ *
+ * `namesADifferentOccasion` then does the rest for free: it has no pattern of
+ * its own, so any title that names a specific occasion is excluded. A "Happy
+ * Birthday Banner" is a fine birthday gift and a bad just-because one, and
+ * that falls out of the existing logic without a special case.
+ */
+export const JUST_BECAUSE = "Just Because";
+
 export const OCCASIONS = [
+  JUST_BECAUSE,
   "Birthday",
   "Christmas",
   "Graduation",
@@ -158,6 +176,7 @@ export const BUDGET_RANGE_PRESETS = [
  * hand-maintained lists would drift.
  */
 export const FEATURED_OCCASIONS = [
+  JUST_BECAUSE,
   "Birthday",
   "Christmas",
   "Anniversary",

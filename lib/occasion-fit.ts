@@ -32,6 +32,48 @@ const OCCASION_WORDS: Record<string, RegExp> = {
   Diwali: /\bdiwali\b/i,
   "Lunar New Year": /\blunar new year\b|\bchinese new year\b/i,
   "Raksha Bandhan": /\brakhi\b|\braksha bandhan\b/i,
+
+  // The remaining occasions, added when "Just Because" made the gap visible.
+  //
+  // Every other page is narrowed by its own tag first, so an untagged occasion
+  // could only leak between two pages that already shared a tag. "Just Because"
+  // applies no tag filter at all, which puts the entire catalogue in scope and
+  // turns each missing pattern into a real leak: a Bar Mitzvah tzitzit set led
+  // the page on the first render.
+  //
+  // Whole-word throughout, and deliberately not clever. "Holi" does not match
+  // "holiday" because the boundary fails on the "d"; "Onam" does not match
+  // "monogram" for the same reason at the front.
+  Housewarming: /\bhousewarming\b|\bnew home\b/i,
+  // "Lunar New Year" also contains "new year", so a lunar product matches both.
+  // That is harmless: each page keeps what names its own occasion, and only a
+  // page naming neither drops it.
+  "New Year": /\bnew year'?s?\b|\bnye\b/i,
+  "Family Gathering": /\bfamily (gathering|reunion)\b/i,
+  "Get Well Soon": /\bget well( soon)?\b|\bfeel better\b/i,
+  "Thank You": /\bthank you\b|\bthankyou\b|\bteacher appreciation\b/i,
+  Holi: /\bholi\b/i,
+  // Both Eids share the bare word, so each keeps its own products and only a
+  // page naming neither loses them.
+  "Eid al-Fitr": /\beid\b|\beid al[- ]?fitr\b|\bramadan\b/i,
+  "Eid al-Adha": /\beid\b|\beid al[- ]?adha\b|\bqurbani\b/i,
+  Passover: /\bpassover\b|\bpesach\b|\bseder\b/i,
+  "Mid-Autumn Festival": /\bmid[- ]?autumn\b|\bmooncakes?\b/i,
+  Nowruz: /\bnowruz\b|\bnorooz\b|\bnavroz\b/i,
+  Vaisakhi: /\bvaisakhi\b|\bbaisakhi\b/i,
+  Onam: /\bonam\b/i,
+  // Accent-optional: titles are written both ways. Not the bare "quince" —
+  // that is a fruit, and it would pull quince jam and candles off every page.
+  "Quinceañera": /\bquincea(ñ|n)era\b/i,
+  "Day of the Dead": /\bday of the dead\b|\bd[ií]a de (los )?muertos\b/i,
+  Kwanzaa: /\bkwanzaa\b/i,
+  "St. Patrick's Day": /\bst\.? ?patrick'?s?\b|\bshamrock\b/i,
+  Oktoberfest: /\boktoberfest\b/i,
+  // "Carnival glass" is a collectible glassware type, not the festival, and it
+  // is common enough on Etsy to be worth the negative lookahead.
+  Carnival: /\bcarnival\b(?! glass)|\bmardi gras\b/i,
+  Vesak: /\bvesak\b|\bwesak\b/i,
+  "Bar/Bat Mitzvah": /\b(bar|bat) mitzvah\b|\bmitzvah\b|\btzitzit\b/i,
 };
 
 /**

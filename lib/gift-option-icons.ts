@@ -18,6 +18,7 @@ export const RELATIONSHIP_EMOJI: Record<string, string> = {
 };
 
 export const OCCASION_EMOJI: Record<string, string> = {
+  "Just Because": "🎈",
   Birthday: "🎂",
   Christmas: "🎄",
   Graduation: "🎓",
