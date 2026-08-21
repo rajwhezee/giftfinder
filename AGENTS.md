@@ -28,17 +28,27 @@ push.
 fails with `Error occurred prerendering page "/"` — a message naming neither
 Postgres nor the credential. `DATABASE_URL` comes from a repository secret.
 
-## Two traps that cost real time
-
-**Never run `npm run build` while the dev server is running.** They share
-`.next`, the build overwrites chunks the running server still holds open, and
-the page renders completely unstyled with `Cannot find module './331.js'` in the
-logs. It looks like a catastrophic CSS bug and is neither. Stop the preview
-server, `rm -rf .next`, restart.
+## Traps that cost real time
 
 **`tsx` does not read `.env`.** Every script under `scripts/` must
 `import "dotenv/config"` as its first import or its credentials are silently
 `undefined`. Same pattern as `prisma.config.ts`.
+
+**Concurrent `dev` and `build` used to corrupt each other. It no longer does.**
+On Next 15 they shared `.next`, the build overwrote chunks the running dev
+server still held open, and the page rendered completely unstyled with
+`Cannot find module './331.js'` in the logs. Next 16 gives `next dev` its own
+`.next/dev` directory, so the two can run together; verified on this project by
+building, then starting dev, and confirming `.next/BUILD_ID` survived. Take the
+warning off the list rather than working around a problem that is gone.
+
+**Development needs `'unsafe-eval'` in the CSP; production must not have it.**
+React's dev build evaluates strings to rebuild callstacks across the
+server/client boundary, and Next 16's overlay leans on it harder than 15 did.
+`next.config.ts` adds `'unsafe-eval'` to `script-src` only when
+`NODE_ENV === "development"`. Without it the console fills with `EvalError` and
+the page can stop responding to input, which reads as a hang in the quiz rather
+than as a policy problem. Do not "simplify" this by adding it unconditionally.
 
 ## Deliberate architectural decisions
 

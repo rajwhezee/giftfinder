@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+const isDev = process.env.NODE_ENV === "development";
+
 /**
  * Sent on every response.
  *
@@ -31,7 +33,13 @@ const securityHeaders = [
     key: "Content-Security-Policy",
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline'",
+      // 'unsafe-eval' in development only. React's dev build uses eval() to
+      // rebuild callstacks across the server/client boundary, and Next 16's
+      // dev overlay leans on it harder than 15 did: without this the console
+      // fills with EvalError and the page can stop responding to input.
+      // Production never evaluates a string as script, so the deployed policy
+      // is unchanged and still refuses it.
+      `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
       "style-src 'self' 'unsafe-inline'",
       "img-src 'self' data: blob: https://images.unsplash.com https://i5.walmartimages.com https://i.etsystatic.com https://pisces.bbystatic.com https://cdn.shopify.com https://i.ebayimg.com",
       "font-src 'self' data:",

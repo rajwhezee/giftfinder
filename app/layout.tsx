@@ -57,7 +57,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${inter.variable} ${fraunces.variable} h-full antialiased`}>
+    // data-scroll-behavior is what keeps route changes feeling instant.
+    // globals.css sets `scroll-behavior: smooth` so the header's "What is
+    // this?" anchor glides to the foot of the page. Next 15 silently
+    // suppressed that during navigation; Next 16 stopped, which would have
+    // made every occasion-page link smooth-scroll to the top instead of
+    // landing there. This opts back into the old suppression.
+    <html
+      lang="en"
+      data-scroll-behavior="smooth"
+      className={`${inter.variable} ${fraunces.variable} h-full antialiased`}
+    >
       <body className="paper-grain flex min-h-full flex-col">
         {/* First thing in the tab order, invisible until focused. Without it a
             keyboard or screen-reader user walks the wordmark, the Home link and
