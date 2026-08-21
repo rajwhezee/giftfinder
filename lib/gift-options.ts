@@ -133,6 +133,13 @@ export const INTERESTS = [
  * - The first twelve reach 97.0% of the catalogue between them, which is what
  *   makes it safe for the quiz to show twelve and fold the rest away.
  *
+ * "Family" is in the vocabulary but has no chip. It answered "who is this
+ * for", which the quiz already asked in its first question, so as an *interest*
+ * it read as a category error next to Cooking and Travel. Dropping the chip
+ * strands nothing: no gift carries Family as its only interest, so every row it
+ * touches is still reachable through the rest of its tags. The tag itself stays
+ * because enrich-tags writes it and the API validates against it.
+ *
  * `tags` is what a chip selects. Most select one. A few select two, where the
  * vocabulary drew a line shoppers do not: Beauty and Self-care are 2,082 and
  * 3,111 rows but only 3,205 together, so they were largely the same products
@@ -147,6 +154,12 @@ export interface InterestChoice {
 }
 
 export const INTEREST_CHOICES: InterestChoice[] = [
+  // Cars and Bags lead by request rather than by depth. Both are thin next to
+  // what follows them - Cars is 209 rows and Bags 654, against Fashion's 7,381
+  // - so this is a deliberate exception to the ordering rule below, not a gap
+  // in it. Revisit if either shelf stays small.
+  { label: "Cars", tags: ["Cars"] },
+  { label: "Bags", tags: ["Bags"] },
   { label: "Fashion", tags: ["Fashion"] },
   { label: "Home Decor", tags: ["Home Decor"] },
   { label: "Beauty & Self-care", tags: ["Beauty", "Self-care"] },
@@ -156,7 +169,6 @@ export const INTEREST_CHOICES: InterestChoice[] = [
   { label: "Sneakers", tags: ["Sneakers"] },
   { label: "Tech", tags: ["Tech"] },
   { label: "Art", tags: ["Art", "Painting"] },
-  { label: "Family", tags: ["Family"] },
   { label: "Gaming", tags: ["Gaming", "Games"] },
   { label: "Creativity", tags: ["Creativity"] },
   // Everything below here is behind the "more" cut in the quiz.
@@ -164,7 +176,6 @@ export const INTEREST_CHOICES: InterestChoice[] = [
   { label: "Writing", tags: ["Writing"] },
   { label: "Outdoors", tags: ["Outdoors"] },
   { label: "Health & Fitness", tags: ["Health", "Fitness"] },
-  { label: "Bags", tags: ["Bags"] },
   { label: "Coffee", tags: ["Coffee"] },
   { label: "Reading", tags: ["Reading"] },
   { label: "Pets", tags: ["Pets"] },
@@ -172,7 +183,6 @@ export const INTEREST_CHOICES: InterestChoice[] = [
   { label: "Romance", tags: ["Romance"] },
   { label: "Gardening", tags: ["Gardening"] },
   { label: "Astronomy", tags: ["Astronomy"] },
-  { label: "Cars", tags: ["Cars"] },
   { label: "Photography", tags: ["Photography"] },
   { label: "STEM", tags: ["STEM"] },
   // Last, out of depth order on purpose. It is ninth by volume at 9.7%, but it
