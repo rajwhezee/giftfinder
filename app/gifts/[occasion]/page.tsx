@@ -6,6 +6,7 @@ import { namesADifferentOccasion, occasionCategoryFit } from "@/lib/occasion-fit
 import { OCCASION_EMOJI } from "@/lib/gift-option-icons";
 import { OCCASIONS } from "@/lib/gift-options";
 import { occasionToSlug, slugToOccasion } from "@/lib/occasion-slugs";
+import { jsonLdScript } from "@/lib/json-ld";
 import { prisma } from "@/lib/prisma";
 
 const SITE = "https://thegiftfinder.net";
@@ -162,7 +163,7 @@ export default async function OccasionPage({
     <main className="px-4 py-14 sm:py-20">
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: jsonLdScript(jsonLd) }}
       />
 
       <div className="mx-auto max-w-5xl">
