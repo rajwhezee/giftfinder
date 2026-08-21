@@ -17,7 +17,7 @@ import { GiftQuiz } from "./GiftQuiz";
  * Revealing in place rather than routing to /quiz keeps the occasion links in the
  * server-rendered HTML — they are the only crawlable gift markup on this page.
  */
-export function QuizLauncher({ align = "center" }: { align?: "center" | "start" } = {}) {
+export function QuizLauncher() {
   const [launched, setLaunched] = useState(false);
   const quizRef = useRef<HTMLDivElement>(null);
   const ctaRef = useRef<HTMLDivElement>(null);
@@ -69,10 +69,7 @@ export function QuizLauncher({ align = "center" }: { align?: "center" | "start" 
 
   if (!launched) {
     return (
-      <div
-        ref={ctaRef}
-        className={`flex flex-col gap-3 ${align === "start" ? "items-start" : "items-center"}`}
-      >
+      <div ref={ctaRef} className="flex flex-col items-center gap-3">
         {/* Two wrappers, because three animations want the same two properties
             and each element can only own one writer per property: the outer one
             plays once on arrival, the inner one tracks scroll, and whileTap on
@@ -114,11 +111,7 @@ export function QuizLauncher({ align = "center" }: { align?: "center" | "start" 
             any break between items rather than through one, and binding each
             separator to the item before it stops a line starting with a bare
             middot. */}
-        <p
-          className={`mt-1 text-[13px] tracking-[0.14em] text-balance text-ink-faint uppercase ${
-            align === "start" ? "text-left" : "text-center"
-          }`}
-        >
+        <p className="mt-1 text-center text-[13px] tracking-[0.14em] text-balance text-ink-faint uppercase">
           <span className="whitespace-nowrap">About 30 seconds ·</span>{" "}
           <span className="whitespace-nowrap">No sign-up ·</span>{" "}
           <span className="whitespace-nowrap">No sponsors</span>

@@ -189,9 +189,4 @@ export const FEATURED_OCCASIONS = [
   "Lunar New Year",
   "Housewarming",
   "Raksha Bandhan",
-  // Fifteen rather than a dozen: the homepage sets these as a three-column
-  // index, and 13 left a single orphan on the last row. Both additions are
-  // occasions people genuinely shop for rather than filler to square the grid.
-  "Hanukkah",
-  "Thank You",
 ];

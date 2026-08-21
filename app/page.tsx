@@ -48,30 +48,10 @@ export default async function Home() {
   // groupBy over platform rather than a distinct count: Prisma has no
   // countDistinct, and the group list is small enough that its length is the
   // cheapest way to get the number of shops we carry.
-  //
-  // The third query feeds the band below the hero. A gift site whose landing page showed no gifts was
-  // the largest thing missing from it: the catalogue is the entire asset and it
-  // was invisible until you had answered six questions.
-  //
-  // Over-fetches and thins by platform in JS rather than asking Postgres for a
-  // distinct-on: the page is revalidated daily, so this runs once a day rather
-  // than per visit, and one brand's shelf taking the whole rail is the only
-  // failure mode worth guarding.
-  const [giftCount, platforms, showcase] = await Promise.all([
+  const [giftCount, platforms] = await Promise.all([
     prisma.gift.count(),
     prisma.gift.groupBy({ by: ["platform"] }),
-    prisma.gift.findMany({
-      where: { giftScore: { gte: 70 }, imageUrl: { not: "" } },
-      orderBy: { giftScore: "desc" },
-      take: 120,
-      select: { id: true, name: true, price: true, platform: true, imageUrl: true },
-    }),
   ]);
-
-  const seenPlatforms = new Set<string>();
-  const rail = showcase
-    .filter((gift) => !seenPlatforms.has(gift.platform) && seenPlatforms.add(gift.platform))
-    .slice(0, 8);
 
   return (
     // min-height + centering pulls the content to the optical middle on tall
@@ -99,174 +79,80 @@ export default async function Home() {
       <GiftMark />
 
       <div className="relative z-10">
-        {/* Deliberately off the centre axis.
+        <div className="mx-auto max-w-3xl text-center">
+          {/* One "over" carries the rounding for the whole line, so the dot is
+              the only separator and the only symbol doing any work. Mixing "+"
+              with "·" read as two competing punctuation systems. */}
+          <p className="text-xs tracking-[0.2em] text-ink-faint uppercase text-balance sm:text-sm">
+            {/* Each count is bound to its own noun, and each separator to the
+                item before it: at this tracking the line wraps on a phone, and
+                without this it breaks between "135" and "brands". Same trick as
+                the launcher's meta line below. */}
+            <span className="whitespace-nowrap">
+              Over {roundedFloor(giftCount, 1000).toLocaleString("en-US")} gifts ·
+            </span>{" "}
+            <span className="whitespace-nowrap">
+              {roundedFloor(platforms.length, 5)} brands ·
+            </span>{" "}
+            <span className="whitespace-nowrap">{OCCASIONS.length} occasions</span>
+          </p>
 
-            Every section of this page used to be centred inside max-w-3xl, top
-            to bottom, which is the single loudest tell of a generated layout —
-            one column, one axis, no tension anywhere. The headline now holds the
-            left margin at full display size and the catalogue figures stack
-            against it on the right, so the two halves balance rather than queue.
+          <h1 className="font-display mt-7 text-5xl leading-[1.05] font-semibold text-balance sm:text-7xl">
+            The gift they didn&rsquo;t know to <span className="accent-word">ask</span> for.
+          </h1>
 
-            Collapses to one column below lg, where a split would only make both
-            halves too narrow to read. */}
-        <div className="mx-auto grid max-w-6xl grid-cols-1 items-start gap-x-16 gap-y-12 lg:grid-cols-[7fr_4fr]">
-          <div>
-            <p className="text-xs tracking-[0.2em] text-ink-faint uppercase">
-              Any occasion &middot; any culture
-            </p>
+          {/* The whole proposition in one line: what the visitor supplies, what
+              it costs them, and what they get back.
 
-            <h1 className="font-display mt-6 text-5xl leading-[0.98] font-semibold tracking-[-0.03em] text-balance sm:text-7xl lg:text-[5.5rem]">
-              The gift they didn&rsquo;t know to <span className="accent-word">ask</span> for.
-            </h1>
+              This was two lines saying the same thing five rows apart — this
+              one, and "Answer six quick questions about them and we'll find the
+              one" above the button. Merging them is what removed the echo; the
+              cost figure survives in the meta line under the button.
 
-            {/* The whole proposition in one line: what the visitor supplies,
-                what it costs them, and what they get back. Measure capped so it
-                breaks under the headline rather than running its full width. */}
-            <p className="mt-7 max-w-[36ch] text-lg leading-relaxed text-pretty text-ink-soft sm:text-xl">
-              Six quick questions about who it&rsquo;s for and what they like, we&rsquo;ll handle
-              the rest{" "}
-              <span className="whitespace-nowrap">&#x1F4AA;</span>
-            </p>
-          </div>
+              Sized and coloured as supporting copy, ink-soft, a step above
+              body. At text-2xl in full ink it was the only large
+              full-strength Inter on a page where everything else is either
+              Fraunces display or small quiet Inter, and it read as neither.
 
-          {/* The figures as a ledger rather than a line.
+              The 💪 closes the sentence in place of a full stop. Kept
+              unbreakable so it can never wrap onto a line of its own. */}
+          <p className="mx-auto mt-6 max-w-3xl text-lg leading-relaxed text-balance text-ink-soft sm:text-xl">
+            Six quick questions about who it&rsquo;s for and what they like, we&rsquo;ll handle
+            the rest{" "}
+            <span className="whitespace-nowrap">&#x1F4AA;</span>
+          </p>
 
-              These were a single centred row of small caps under the eyebrow,
-              where they read as a disclaimer. Set as Fraunces numerals against
-              their labels on hairline rules, the same figures read as a spec
-              sheet for the collection, and they give the right column something
-              to hold so the headline is not floating beside empty paper. */}
-          <div className="lg:pt-1">
-            <p className="text-xs tracking-[0.2em] text-ink-faint uppercase">The collection</p>
-            <dl className="rule-hairline mt-5 border-t">
-              {[
-                [roundedFloor(giftCount, 1000).toLocaleString("en-US"), "gifts"],
-                [roundedFloor(platforms.length, 5).toLocaleString("en-US"), "brands"],
-                [OCCASIONS.length.toLocaleString("en-US"), "occasions"],
-                ["$10 to $1,500", "every budget"],
-              ].map(([figure, label]) => (
-                <div
-                  key={label}
-                  className="rule-hairline flex items-baseline justify-between gap-4 border-b py-4"
-                >
-                  <dt className="font-display text-2xl font-semibold tracking-[-0.02em] tabular-nums sm:text-[1.75rem]">
-                    {figure}
-                  </dt>
-                  <dd className="text-[11px] tracking-[0.18em] text-ink-faint uppercase">
-                    {label}
-                  </dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-        </div>
-
-        {/* The launcher keeps the hero's left margin rather than the page's
-            centre, so the eye runs headline, promise, button down one edge.
-            Full width rather than inside the grid because launching swaps this
-            for the quiz in place, and the quiz needs the whole measure.
-
-            Also the target for the "Find their gift" button at the foot of the
-            page. */}
-        <div id="launch" className="mx-auto mt-14 max-w-6xl scroll-mt-28">
-          <QuizLauncher align="start" />
-        </div>
-
-        {/* Proof, before the pitch.
-
-            Nothing on this page showed a single gift, which for a gift site is
-            the one thing worth showing. These are real rows at real prices from
-            eight different shops, so the claim in the ledger above has something
-            standing behind it by the time anyone reaches the copy below.
-
-            A rail rather than a grid: it reads as a slice of a much bigger
-            collection, where a tidy row of eight reads as the whole of it. It
-            overflows deliberately and scrolls on touch. Presentational only,
-            so it is hidden from the accessibility tree rather than offering
-            eight links that duplicate the occasion index below. */}
-        {rail.length > 0 && (
-          <section
+          <div
             aria-hidden
-            className="rule-hairline mx-auto mt-24 max-w-6xl border-y py-7"
+            className="mx-auto mt-9 flex items-center justify-center gap-3 text-ink-faint"
           >
-            <div className="flex items-baseline justify-between gap-4">
-              <p className="text-xs tracking-[0.2em] text-ink-faint uppercase">
-                In the collection right now
-              </p>
-              <p className="hidden text-xs tracking-[0.2em] text-ink-faint uppercase sm:block">
-                Real things, real shops
-              </p>
-            </div>
-
-            <ul className="mt-6 flex gap-6 overflow-x-auto pb-1">
-              {rail.map((gift) => (
-                <li key={gift.id} className="w-[9.5rem] flex-none">
-                  {/* Fixed square frame. The feeds return wildly different
-                      aspect ratios, and a rail that changes height per item
-                      stops reading as one object. */}
-                  <div className="card-surface flex aspect-square items-center justify-center overflow-hidden rounded-2xl">
-                    {/* Plain img: these are 8 remote CDN hosts that change as
-                        the catalogue does, and the grid elsewhere renders the
-                        same way. */}
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={gift.imageUrl}
-                      alt=""
-                      loading="lazy"
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-                  <p className="font-display mt-2.5 truncate text-sm font-semibold">
-                    {gift.platform}
-                  </p>
-                  <p className="text-xs text-ink-faint tabular-nums">
-                    ${Math.round(Number(gift.price)).toLocaleString("en-US")}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {/* An index, not a pill soup.
-
-            Twelve identical rounded chips centred in a row is the same shape as
-            every filter bar on the internet, and it made the occasions look like
-            options rather than destinations. Set as a three-column index of
-            Fraunces names on hairline rules, they read as a contents page, and
-            the row gives each one somewhere to put its arrow. */}
-        <section className="mx-auto mt-24 max-w-6xl">
-          <div className="rule-hairline flex items-baseline justify-between gap-6 border-b pb-4">
-            <h2 className="font-display text-2xl font-semibold tracking-[-0.02em] sm:text-3xl">
-              Or browse by occasion
-            </h2>
-            <p className="text-xs tracking-[0.2em] text-ink-faint uppercase">
-              {OCCASIONS.length} in the list
-            </p>
+            <span className="h-px w-12 bg-rule" />
+            <span className="text-base">✦</span>
+            <span className="h-px w-12 bg-rule" />
           </div>
+        </div>
 
-          <div className="grid grid-cols-1 gap-x-14 sm:grid-cols-2 lg:grid-cols-3">
+        {/* Target for the "Find their gift" button at the foot of the page. */}
+        <div id="launch" className="mt-11 scroll-mt-28">
+          <QuizLauncher />
+        </div>
+
+        <section className="mx-auto mt-20 max-w-3xl text-center">
+          <h2 className="font-display text-xl font-semibold">Or browse by occasion</h2>
+          <p className="mt-2 text-sm text-ink-soft">
+            Curated gifts for the occasions people shop for most.
+          </p>
+          <div className="mt-6 flex flex-wrap justify-center gap-2">
             {FEATURED_OCCASIONS.map((occasion) => (
               <Link
                 key={occasion}
                 href={`/gifts/${occasionToSlug(occasion)}`}
-                className="rule-hairline group flex items-baseline justify-between gap-3 border-b py-4 transition-colors hover:text-terracotta"
+                className="chip rounded-full px-4 py-2 text-sm"
               >
-                <span className="flex items-baseline gap-2.5">
-                  {OCCASION_EMOJI[occasion] && (
-                    <span aria-hidden className="text-base">
-                      {OCCASION_EMOJI[occasion]}
-                    </span>
-                  )}
-                  <span className="font-display text-lg font-semibold">{occasion}</span>
-                </span>
-                {/* Nudges on hover, the same gesture the launch button makes. */}
-                <span
-                  aria-hidden
-                  className="text-sm text-ink-faint transition-transform group-hover:translate-x-0.5 group-hover:text-terracotta"
-                >
-                  →
-                </span>
+                {OCCASION_EMOJI[occasion] && (
+                  <span className="mr-1.5">{OCCASION_EMOJI[occasion]}</span>
+                )}
+                {occasion}
               </Link>
             ))}
           </div>
