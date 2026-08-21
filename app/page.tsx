@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { GiftMark } from "@/components/GiftMark";
 import { QuizLauncher } from "@/components/QuizLauncher";
+import { FAQS } from "@/lib/faq";
 import { OCCASION_EMOJI } from "@/lib/gift-option-icons";
-import { OCCASIONS } from "@/lib/gift-options";
+import { FEATURED_OCCASIONS, OCCASIONS } from "@/lib/gift-options";
 import { occasionToSlug } from "@/lib/occasion-slugs";
+import { jsonLdScript } from "@/lib/json-ld";
 import { prisma } from "@/lib/prisma";
 
 /**
@@ -23,26 +25,6 @@ export const revalidate = 86400;
 function roundedFloor(value: number, step: number): number {
   return Math.max(step, Math.floor(value / step) * step);
 }
-
-/**
- * Crawlable entry points into the occasion pages. The quiz itself is a client
- * component that renders no gift markup, so without these Google would find a
- * single page with nothing to index.
- */
-const FEATURED_OCCASIONS = [
-  "Birthday",
-  "Christmas",
-  "Anniversary",
-  "Diwali",
-  "Valentine's Day",
-  "Wedding",
-  "Eid al-Fitr",
-  "Mother's Day",
-  "Graduation",
-  "Lunar New Year",
-  "Housewarming",
-  "Raksha Bandhan",
-];
 
 /**
  * The occasions the paragraph below names outright.
@@ -76,6 +58,24 @@ export default async function Home() {
     // screens. Once results push past that height the container simply grows,
     // so nothing is ever clipped off the top.
     <main className="relative flex min-h-[calc(100svh-13rem)] flex-col justify-center px-4 py-14 sm:py-16">
+      {/* The questions people actually ask before trusting a recommender they
+          have never heard of. Built from the same array the section below
+          renders, so the structured text and the visible text cannot drift. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdScript({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: FAQS.map((entry) => ({
+              "@type": "Question",
+              name: entry.question,
+              acceptedAnswer: { "@type": "Answer", text: entry.answer },
+            })),
+          }),
+        }}
+      />
+
       <GiftMark />
 
       <div className="relative z-10">
@@ -237,6 +237,31 @@ export default async function Home() {
             </Link>
             .
           </p>
+        </section>
+
+        {/* Last thing on the page, and deliberately plain. Anyone reading this
+            far has one specific doubt left, and an accordion would make them
+            hunt for it. Always-open text costs a little height and answers the
+            question on sight. */}
+        <section
+          id="faq"
+          className="rule-hairline mx-auto mt-20 max-w-2xl scroll-mt-24 border-t pt-14"
+        >
+          <p className="text-center text-xs tracking-[0.2em] text-ink-faint uppercase">
+            Questions
+          </p>
+          <h2 className="font-display mt-4 text-center text-3xl font-semibold text-balance">
+            Before you start
+          </h2>
+
+          <dl className="mt-10 space-y-8">
+            {FAQS.map((entry) => (
+              <div key={entry.question}>
+                <dt className="font-display text-lg font-semibold text-ink">{entry.question}</dt>
+                <dd className="mt-2 text-[15px] leading-relaxed text-ink-soft">{entry.answer}</dd>
+              </div>
+            ))}
+          </dl>
         </section>
       </div>
     </main>

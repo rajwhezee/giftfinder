@@ -35,6 +35,15 @@ export const metadata: Metadata = {
     description:
       "Answer a few questions and find a gift worth giving, for any occasion and any culture.",
   },
+  // The image itself comes from app/twitter-image.tsx; this is only the card
+  // size. Without it the default is `summary`, which crops the share card into
+  // a thumbnail beside the text rather than showing it.
+  twitter: {
+    card: "summary_large_image",
+    title: "Gift Finder | Thoughtful gifts for any occasion",
+    description:
+      "Answer a few questions and find a gift worth giving, for any occasion and any culture.",
+  },
 };
 
 // Matches --paper so mobile browser chrome blends into the page.

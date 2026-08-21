@@ -148,3 +148,26 @@ export const BUDGET_RANGE_PRESETS = [
   // Uncapped, because its ceiling is BUDGET_MAX.
   { label: "$500+", min: 500, max: BUDGET_MAX },
 ] as const;
+
+/**
+ * Crawlable entry points into the occasion pages, in the order they are shown.
+ *
+ * The quiz is a client component that renders no gift markup, so without these
+ * Google would find a single page with nothing to index. Shared by the homepage
+ * and the 404 page: both exist to get someone into an occasion page, and two
+ * hand-maintained lists would drift.
+ */
+export const FEATURED_OCCASIONS = [
+  "Birthday",
+  "Christmas",
+  "Anniversary",
+  "Diwali",
+  "Valentine's Day",
+  "Wedding",
+  "Eid al-Fitr",
+  "Mother's Day",
+  "Graduation",
+  "Lunar New Year",
+  "Housewarming",
+  "Raksha Bandhan",
+];
