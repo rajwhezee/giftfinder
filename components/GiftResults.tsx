@@ -48,7 +48,7 @@ export function GiftResults({
   candidateCount: number;
 }) {
   const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [allBrandsShown, setAllBrandsShown] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -79,10 +79,10 @@ export function GiftResults({
   // brands that actually sell keyboards.
   const inCategory = useMemo(
     () =>
-      selectedCategory === null
+      selectedCategories.length === 0
         ? results
-        : results.filter((gift) => (gift.category ?? UNCATEGORISED) === selectedCategory),
-    [results, selectedCategory],
+        : results.filter((gift) => selectedCategories.includes(gift.category ?? UNCATEGORISED)),
+    [results, selectedCategories],
   );
 
   // Brands actually present, most-stocked first. Derived rather than taken from
@@ -111,15 +111,22 @@ export function GiftResults({
   // A fresh set of results should start from the first page with no filter.
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
+    setSelectedCategories([]);
     setSelectedBrands([]);
     setSelectedId(null);
   }, [results]);
 
-  // Narrowing the brands should also rewind the reveal — otherwise a filter
+  // Narrowing on either axis should rewind the reveal — otherwise a filter
   // applied deep in a long scroll paints every remaining match at once.
   useEffect(() => {
     setVisibleCount(PAGE_SIZE);
-  }, [selectedBrands]);
+  }, [selectedBrands, selectedCategories]);
+
+  function toggleCategory(category: string) {
+    setSelectedCategories((current) =>
+      current.includes(category) ? current.filter((c) => c !== category) : [...current, category],
+    );
+  }
 
   function toggleBrand(brand: string) {
     setSelectedBrands((current) =>
@@ -214,11 +221,13 @@ export function GiftResults({
         <div className="mb-6">
           <p className="mb-3 text-xs tracking-[0.18em] text-ink-faint uppercase">Browse by</p>
           <div className="flex flex-wrap gap-2">
+            {/* Clearing everything rather than being a shelf of its own, so it
+                reads as "no filter" even when several categories are ticked. */}
             <motion.button
               type="button"
-              onClick={() => setSelectedCategory(null)}
-              data-selected={selectedCategory === null}
-              aria-pressed={selectedCategory === null}
+              onClick={() => setSelectedCategories([])}
+              data-selected={selectedCategories.length === 0}
+              aria-pressed={selectedCategories.length === 0}
               whileTap={{ scale: 0.96 }}
               className="chip rounded-full px-4 py-2 text-sm"
             >
@@ -229,11 +238,9 @@ export function GiftResults({
               <motion.button
                 key={category}
                 type="button"
-                onClick={() =>
-                  setSelectedCategory((current) => (current === category ? null : category))
-                }
-                data-selected={selectedCategory === category}
-                aria-pressed={selectedCategory === category}
+                onClick={() => toggleCategory(category)}
+                data-selected={selectedCategories.includes(category)}
+                aria-pressed={selectedCategories.includes(category)}
                 whileTap={{ scale: 0.96 }}
                 className="chip rounded-full px-4 py-2 text-sm"
               >
@@ -252,8 +259,8 @@ export function GiftResults({
           <div className="mb-3 flex items-baseline justify-between gap-4">
             <p className="text-xs tracking-[0.18em] text-ink-faint uppercase">
               {selectedBrands.length === 0
-                ? selectedCategory
-                  ? `${selectedCategory} from`
+                ? selectedCategories.length === 1
+                  ? `${selectedCategories[0]} from`
                   : "Shop from"
                 : `Shopping from ${selectedBrands.length} of ${brands.length}`}
             </p>
