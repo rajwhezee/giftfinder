@@ -1,6 +1,6 @@
 ---
 name: image-to-code
-description: Visual-first design-to-code workflow for GiftFinder's frontend. Use when the task is mainly about how a page looks - a new section, a hero, a landing or occasion page, a redesign, "make this more premium", "this feels cluttered", or any request described in visual terms rather than functional ones. Builds a rendered reference first, analyses it, implements against it in the Champagne on Ivory system, then screenshots the running dev server to verify the result matches. Do not use for bug fixes, API or scoring work, importer changes, or tasks with no visible surface.
+description: Visual-first design-to-code workflow for GiftFinder's frontend. Use when the task is mainly about how a page looks - a new section, a hero, a landing or occasion page, a redesign, "make this more premium", "this feels cluttered", or any request described in visual terms rather than functional ones. Scopes the change against the graphify graph, builds a rendered reference first, analyses it, implements against it in the Champagne on Ivory system, then screenshots the running dev server to verify the result matches. Do not use for bug fixes, API or scoring work, importer changes, or tasks with no visible surface.
 ---
 
 # Visual-first design to code
@@ -27,12 +27,12 @@ that applies:
 **1. A reference the user supplied.** A screenshot, a mockup, an exported frame,
 a link to a site they like. Read image files directly with the Read tool - it
 renders them visually. This is the strongest source because it is what they
-actually want. Analyse it per section 4 before touching code.
+actually want. Analyse it per section 5 before touching code.
 
 **2. An artboard you build and screenshot.** This is the real substitute for
 image generation, and it is better than what it replaces: the reference is
 already code. Write a standalone HTML file per section into the scratchpad,
-inline the palette tokens from section 3, open it in the Browser pane, and
+inline the palette tokens from section 4, open it in the Browser pane, and
 screenshot it at a real viewport. You can then iterate on the artboard cheaply -
 no database, no build, no app state - until the composition is right, and only
 then port it into the app. For a multi-artboard canvas the user can push back
@@ -53,7 +53,54 @@ not a reference. If you cannot render it, you do not have one.
 
 ---
 
-## 2. The verification loop
+## 2. Scope with the graph before reading files
+
+`graphify-out/` holds a knowledge graph of this repo. Query it before opening
+files, and know precisely what it does and does not cover, because the split
+matters for visual work.
+
+**It does not index CSS.** `app/globals.css` contributes zero nodes; extraction
+is AST-based over TS, TSX and config. The entire design system - every token,
+`.chip`, `.card-surface`, `.btn-primary` - is invisible to it. So the graph
+cannot answer "what does this look like", and section 4 still means reading
+`globals.css` directly. Do not substitute a query for that.
+
+**What it does answer is the blast radius.** Before a visual change, one query
+returns every file, symbol, line number and community the change will touch,
+without reading anything:
+
+```bash
+graphify query "which components render the results grid" --budget 1500
+```
+
+Use it to scope, then read only what it named. Raise `--budget` when the result
+truncates, or narrow the question rather than reading everything it returned.
+
+**The decisions in section 12 are graph communities.** `No LLM Runtime`,
+`Gift Detail Overlay`, `Similar API Demotion`, `No Affiliate Layer`,
+`Unisex Reach Strategy`, `Diversity Pool Cap`. If a query for your change
+surfaces one of those communities, the constraint it names is live for the work
+you are about to do, and section 12 applies. That is the cheapest available
+check against redesigning something into a shape the architecture has already
+ruled out.
+
+```bash
+graphify explain "Gift Detail Overlay"
+```
+
+**Check freshness first.** The graph records the commit it was built from:
+
+```bash
+python3 -c "import json;print(json.load(open('graphify-out/graph.json'))['built_at_commit'])"
+```
+
+Compare against `git rev-parse HEAD`. If they differ, the graph predates your
+working tree and may point at code that moved. `graphify update .` re-extracts
+only what changed and costs no API tokens.
+
+---
+
+## 3. The verification loop
 
 This is the part the original skill could not do, and it matters more than
 everything before it. Never ask the user to check whether it looks right.
@@ -73,7 +120,7 @@ hazard.
 Then:
 
 1. `computer {action: "screenshot"}` at desktop, and compare it against the
-   reference, element by element, using section 4's checklist in reverse.
+   reference, element by element, using section 5's checklist in reverse.
 2. `resize_window` to `mobile` (375x812) and reload, since load-time device
    gates re-run. The quiz is used on phones more than laptops.
 3. `read_console_messages` for errors. In dev the CSP allows `'unsafe-eval'`
@@ -90,7 +137,7 @@ other way. That is the failure this whole skill exists to prevent.
 
 ---
 
-## 3. The design system is fixed
+## 4. The design system is fixed
 
 **Champagne on Ivory. Light mode only.** This is not one option among several.
 There is no theme choice, no palette exploration, no dark variant. The original
@@ -154,7 +201,7 @@ Most "new" component needs are already there under a name you did not guess.
 
 ---
 
-## 4. Deep analysis
+## 5. Deep analysis
 
 Treat the reference as a specification, not a mood. Before implementing,
 extract and write down:
@@ -184,7 +231,7 @@ ambiguity with a generic default.
 
 ---
 
-## 5. Hero and first-view rules
+## 6. Hero and first-view rules
 
 The first viewport must be clean, readable and unhurried on a small laptop.
 
@@ -199,7 +246,7 @@ The first viewport must be clean, readable and unhurried on a small laptop.
 
 ---
 
-## 6. Anti-nested-box
+## 7. Anti-nested-box
 
 Do not default to box-in-box-in-box. Specifically avoid:
 
@@ -215,7 +262,7 @@ that is the framing, and it is usually enough.
 
 ---
 
-## 7. Micro-UI clutter, with one carve-out
+## 8. Micro-UI clutter, with one carve-out
 
 Avoid unnecessary pills, pseudo-system markers, fake control labels,
 decorative code-like tags, filler chips, tiny badges everywhere, and
@@ -230,7 +277,7 @@ this site already uses on purpose.
 
 ---
 
-## 8. Copy discipline
+## 9. Copy discipline
 
 - **No em-dashes in anything a visitor reads.** They read as machine-written.
   Use a comma, a colon, or a full stop. Code comments are exempt.
@@ -244,7 +291,7 @@ this site already uses on purpose.
 
 ---
 
-## 9. Anti-slop
+## 10. Anti-slop
 
 Beyond the copy rules above:
 
@@ -266,7 +313,7 @@ sections, visually exhausting walls of content.
 
 ---
 
-## 10. Section rhythm and spacing
+## 11. Section rhythm and spacing
 
 A strong page does not repeat one block forever. Vary density, image-to-text
 ratio, alignment, scale, whitespace, and background intensity across sections
@@ -277,7 +324,7 @@ space doing real work. Never one cramped section beside an empty one.
 
 ---
 
-## 11. Architectural constraints that outrank visual preference
+## 12. Architectural constraints that outrank visual preference
 
 These are settled decisions in `AGENTS.md`. A design that requires breaking one
 of them is the wrong design, not a reason to break it.
@@ -298,18 +345,19 @@ of them is the wrong design, not a reason to break it.
 
 ---
 
-## 12. Before you finish
+## 13. Before you finish
 
-1. Was there a rendered reference, or a defensible reason there was none?
-2. Was it actually analysed, or glanced at?
-3. Does the implementation match it, or did it drift generic?
-4. Tokens used rather than raw hex?
-5. Existing classes reused rather than re-invented?
-6. Hero within 3 lines, first view clean on a small laptop?
-7. Any new nested boxes? Any decorative micro-labels beyond the eyebrow?
-8. Any em-dash in visitor-facing copy?
-9. New motion neutralised under `prefers-reduced-motion`?
-10. Contrast intact - gold not lightened?
-11. **Screenshotted at desktop and mobile, console clean, proof shared?**
+1. Was the graph queried to scope the change, and its freshness checked?
+2. Was there a rendered reference, or a defensible reason there was none?
+3. Was it actually analysed, or glanced at?
+4. Does the implementation match it, or did it drift generic?
+5. Tokens used rather than raw hex?
+6. Existing classes reused rather than re-invented?
+7. Hero within 3 lines, first view clean on a small laptop?
+8. Any new nested boxes? Any decorative micro-labels beyond the eyebrow?
+9. Any em-dash in visitor-facing copy?
+10. New motion neutralised under `prefers-reduced-motion`?
+11. Contrast intact - gold not lightened?
+12. **Screenshotted at desktop and mobile, console clean, proof shared?**
 
-Item 11 is not optional. A visual change you have not looked at is not finished.
+Item 12 is not optional. A visual change you have not looked at is not finished.
