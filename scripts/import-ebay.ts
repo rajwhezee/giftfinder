@@ -36,6 +36,8 @@ import { looksNonEnglish } from "../lib/language";
 const CLIENT_ID = process.env.EBAY_CLIENT_ID;
 const CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET;
 const DRY_RUN = process.argv.includes("--dry-run");
+/** Let the query manifest overwrite tags that enrich-tags now owns. */
+const RETAG = process.argv.includes("--retag");
 
 const REQUEST_DELAY_MS = 400;
 const PER_QUERY_LIMIT = 60;
@@ -852,24 +854,35 @@ async function main() {
   let upserted = 0;
   try {
     for (const gift of staged.values()) {
-      const data = {
+      // What the listing says about itself, refreshed on every run.
+      const listing = {
         name: gift.name,
         description: gift.description,
         price: gift.price,
         currency: gift.currency,
-        gender: gift.gender,
         imageUrl: gift.imageUrl,
         productUrl: gift.productUrl,
         platform: gift.platform,
         occasions: [...gift.occasions],
+      };
+
+      // What the query guessed about the recipient: create-only, because
+      // enrich-tags owns it from then on. The third importer found carrying
+      // these in `update` - shopify until 2026-08-19, etsy until 2026-08-21,
+      // this one until 2026-08-22, 1,653 rows. See the note in AGENTS.md;
+      // check this in any new importer before running it once, because
+      // afterwards the damage is silent.
+      const taxonomy = {
+        gender: gift.gender,
         interests: [...gift.interests],
         ageMin: gift.ageMin,
         ageMax: gift.ageMax,
       };
+
       await prisma.gift.upsert({
         where: { productUrl: gift.productUrl },
-        update: data,
-        create: data,
+        update: RETAG ? { ...listing, ...taxonomy } : listing,
+        create: { ...listing, ...taxonomy },
       });
       upserted++;
     }
