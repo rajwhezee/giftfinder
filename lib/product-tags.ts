@@ -240,10 +240,20 @@ const RULES: Rule[] = [
   // Beauty before plants, and "plant" no longer matches "plant-based" — that
   // phrase is on half the bath aisle, and it was filing body wash under
   // Gardening.
+  // Ahead of skincare deliberately: RULES is first-match-wins, and the skincare
+  // pattern used to carry perfume/cologne/fragrance itself, which shelved an
+  // eau de parfum next to body wash. Those three words moved here rather than
+  // being matched in both places.
+  {
+    label: "fragrance",
+    category: "Fragrance",
+    pattern: /\bfragrances?\b|\bperfumes?\b|\bcolognes?\b|\beau de (parfum|toilette|cologne)\b|\bedp\b|\bedt\b|\bbody mist\b|\bscent(ed)? spray\b/,
+    interests: ["Fragrance", "Self-care"],
+  },
   {
     label: "skincare & beauty",
     category: "Skincare & Beauty",
-    pattern: /\bskincare\b|\bserums?\b|\bmoisturiz(er|ers)\b|\bcleansers?\b|\bbody wash\b|\bsoaps?\b|\blotions?\b|\bshampoo\b|\bconditioner\b|\blip \b|\bmakeup\b|\bfragrance\b|\bperfume\b|\bcologne\b/,
+    pattern: /\bskincare\b|\bserums?\b|\bmoisturiz(er|ers)\b|\bcleansers?\b|\bbody wash\b|\bsoaps?\b|\blotions?\b|\bshampoo\b|\bconditioner\b|\blip \b|\bmakeup\b/,
     interests: ["Beauty", "Self-care"],
   },
   {

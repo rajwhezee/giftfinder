@@ -109,6 +109,10 @@ export const INTERESTS = [
   // Handbags, totes and carry. Was Fashion + Travel, which is also a scarf and
   // a suitcase; the bag brands are a category people shop by name.
   "Bags",
+  // Perfume was inside Skincare & Beauty, which put an eau de parfum on the
+  // same shelf as body wash. People shop for scent by name and by house, and
+  // it is one of the commonest gifts there is.
+  "Fragrance",
 ] as const;
 
 /**
@@ -163,6 +167,7 @@ export const INTEREST_CHOICES: InterestChoice[] = [
   { label: "Cars", tags: ["Cars"] },
   { label: "Bags", tags: ["Bags"] },
   { label: "Beauty & Self-care", tags: ["Beauty", "Self-care"] },
+  { label: "Fragrance", tags: ["Fragrance"] },
   { label: "Travel", tags: ["Travel"] },
   { label: "Sports", tags: ["Sports"] },
   { label: "Cooking & Food", tags: ["Cooking", "Food"] },
@@ -194,8 +199,13 @@ export const INTEREST_CHOICES: InterestChoice[] = [
   { label: "Personalized", tags: ["Personalized"] },
 ];
 
-/** How many chips the quiz shows before folding the rest behind "more". */
-export const INTERESTS_SHOWN = 12;
+/**
+ * How many chips the quiz shows before folding the rest behind "more".
+ *
+ * Thirteen rather than twelve so adding Fragrance did not push Gaming out of
+ * the visible set.
+ */
+export const INTERESTS_SHOWN = 13;
 
 /**
  * The slider's stops, non-linear on purpose.
