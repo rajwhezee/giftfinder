@@ -111,7 +111,73 @@ interface Brand {
  */
 const BAGS = /\bbags?\b|\bhandbags?\b|\btotes?\b|\bbackpacks?\b|\bcrossbody\b|\bsatchels?\b|\bclutch(es)?\b|\bhobo\b|\bduffels?\b|\bluggage\b|\bsuitcases?\b|\bweekender\b|\bpurses?\b/i;
 
+/**
+ * PC and gaming brands sell far more components than gifts. Glorious's feed is
+ * 232 products of which 99 are keycaps, 19 rotary knobs and 29 top/bottom
+ * cases; NZXT's is fans, radiators and power supplies. Without this the 60
+ * slots fill with spare parts, which is the same failure the sneaker
+ * boutiques had before FOOTWEAR.
+ */
+const PERIPHERALS =
+  /keyboard|\bmouse\b|\bmice\b|headset|headphone|mousepad|mouse pad|desk ?mat|controller|microphone|webcam|speaker|prebuild|\bpc\b/i;
+
 const FOOTWEAR = /footwear|sneakers?|\bshoes?\b|\bboots?\b|\btrainers\b|\bcleats\b|\bdunk\b|air jordan|air max|air force|\byeezy\b|\bsamba\b|\bgazelle\b|new balance/i;
+
+/**
+ * Occasion sets for cosmetics, replacing per-brand guesswork.
+ *
+ * Every beauty brand had 3-5 occasions picked by hand and they did not agree
+ * with each other: Fenty carried Valentine's Day and Graduation but not
+ * Mother's Day, Merit the reverse, ILIA both Mother's Day and Anniversary but
+ * no Valentine's. Same products, arbitrarily different reach.
+ *
+ * The cultural festivals were the real gap. Measured 2026-08-22: Raksha
+ * Bandhan held 80 gifts and 0 beauty products, Eid al-Fitr 65 and 1,
+ * Quinceañera 83 and 1 - while the catalogue holds several hundred. Cosmetics
+ * are among the commonest gifts at exactly those festivals, and they were also
+ * the thinnest shelves on the site, so this widens where it is needed most.
+ *
+ * Not every occasion: these are the ones where people hand each other a
+ * wrapped present. Funerary and civic days are left out, as are the occasions
+ * that are about someone other than the recipient - a baby shower is for the
+ * baby.
+ */
+const BEAUTY_OCCASIONS = [
+  "Birthday",
+  "Christmas",
+  "Valentine's Day",
+  "Mother's Day",
+  "Anniversary",
+  "Thank You",
+  "Graduation",
+  "New Year",
+  "Diwali",
+  "Raksha Bandhan",
+  "Eid al-Fitr",
+  "Eid al-Adha",
+  "Lunar New Year",
+  "Hanukkah",
+  "Nowruz",
+  "Quinceañera",
+];
+
+/**
+ * Candles and home scent, which are a different gift: given to a household
+ * rather than worn. Housewarming leads, and the two festivals of light earn
+ * their place on the merits rather than by being festivals.
+ */
+const HOME_SCENT_OCCASIONS = [
+  "Housewarming",
+  "Christmas",
+  "Thank You",
+  "Birthday",
+  "Anniversary",
+  "Get Well Soon",
+  "Mother's Day",
+  "New Year",
+  "Diwali",
+  "Hanukkah",
+];
 
 const BRANDS: Brand[] = [
   // --- Fragrance ---
@@ -119,7 +185,7 @@ const BRANDS: Brand[] = [
     domain: "snif.co",
     name: "Snif",
     interests: ["Beauty", "Self-care", "Fashion"],
-    occasions: ["Birthday", "Valentine's Day", "Christmas", "Anniversary"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 16,
     ageMax: 70,
   },
@@ -127,7 +193,7 @@ const BRANDS: Brand[] = [
     domain: "dedcool.com",
     name: "DedCool",
     interests: ["Beauty", "Self-care", "Fashion"],
-    occasions: ["Birthday", "Valentine's Day", "Christmas"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 16,
     ageMax: 60,
   },
@@ -135,7 +201,7 @@ const BRANDS: Brand[] = [
     domain: "boysmells.com",
     name: "Boy Smells",
     interests: ["Home Decor", "Self-care", "Beauty"],
-    occasions: ["Birthday", "Housewarming", "Christmas", "Thank You"],
+    occasions: HOME_SCENT_OCCASIONS,
     ageMin: 18,
     ageMax: 70,
   },
@@ -145,7 +211,7 @@ const BRANDS: Brand[] = [
     domain: "otherland.com",
     name: "Otherland",
     interests: ["Home Decor", "Self-care"],
-    occasions: ["Housewarming", "Christmas", "Thank You", "Get Well Soon"],
+    occasions: HOME_SCENT_OCCASIONS,
     ageMin: 18,
     ageMax: 99,
   },
@@ -153,7 +219,7 @@ const BRANDS: Brand[] = [
     domain: "homesick.com",
     name: "Homesick",
     interests: ["Home Decor", "Self-care", "Personalized"],
-    occasions: ["Housewarming", "Christmas", "Thank You", "Mother's Day"],
+    occasions: HOME_SCENT_OCCASIONS,
     ageMin: 18,
     ageMax: 99,
   },
@@ -161,7 +227,7 @@ const BRANDS: Brand[] = [
     domain: "brooklyncandlestudio.com",
     name: "Brooklyn Candle Studio",
     interests: ["Home Decor", "Self-care"],
-    occasions: ["Housewarming", "Christmas", "Thank You", "Anniversary"],
+    occasions: HOME_SCENT_OCCASIONS,
     ageMin: 18,
     ageMax: 99,
   },
@@ -169,7 +235,7 @@ const BRANDS: Brand[] = [
     domain: "pfcandleco.com",
     name: "P.F. Candle Co",
     interests: ["Home Decor", "Self-care"],
-    occasions: ["Housewarming", "Christmas", "Birthday", "Thank You"],
+    occasions: HOME_SCENT_OCCASIONS,
     ageMin: 18,
     ageMax: 99,
   },
@@ -206,7 +272,7 @@ const BRANDS: Brand[] = [
     domain: "starface.world",
     name: "Starface",
     interests: ["Beauty", "Self-care", "Creativity"],
-    occasions: ["Birthday", "Christmas", "Thank You"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 12,
     ageMax: 30,
   },
@@ -214,7 +280,7 @@ const BRANDS: Brand[] = [
     domain: "fentybeauty.com",
     name: "Fenty Beauty",
     interests: ["Beauty", "Self-care", "Fashion"],
-    occasions: ["Birthday", "Christmas", "Valentine's Day", "Graduation"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 14,
     ageMax: 70,
   },
@@ -222,7 +288,7 @@ const BRANDS: Brand[] = [
     domain: "meritbeauty.com",
     name: "Merit",
     interests: ["Beauty", "Self-care", "Fashion"],
-    occasions: ["Birthday", "Christmas", "Mother's Day", "Thank You"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 16,
     ageMax: 70,
   },
@@ -230,7 +296,7 @@ const BRANDS: Brand[] = [
     domain: "beautyofjoseon.com",
     name: "Beauty of Joseon",
     interests: ["Beauty", "Self-care", "Health"],
-    occasions: ["Birthday", "Christmas", "Thank You", "Get Well Soon"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 14,
     ageMax: 70,
   },
@@ -238,7 +304,7 @@ const BRANDS: Brand[] = [
     domain: "glossier.com",
     name: "Glossier",
     interests: ["Beauty", "Self-care", "Fashion"],
-    occasions: ["Birthday", "Christmas", "Valentine's Day", "Graduation"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 14,
     ageMax: 60,
   },
@@ -246,7 +312,7 @@ const BRANDS: Brand[] = [
     domain: "iliabeauty.com",
     name: "ILIA",
     interests: ["Beauty", "Self-care", "Fashion", "Health"],
-    occasions: ["Birthday", "Christmas", "Mother's Day", "Anniversary"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 18,
     ageMax: 75,
   },
@@ -254,7 +320,7 @@ const BRANDS: Brand[] = [
     domain: "kosas.com",
     name: "Kosas",
     interests: ["Beauty", "Self-care", "Fashion"],
-    occasions: ["Birthday", "Christmas", "Valentine's Day", "Thank You"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 16,
     ageMax: 65,
   },
@@ -262,7 +328,7 @@ const BRANDS: Brand[] = [
     domain: "saiehello.com",
     name: "Saie",
     interests: ["Beauty", "Self-care", "Health"],
-    occasions: ["Birthday", "Christmas", "Mother's Day", "Thank You"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 16,
     ageMax: 65,
   },
@@ -270,7 +336,7 @@ const BRANDS: Brand[] = [
     domain: "tower28beauty.com",
     name: "Tower 28",
     interests: ["Beauty", "Self-care", "Health"],
-    occasions: ["Birthday", "Christmas", "Get Well Soon", "Thank You"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 12,
     ageMax: 60,
   },
@@ -318,7 +384,7 @@ const BRANDS: Brand[] = [
     domain: "ellisbrooklyn.com",
     name: "Ellis Brooklyn",
     interests: ["Beauty", "Self-care", "Fashion"],
-    occasions: ["Birthday", "Valentine's Day", "Christmas", "Anniversary"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 16,
     ageMax: 75,
   },
@@ -326,7 +392,7 @@ const BRANDS: Brand[] = [
     domain: "byrosiejane.com",
     name: "By Rosie Jane",
     interests: ["Beauty", "Self-care", "Fashion"],
-    occasions: ["Birthday", "Valentine's Day", "Christmas", "Mother's Day"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 16,
     ageMax: 70,
   },
@@ -334,7 +400,7 @@ const BRANDS: Brand[] = [
     domain: "hereticparfum.com",
     name: "Heretic",
     interests: ["Beauty", "Self-care", "Fashion"],
-    occasions: ["Birthday", "Anniversary", "Valentine's Day", "Christmas"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 18,
     ageMax: 75,
   },
@@ -342,7 +408,7 @@ const BRANDS: Brand[] = [
     domain: "kierin-nyc.com",
     name: "Kierin NYC",
     interests: ["Beauty", "Self-care", "Fashion"],
-    occasions: ["Birthday", "Valentine's Day", "Christmas"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 16,
     ageMax: 65,
   },
@@ -456,7 +522,7 @@ const BRANDS: Brand[] = [
     domain: "byoma.com",
     name: "Byoma",
     interests: ["Beauty", "Self-care", "Health"],
-    occasions: ["Birthday", "Christmas", "Thank You", "Get Well Soon"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 12,
     ageMax: 60,
   },
@@ -464,7 +530,7 @@ const BRANDS: Brand[] = [
     domain: "corpusnaturals.com",
     name: "Corpus",
     interests: ["Beauty", "Self-care", "Health"],
-    occasions: ["Birthday", "Christmas", "Thank You"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 16,
     ageMax: 70,
   },
@@ -704,7 +770,7 @@ const BRANDS: Brand[] = [
     domain: "rhodeskin.com",
     name: "Rhode",
     interests: ["Beauty", "Self-care"],
-    occasions: ["Birthday", "Christmas", "Valentine's Day", "Graduation"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 14,
     ageMax: 55,
   },
@@ -712,7 +778,7 @@ const BRANDS: Brand[] = [
     domain: "summerfridays.com",
     name: "Summer Fridays",
     interests: ["Beauty", "Self-care"],
-    occasions: ["Birthday", "Christmas", "Thank You", "Mother's Day"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 16,
     ageMax: 65,
   },
@@ -720,7 +786,7 @@ const BRANDS: Brand[] = [
     domain: "olaplex.com",
     name: "Olaplex",
     interests: ["Beauty", "Self-care"],
-    occasions: ["Birthday", "Christmas", "Mother's Day"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 16,
     ageMax: 70,
   },
@@ -728,7 +794,7 @@ const BRANDS: Brand[] = [
     domain: "tatcha.com",
     name: "Tatcha",
     interests: ["Beauty", "Self-care", "Health"],
-    occasions: ["Birthday", "Christmas", "Mother's Day", "Thank You"],
+    occasions: BEAUTY_OCCASIONS,
     ageMin: 18,
     ageMax: 75,
   },
@@ -1034,6 +1100,28 @@ const BRANDS: Brand[] = [
     occasions: ["Birthday", "Christmas", "Graduation", "Father's Day"],
     ageMin: 14,
     ageMax: 60,
+  },
+  // Razer, Logitech, Corsair, Elgato and SteelSeries were all checked on
+  // 2026-08-22 and none of them is Shopify: /products.json is a 404 on each,
+  // and logitech.com rewrites it to a CMS page. These two are the peripheral
+  // brands that do serve a real feed, both quoting USD.
+  {
+    domain: "www.gloriousgaming.com",
+    name: "Glorious",
+    interests: ["Tech", "Gaming"],
+    occasions: ["Birthday", "Christmas", "Graduation", "New Year"],
+    ageMin: 12,
+    ageMax: 50,
+    prefer: PERIPHERALS,
+  },
+  {
+    domain: "nzxt.com",
+    name: "NZXT",
+    interests: ["Tech", "Gaming"],
+    occasions: ["Birthday", "Christmas", "Graduation", "New Year"],
+    ageMin: 14,
+    ageMax: 50,
+    prefer: PERIPHERALS,
   },
   {
     domain: "lofree.co",
