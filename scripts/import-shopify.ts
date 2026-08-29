@@ -39,6 +39,23 @@ const DRY_RUN = process.argv.includes("--dry-run");
  */
 const RETAG = process.argv.includes("--retag");
 
+/**
+ * Restrict the run to named domains, comma separated:
+ *
+ *   npm run import:shopify -- --only nzxt.com,www.gloriousgaming.com
+ *
+ * A full run reads ~70 storefronts and takes long enough that a failure near
+ * the end costs the whole thing. Adding a brand should not mean re-fetching
+ * every other one to find out whether it worked.
+ */
+const ONLY = (() => {
+  const arg = process.argv.find((a) => a.startsWith("--only"));
+  if (!arg) return null;
+  const value = arg.includes("=") ? arg.slice(arg.indexOf("=") + 1) : process.argv[process.argv.indexOf(arg) + 1];
+  const domains = (value ?? "").split(",").map((d) => d.trim()).filter(Boolean);
+  return domains.length ? new Set(domains) : null;
+})();
+
 /** Polite pacing — these are small merchants' storefronts, not an API tier. */
 const REQUEST_DELAY_MS = 900;
 /** Pages per brand; 250 products/page, so 2 pages is plenty for a curated feed. */
@@ -131,15 +148,23 @@ const FOOTWEAR = /footwear|sneakers?|\bshoes?\b|\bboots?\b|\btrainers\b|\bcleats
  * Mother's Day, Merit the reverse, ILIA both Mother's Day and Anniversary but
  * no Valentine's. Same products, arbitrarily different reach.
  *
- * The cultural festivals were the real gap. Measured 2026-08-22: Raksha
- * Bandhan held 80 gifts and 0 beauty products, Eid al-Fitr 65 and 1,
- * Quinceañera 83 and 1 - while the catalogue holds several hundred. Cosmetics
- * are among the commonest gifts at exactly those festivals, and they were also
- * the thinnest shelves on the site, so this widens where it is needed most.
+ * The cultural festivals are deliberately NOT here, after being tried and
+ * pulled back within a day. Adding Diwali, Raksha Bandhan, both Eids, Lunar
+ * New Year, Hanukkah, Nowruz and Quinceañera put every beauty product on
+ * every one of those pages: Raksha Bandhan went from 80 gifts to 1,810 and
+ * its culturally-apt share fell to 4%, so the page led with a foaming
+ * cleanser and a makeup blender. Diwali reached 2,659 gifts at 2%.
  *
- * Not every occasion: these are the ones where people hand each other a
- * wrapped present. Funerary and civic days are left out, as are the occasions
- * that are about someone other than the recipient - a baby shower is for the
+ * The original observation was right - those shelves had almost no beauty and
+ * cosmetics genuinely are common gifts at them - but a brand-level occasion
+ * list is the wrong instrument. It is all-or-nothing per brand, so it cannot
+ * express "some lipstick at Diwali". Any beauty presence on a cultural
+ * festival should come from a curated slice, not from every brand carrying
+ * the tag.
+ *
+ * Not every occasion here either: these are the ones where people hand each
+ * other a wrapped present. Funerary and civic days are left out, as are the
+ * occasions about someone other than the recipient - a baby shower is for the
  * baby.
  */
 const BEAUTY_OCCASIONS = [
@@ -151,20 +176,17 @@ const BEAUTY_OCCASIONS = [
   "Thank You",
   "Graduation",
   "New Year",
-  "Diwali",
-  "Raksha Bandhan",
-  "Eid al-Fitr",
-  "Eid al-Adha",
-  "Lunar New Year",
-  "Hanukkah",
-  "Nowruz",
-  "Quinceañera",
 ];
 
 /**
  * Candles and home scent, which are a different gift: given to a household
- * rather than worn. Housewarming leads, and the two festivals of light earn
- * their place on the merits rather than by being festivals.
+ * rather than worn. Housewarming leads.
+ *
+ * Diwali and Hanukkah were here on the theory that festivals of light earn a
+ * candle. In practice it put 391 scented candles on the Diwali page, which is
+ * the same all-or-nothing problem the beauty note above describes: a diya
+ * belongs there and a Leather Jacket 2-Wick does not, and a brand-level list
+ * cannot tell them apart. The Etsy queries carry the actual diyas.
  */
 const HOME_SCENT_OCCASIONS = [
   "Housewarming",
@@ -175,8 +197,6 @@ const HOME_SCENT_OCCASIONS = [
   "Get Well Soon",
   "Mother's Day",
   "New Year",
-  "Diwali",
-  "Hanukkah",
 ];
 
 const BRANDS: Brand[] = [
@@ -1568,7 +1588,14 @@ async function main() {
   const derived: Record<string, number> = {};
   let fetched = 0;
 
-  for (const brand of BRANDS) {
+  const selected = ONLY ? BRANDS.filter((b) => ONLY.has(b.domain)) : BRANDS;
+  if (ONLY) {
+    const unknown = [...ONLY].filter((d) => !BRANDS.some((b) => b.domain === d));
+    if (unknown.length) throw new Error(`--only names domains not in BRANDS: ${unknown.join(", ")}`);
+    console.log(`--only: ${selected.map((b) => b.name).join(", ")}\n`);
+  }
+
+  for (const brand of selected) {
     let brandCount = 0;
 
     const take = (products: ShopifyProduct[]) => {
