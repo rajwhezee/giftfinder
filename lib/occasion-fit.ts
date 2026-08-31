@@ -327,6 +327,17 @@ export const OCCASION_PREFER_BOOST = 1.18;
  *  fine housewarming gift, it just should not be the first thing on the page. */
 export const OCCASION_UNSUITED_PENALTY = 0.8;
 
+/**
+ * The useful-thing-for-the-house categories, as opposed to the pleasant ones.
+ *
+ * The full prefer list is too broad to trigger a reservation on: it contains
+ * Candles and Wall Art, which are abundant and score well, so "does the page
+ * already show a preferred category" was true almost everywhere and the
+ * reservation never fired. These two are what someone means by a household
+ * gift - an air fryer, a cutlery set - and what the scorer will never rank.
+ */
+export const HOUSEHOLD_ESSENTIALS = ["Appliances", "Kitchen & Drinkware"];
+
 /** The categories this occasion prefers, or none if it has no entry. */
 export function preferredCategoriesFor(occasion: string): string[] {
   return OCCASION_CATEGORIES[occasion]?.prefer ?? [];

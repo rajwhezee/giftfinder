@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StaticGiftCard } from "@/components/StaticGiftCard";
 import {
+  HOUSEHOLD_ESSENTIALS,
   MIN_PREFERRED_SCORE,
   namesADifferentOccasion,
   occasionGiftFit,
@@ -113,7 +114,7 @@ async function getGiftsForOccasion(occasion: string) {
 
       const fit = byFit(usable(strong));
 
-      // Reserve slots for the categories this occasion prefers.
+      // Reserve slots for household essentials.
       //
       // The scorer rates a gift by how it reads to unwrap, so an appliance
       // never clears the landing floor: the air fryers score a median of 26
@@ -123,14 +124,15 @@ async function getGiftsForOccasion(occasion: string) {
       // permit one. Two of eight, only when the fit ranking found none, and
       // only for occasions that name preferred categories at all.
       const preferred = preferredCategoriesFor(occasion);
+      const essentials = HOUSEHOLD_ESSENTIALS.filter((c) => preferred.includes(c));
       const RESERVED = 2;
-      if (preferred.length > 0 && fit.length >= 8) {
-        const already = fit.slice(0, 8).filter((g) => g.category && preferred.includes(g.category)).length;
+      if (essentials.length > 0 && fit.length >= 8) {
+        const already = fit.slice(0, 8).filter((g) => g.category && essentials.includes(g.category)).length;
         if (already === 0) {
           const useful = await prisma.gift.findMany({
             where: {
               ...where,
-              category: { in: preferred },
+              category: { in: essentials },
               giftScore: { gte: MIN_PREFERRED_SCORE, lt: MIN_LANDING_SCORE },
             },
             orderBy: [{ giftScore: "desc" }, { price: "asc" }],
