@@ -180,26 +180,47 @@ export function namesTheOccasionsGift(title: string, occasion: string): boolean 
 }
 
 const OCCASION_CATEGORIES: Record<string, OccasionFit> = {
-  // The regional occasions share a second tier: once the traditional gift is
-  // exhausted, what people actually give at a festival is a nice thing for the
-  // house or the person - a candle, a cutlery set, a bag, jewellery - and not
-  // a mechanical keyboard.
+  // The regional occasions split on who the festival is for, which changes
+  // what the second tier should be.
+  //
+  // Diwali, Holi, Eid, Lunar New Year and the rest are celebrated with the
+  // family and in the house, so once the traditional gift is exhausted what
+  // people give is for the household: cookware, a set of dishes, textiles, a
+  // lamp. The personal occasions below are the opposite - a Quinceañera or a
+  // Bar Mitzvah honours one person, and the gift is theirs.
   ...Object.fromEntries(
     [
-      "Diwali", "Raksha Bandhan", "Holi", "Onam", "Vaisakhi", "Eid al-Fitr", "Eid al-Adha",
-      "Lunar New Year", "Mid-Autumn Festival", "Nowruz", "Quinceañera", "Day of the Dead",
-      "St. Patrick's Day", "Oktoberfest", "Passover", "Hanukkah", "Bar/Bat Mitzvah",
-      "Kwanzaa", "Vesak", "Carnival",
+      "Diwali", "Holi", "Onam", "Vaisakhi", "Lunar New Year", "Mid-Autumn Festival",
+      "Nowruz", "Eid al-Fitr", "Eid al-Adha", "Passover", "Hanukkah", "Kwanzaa",
     ].map((occasion) => [
       occasion,
       {
         prefer: [
-          "Jewellery", "Candles", "Kitchen & Drinkware", "Wall Art", "Throws & Textiles",
-          "Skincare & Beauty", "Fragrance", "Coffee & Tea", "Bags",
+          "Kitchen & Drinkware", "Throws & Textiles", "Candles", "Wall Art", "Storage",
+          "Lamps", "Plants & Garden", "Furniture", "Coffee & Tea", "Games & Puzzles",
         ],
         unsuited: [
           "Gaming", "Keyboards", "Chargers & Power", "Phone & Laptop", "Pets",
-          "Outdoor Gear", "Smart Lighting",
+          "Outdoor Gear", "Shoes", "Hats",
+        ],
+      },
+    ]),
+  ),
+  // Occasions that honour one person rather than a household.
+  ...Object.fromEntries(
+    [
+      "Quinceañera", "Bar/Bat Mitzvah", "Day of the Dead", "St. Patrick's Day",
+      "Oktoberfest", "Carnival", "Vesak",
+    ].map((occasion) => [
+      occasion,
+      {
+        prefer: [
+          "Jewellery", "Fragrance", "Skincare & Beauty", "Bags", "Wall Art", "Candles",
+          "Clothing", "Watches & Trackers",
+        ],
+        unsuited: [
+          "Gaming", "Keyboards", "Chargers & Power", "Phone & Laptop", "Pets",
+          "Storage", "Furniture",
         ],
       },
     ]),
