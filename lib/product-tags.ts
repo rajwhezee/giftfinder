@@ -64,7 +64,11 @@ const RULES: Rule[] = [
   {
     label: "chocolate & sweets",
     category: "Chocolate & Sweets",
-    pattern: /\bchocolates?\b|\btruffles?\b|\bfudge\b|\bbrownies?\b|\bmacarons?\b|\bcandy\b|\bcaramels?\b|\btoffee\b|\bmithai\b|\bconfection/,
+    // Deliberately excludes "cake" and "cookie": this rule runs first, and
+    // "Cake Plate Set" and "Cookie Jar" are kitchenware. The words here can
+    // only be the confection itself. Accents are matched both ways because
+    // Etsy sellers write "Praliné" and "gateau" interchangeably.
+    pattern: /\bchocolates?\b|\btruffles?\b|\bfudge\b|\bbrownies?\b|\bmacarons?\b|\bcandy\b|\bcaramels?\b|\btoffee\b|\bmithai\b|\bconfection|\bbonbons?\b|\bpralin[eé]?s?\b|\bg[aâ]teaux?\b|\bnougat\b|\bmarzipan\b|\bpatisserie\b/,
     interests: ["Food", "Family"],
   },
   {

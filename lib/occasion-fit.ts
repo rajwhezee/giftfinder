@@ -202,6 +202,12 @@ const OCCASION_CATEGORIES: Record<string, OccasionFit> = {
         unsuited: [
           "Gaming", "Keyboards", "Chargers & Power", "Phone & Laptop", "Pets",
           "Outdoor Gear", "Shoes", "Hats",
+          // Chocolate outranked the cookware on Diwali: three luxury chocolate
+          // drawers scored high generally and nothing said they were the wrong
+          // shape for the page. Traditional sweets are unaffected, because the
+          // signature pattern catches mithai and 1.6 x 0.8 still nets a
+          // promotion - it is the generic gift-box chocolate this demotes.
+          "Chocolate & Sweets",
         ],
       },
     ]),
