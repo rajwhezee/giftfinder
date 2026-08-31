@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StaticGiftCard } from "@/components/StaticGiftCard";
-import { namesADifferentOccasion, occasionGiftFit } from "@/lib/occasion-fit";
+import { namesADifferentOccasion, occasionGiftFit, tooCrudeForOccasion } from "@/lib/occasion-fit";
 import { OCCASION_EMOJI } from "@/lib/gift-option-icons";
 import { JUST_BECAUSE, OCCASIONS } from "@/lib/gift-options";
 import { occasionToSlug, slugToOccasion } from "@/lib/occasion-slugs";
@@ -100,7 +100,11 @@ async function getGiftsForOccasion(occasion: string) {
             (a.giftScore ?? 0) * occasionGiftFit(occasion, a.name, a.category),
         );
 
-      const fit = byFit(strong.filter((g) => !namesADifferentOccasion(g.name, occasion)));
+      const fit = byFit(
+        strong.filter(
+          (g) => !namesADifferentOccasion(g.name, occasion) && !tooCrudeForOccasion(g.name, occasion),
+        ),
+      );
       if (fit.length >= 8) return fit.slice(0, 8);
 
       // Thin occasions — Vaisakhi, Onam — do not have 8 well-scored gifts in
@@ -116,7 +120,11 @@ async function getGiftsForOccasion(occasion: string) {
 
       return [
         ...fit,
-        ...byFit(rest.filter((g) => !namesADifferentOccasion(g.name, occasion))),
+        ...byFit(
+          rest.filter(
+            (g) => !namesADifferentOccasion(g.name, occasion) && !tooCrudeForOccasion(g.name, occasion),
+          ),
+        ),
       ].slice(0, 8);
     }),
   );

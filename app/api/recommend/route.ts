@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { BUDGET_UNCAPPED_AT, JUST_BECAUSE } from "@/lib/gift-options";
 import { prisma } from "@/lib/prisma";
 import { looksNonEnglish } from "@/lib/language";
-import { namesADifferentOccasion, occasionGiftFit } from "@/lib/occasion-fit";
+import { namesADifferentOccasion, occasionGiftFit, tooCrudeForOccasion } from "@/lib/occasion-fit";
 import { clientKey, rateLimit, tooManyRequests } from "@/lib/rate-limit";
 import { parseRecommendBody } from "@/lib/recommend-request";
 import { MIN_INTEREST_MATCHES, scoreGift, selectDiverse } from "@/lib/ranking";
@@ -157,6 +157,7 @@ export async function POST(request: Request) {
     (entry) =>
       entry.breakdown.interestMatches >= MIN_INTEREST_MATCHES &&
       !namesADifferentOccasion(entry.gift.name, body.occasion) &&
+      !tooCrudeForOccasion(entry.gift.name, body.occasion) &&
       !looksNonEnglish(entry.gift.name),
   );
 

@@ -121,6 +121,51 @@ interface OccasionFit {
 }
 
 /**
+ * Occasions where a crude product title is a trust problem rather than a
+ * matter of taste.
+ *
+ * A randomised sweep of the quiz put a perfume called "SLUT FOR OCTOBER" at
+ * position four on the Hanukkah page. Nothing was wrong with the ranking - the
+ * product scores well and carried the occasion tag from its brand - but a
+ * religious festival page is not where a shopper forgives that, and it costs
+ * more trust than any single result can earn back.
+ *
+ * The religious and family festivals, plus the coming-of-age occasions, which
+ * are largely shopped for by parents and grandparents.
+ */
+const SENSITIVE_OCCASIONS = new Set([
+  "Diwali", "Holi", "Onam", "Vaisakhi", "Raksha Bandhan", "Eid al-Fitr", "Eid al-Adha",
+  "Lunar New Year", "Mid-Autumn Festival", "Nowruz", "Passover", "Hanukkah", "Kwanzaa",
+  "Vesak", "Day of the Dead", "Christmas", "Easter",
+  "Bar/Bat Mitzvah", "Quinceañera", "Baby Shower", "Family Gathering", "Mother's Day",
+  "Father's Day", "Get Well Soon", "Thank You", "Wedding",
+]);
+
+/**
+ * Deliberately narrow: strong profanity and explicit words only, whole-word,
+ * so it cannot fire on an innocent title. It is not a decency filter for the
+ * catalogue - "Bigfoot Hanukkah Ornament" is fine and stays - it is a guard on
+ * the handful of pages where the wrong word ends the visit.
+ *
+ * Whole-word matching matters more than the list does. "ass" would take
+ * "Assam tea" and a "glass" is not a slur; each entry here is bounded.
+ */
+const PROFANITY =
+  /\b(fuck\w*|shit\w*|bitch\w*|slut\w*|whore\w*|cunt\w*|dick|cock|tits|boobs?|horny|orgasm\w*|sex(y|ual)?|nsfw|nude)\b/i;
+
+/**
+ * Whether this title should be kept off this occasion's page.
+ *
+ * Filters rather than demotes, unlike everything else in this file. A
+ * multiplier would only push it down the grid, and one scroll still lands on
+ * it; the point is that it does not appear on that page at all. It stays in
+ * the catalogue and on every other occasion.
+ */
+export function tooCrudeForOccasion(title: string, occasion: string): boolean {
+  return SENSITIVE_OCCASIONS.has(occasion) && PROFANITY.test(title);
+}
+
+/**
  * The gift that *is* the occasion, matched on the title rather than the
  * category.
  *

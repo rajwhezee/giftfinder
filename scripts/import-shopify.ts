@@ -199,6 +199,17 @@ const HOME_SCENT_OCCASIONS = [
   "New Year",
 ];
 
+// Lunar New Year on the peripheral and accessory brands. A gaming search for
+// the festival returned nothing at all, because none of these carried the
+// occasion: electronics are a standard Lunar New Year gift for the young
+// people who receive the red envelopes, and the catalogue had the products
+// without the tag.
+//
+// Eight brands rather than every tech brand on the list, because tagging the
+// whole shelf is how Raksha Bandhan ended up 96% not-Rakhi. The household tier
+// in occasionGiftFit also marks Gaming and Keyboards unsuited for this
+// occasion, so these sit below the red envelopes and the cheongsams and only
+// surface for someone who asked for them.
 const BRANDS: Brand[] = [
   // Cookware and flatware, added 2026-08-23 because the household tier in
   // occasionGiftFit had almost nothing to rank: the catalogue held 0 cutlery
@@ -1072,7 +1083,7 @@ const BRANDS: Brand[] = [
     domain: "divoom.com",
     name: "Divoom",
     interests: ["Tech", "Gaming", "Art", "Music"],
-    occasions: ["Birthday", "Christmas", "Graduation"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Lunar New Year"],
     ageMin: 10,
     ageMax: 45,
   },
@@ -1152,7 +1163,7 @@ const BRANDS: Brand[] = [
     domain: "keychron.com",
     name: "Keychron",
     interests: ["Tech", "Gaming", "Writing"],
-    occasions: ["Birthday", "Christmas", "Graduation", "Father's Day"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Father's Day", "Lunar New Year"],
     ageMin: 14,
     ageMax: 60,
   },
@@ -1164,7 +1175,7 @@ const BRANDS: Brand[] = [
     domain: "www.gloriousgaming.com",
     name: "Glorious",
     interests: ["Tech", "Gaming"],
-    occasions: ["Birthday", "Christmas", "Graduation", "New Year"],
+    occasions: ["Birthday", "Christmas", "Graduation", "New Year", "Lunar New Year"],
     ageMin: 12,
     ageMax: 50,
     prefer: PERIPHERALS,
@@ -1173,7 +1184,7 @@ const BRANDS: Brand[] = [
     domain: "nzxt.com",
     name: "NZXT",
     interests: ["Tech", "Gaming"],
-    occasions: ["Birthday", "Christmas", "Graduation", "New Year"],
+    occasions: ["Birthday", "Christmas", "Graduation", "New Year", "Lunar New Year"],
     ageMin: 14,
     ageMax: 50,
     prefer: PERIPHERALS,
@@ -1182,7 +1193,7 @@ const BRANDS: Brand[] = [
     domain: "lofree.co",
     name: "Lofree",
     interests: ["Tech", "Creativity", "Writing"],
-    occasions: ["Birthday", "Christmas", "Graduation"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Lunar New Year"],
     ageMin: 14,
     ageMax: 55,
   },
@@ -1198,7 +1209,7 @@ const BRANDS: Brand[] = [
     domain: "us.anker.com",
     name: "Anker",
     interests: ["Tech", "Travel"],
-    occasions: ["Birthday", "Christmas", "Graduation", "Father's Day"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Father's Day", "Lunar New Year"],
     ageMin: 14,
     ageMax: 75,
   },
@@ -1206,7 +1217,7 @@ const BRANDS: Brand[] = [
     domain: "satechi.net",
     name: "Satechi",
     interests: ["Tech"],
-    occasions: ["Birthday", "Christmas", "Graduation", "Father's Day"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Father's Day", "Lunar New Year"],
     ageMin: 16,
     ageMax: 70,
   },
@@ -1246,7 +1257,7 @@ const BRANDS: Brand[] = [
     domain: "baseus.com",
     name: "Baseus",
     interests: ["Tech", "Travel"],
-    occasions: ["Birthday", "Christmas", "Graduation"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Lunar New Year"],
     ageMin: 14,
     ageMax: 65,
   },
