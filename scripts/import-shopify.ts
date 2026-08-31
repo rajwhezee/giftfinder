@@ -200,6 +200,41 @@ const HOME_SCENT_OCCASIONS = [
 ];
 
 const BRANDS: Brand[] = [
+  // Cookware and flatware, added 2026-08-23 because the household tier in
+  // occasionGiftFit had almost nothing to rank: the catalogue held 0 cutlery
+  // sets, 3 dinnerware and 21 cookware, and Lunar New Year had no household
+  // items at all. Both verified USD before adding; Caraway, Made In, Great
+  // Jones, Food52, Smithey, Hawkins New York and Year & Day all block
+  // /products.json, and Hedley & Bennett, Graza and Heath Ceramics serve a
+  // feed but publish no currency marker, which is the case the notes say to
+  // walk away from.
+  //
+  // Carrying the family festivals deliberately, and only these: a set of
+  // dishes is a real Diwali or Lunar New Year gift, and two brands at 60
+  // slots each is a proportionate amount of it rather than the flood a
+  // catalogue-wide beauty tag produced.
+  {
+    domain: "misen.com",
+    name: "Misen",
+    interests: ["Cooking", "Home Decor", "Food"],
+    occasions: [
+      "Housewarming", "Wedding", "Christmas", "Anniversary", "Birthday", "Thank You",
+      "Diwali", "Lunar New Year", "Eid al-Fitr", "Nowruz",
+    ],
+    ageMin: 22,
+    ageMax: 80,
+  },
+  {
+    domain: "eastfork.com",
+    name: "East Fork",
+    interests: ["Home Decor", "Cooking", "Art"],
+    occasions: [
+      "Housewarming", "Wedding", "Christmas", "Anniversary", "Birthday", "Thank You",
+      "Diwali", "Lunar New Year", "Onam", "Nowruz",
+    ],
+    ageMin: 22,
+    ageMax: 80,
+  },
   // --- Fragrance ---
   {
     domain: "snif.co",

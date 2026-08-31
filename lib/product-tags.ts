@@ -49,6 +49,60 @@ interface Rule {
  * as a lamp before "light" catches an LED strip.
  */
 const RULES: Rule[] = [
+  // --- Product types the rules had no entry for at all ---
+  //
+  // 46% of the catalogue carried no category, which is not a tagging miss so
+  // much as a vocabulary gap: these rules were written against DTC Shopify
+  // listings, and Etsy and eBay sell whole classes of thing the list never
+  // named. An uncategorised row takes the neutral multiplier in
+  // occasionGiftFit, so it can be neither promoted nor demoted, and it lands
+  // in "Everything else" on the results filter.
+  //
+  // First in RULES because each names an object outright. Ordered before the
+  // apparel and decor rules so an apron is kitchen rather than clothing and a
+  // chocolate box is not a "gift box".
+  {
+    label: "chocolate & sweets",
+    category: "Chocolate & Sweets",
+    pattern: /\bchocolates?\b|\btruffles?\b|\bfudge\b|\bbrownies?\b|\bmacarons?\b|\bcandy\b|\bcaramels?\b|\btoffee\b|\bmithai\b|\bconfection/,
+    interests: ["Food", "Family"],
+  },
+  {
+    label: "vinyl & records",
+    category: "Vinyl & Music",
+    pattern: /\bvinyl\b|\blp record\b|\brecord (album|lp)\b|\bcassettes?\b|\bturntables?\b/,
+    interests: ["Music"],
+  },
+  {
+    label: "musical instruments",
+    category: "Instruments",
+    pattern: /\bguitars?\b|\bukuleles?\b|\bviolins?\b|\bharmonicas?\b|\bkalimba\b|\bdrum (kit|set)\b|\bkeyboard piano\b/,
+    interests: ["Music", "Creativity"],
+  },
+  {
+    label: "art supplies",
+    category: "Art Supplies",
+    pattern: /\beasels?\b|\bpaint set\b|\bpaintbrush(es)?\b|\bsketchbooks?\b|\bwatercolou?r set\b|\bacrylic paints?\b|\bart set\b|\bcalligraphy set\b/,
+    interests: ["Art", "Creativity", "Painting"],
+  },
+  {
+    label: "toys",
+    category: "Toys",
+    pattern: /\bplush(ie)?s?\b|\bstuffed animals?\b|\btoy cars?\b|\bwooden toys?\b|\bplay ?sets?\b|\bbuilding blocks?\b|\bdolls?\b|\brattles?\b|\bride[- ]on\b|\bdie[- ]?cast\b/,
+    interests: ["Family", "Creativity", "Games"],
+  },
+  {
+    label: "aprons & kitchen linen",
+    category: "Kitchen & Drinkware",
+    pattern: /\baprons?\b|\btea towels?\b|\boven mitts?\b|\bpot holders?\b|\bplacemats?\b/,
+    interests: ["Cooking", "Home Decor"],
+  },
+  {
+    label: "party & celebration decor",
+    category: "Party & Celebration",
+    pattern: /\bbanners?\b|\bgarlands?\b|\bballoons?\b|\bbunting\b|\bcake toppers?\b|\bparty (decor|supplies|favou?rs)\b|\bconfetti\b/,
+    interests: ["Home Decor", "Family", "Creativity"],
+  },
   // --- Footwear, in two passes with the apparel rules in between.
   //
   //     This pass is the nouns that can only be a shoe. It runs first so a
@@ -161,6 +215,15 @@ const RULES: Rule[] = [
     category: "Watches & Trackers",
     pattern: /smart ?watch|fitness tracker|\bsmartband\b/,
     interests: ["Tech", "Fitness"],
+  },
+  // Ordinary watches, after the smart ones so those keep their own shelf. 126
+  // wristwatches were uncategorised because the only watch rule wanted a
+  // fitness tracker.
+  {
+    label: "watches",
+    category: "Watches & Trackers",
+    pattern: /\bwrist ?watch(es)?\b|\bautomatic watch(es)?\b|\bmechanical watch(es)?\b|\bquartz watch(es)?\b|\bwatch(es)? for (him|her|men|women)\b|\bdive watch\b|\bchronograph\b/,
+    interests: ["Fashion", "Tech"],
   },
 
   // --- Bags & carry ---
