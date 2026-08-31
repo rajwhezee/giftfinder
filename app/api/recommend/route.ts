@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { BUDGET_UNCAPPED_AT, JUST_BECAUSE } from "@/lib/gift-options";
 import { prisma } from "@/lib/prisma";
 import { looksNonEnglish } from "@/lib/language";
-import { namesADifferentOccasion, occasionCategoryFit } from "@/lib/occasion-fit";
+import { namesADifferentOccasion, occasionGiftFit } from "@/lib/occasion-fit";
 import { clientKey, rateLimit, tooManyRequests } from "@/lib/rate-limit";
 import { parseRecommendBody } from "@/lib/recommend-request";
 import { MIN_INTEREST_MATCHES, scoreGift, selectDiverse } from "@/lib/ranking";
@@ -141,7 +141,7 @@ export async function POST(request: Request) {
     // Does what the thing *is* suit why they are shopping? Nothing else in
     // scoring asks: a book can score beautifully as a gift and still be the
     // wrong thing to bring to a housewarming.
-    const fit = occasionCategoryFit(body.occasion, gift.category);
+    const fit = occasionGiftFit(body.occasion, gift.name, gift.category);
 
     return { gift, price, breakdown: { ...breakdown, total: breakdown.total * fit } };
   });

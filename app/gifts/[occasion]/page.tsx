@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StaticGiftCard } from "@/components/StaticGiftCard";
-import { namesADifferentOccasion, occasionCategoryFit } from "@/lib/occasion-fit";
+import { namesADifferentOccasion, occasionGiftFit } from "@/lib/occasion-fit";
 import { OCCASION_EMOJI } from "@/lib/gift-option-icons";
 import { JUST_BECAUSE, OCCASIONS } from "@/lib/gift-options";
 import { occasionToSlug, slugToOccasion } from "@/lib/occasion-slugs";
@@ -93,11 +93,11 @@ async function getGiftsForOccasion(occasion: string) {
       // Wuthering Heights led housewarming, wedding and anniversary at once.
       // Re-ranked on giftScore weighted by how well the category suits the
       // occasion, so what belongs at a housewarming leads a housewarming.
-      const byFit = <T extends { giftScore: number | null; category: string | null }>(rows: T[]) =>
+      const byFit = <T extends { name: string; giftScore: number | null; category: string | null }>(rows: T[]) =>
         [...rows].sort(
           (a, b) =>
-            (b.giftScore ?? 0) * occasionCategoryFit(occasion, b.category) -
-            (a.giftScore ?? 0) * occasionCategoryFit(occasion, a.category),
+            (b.giftScore ?? 0) * occasionGiftFit(occasion, b.name, b.category) -
+            (a.giftScore ?? 0) * occasionGiftFit(occasion, a.name, a.category),
         );
 
       const fit = byFit(strong.filter((g) => !namesADifferentOccasion(g.name, occasion)));

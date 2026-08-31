@@ -120,7 +120,90 @@ interface OccasionFit {
   unsuited: string[];
 }
 
+/**
+ * The gift that *is* the occasion, matched on the title rather than the
+ * category.
+ *
+ * Categories cannot express this. A rakhi and a friendship bracelet are both
+ * Jewellery; a diya and a scented candle are both Candles. On the regional
+ * pages that difference is the whole point: after the cultural imports landed,
+ * Raksha Bandhan was 69% culturally apt and Diwali 29%, and nothing in the
+ * ranking preferred the rakhi to the candle sitting next to it.
+ *
+ * So this is a two-tier order, which is what people actually shop: first the
+ * traditional gift for the occasion, then ordinary presents - a candle, a
+ * cutlery set, a bag - which OCCASION_CATEGORIES below handles. On
+ * /api/recommend the second tier is already narrowed by the recipient's age
+ * and gender, so it lands demographically. The landing pages have no
+ * recipient, so there it is occasion alone.
+ *
+ * Written narrowly and against the words these listings actually use. Each
+ * pattern names the object, not the culture: "indian" would match a thousand
+ * unrelated things, "rakhi" matches a rakhi.
+ */
+const OCCASION_SIGNATURE: Record<string, RegExp> = {
+  "Raksha Bandhan": /\brakhi\b|\braksha bandhan\b|\bmauli\b|\blumba\b/i,
+  Diwali: /\bdiyas?\b|\brangoli\b|\bpooja\b|\bpuja\b|\baarti\b|\bthali\b|\btoran\b|\blakshmi\b|\bmithai\b/i,
+  Holi: /\bholi\b|\bgulal\b|\bpichkari\b/i,
+  Onam: /\bonam\b|\bkasavu\b|\bsadya\b|\bkerala\b/i,
+  Vaisakhi: /\bvaisakhi\b|\bbaisakhi\b|\bkhanda\b|\bik onkar\b|\bgutka\b|\bkara\b/i,
+  "Eid al-Fitr": /\beid\b|\btasbih\b|\battar\b|\bquran\b|\bprayer mat\b|\bcrescent\b|\bislamic\b/i,
+  "Eid al-Adha": /\beid\b|\btasbih\b|\bquran\b|\bprayer mat\b|\bqurbani\b|\bislamic\b/i,
+  "Lunar New Year": /\bred envelopes?\b|\bhongbao\b|\blion dance\b|\bzodiac\b|\bcheongsam\b|\bqipao\b/i,
+  "Mid-Autumn Festival": /\bmooncakes?\b|\blanterns?\b|\bmid-autumn\b/i,
+  Nowruz: /\bnowruz\b|\bhaft[- ]?se[ie]n\b|\bsabzeh\b|\bpersian\b/i,
+  "Quinceañera": /\bquincea\w*\b|\btiara\b|\bsash\b|\brosary\b/i,
+  "Day of the Dead": /\bcatrina\b|\bcalaveras?\b|\bpapel picado\b|\bmarigold\b|\bofrenda\b|\bd[ií]a de los muertos\b/i,
+  "St. Patrick's Day": /\bcladdagh\b|\bshamrocks?\b|\bceltic knot\b|\baran\b|\btrinity knot\b|\bharp\b/i,
+  Oktoberfest: /\bsteins?\b|\bdirndl\b|\blederhosen\b|\bbavarian\b|\bpretzels?\b/i,
+  Passover: /\bseder\b|\bmatzah\b|\bmatzo\b|\bhaggadah\b|\bpesach\b/i,
+  Hanukkah: /\bmenorahs?\b|\bdreidels?\b|\bhanukkah\b|\bchanukah\b|\bmenorah\b/i,
+  "Bar/Bat Mitzvah": /\btallit\b|\bkiddush\b|\btorah\b|\bmitzvah\b|\bkippah\b|\byarmulke\b/i,
+  Kwanzaa: /\bkinara\b|\bkente\b|\badinkra\b|\bkwanzaa\b|\bmudcloth\b/i,
+  Vesak: /\bvesak\b|\bbuddhas?\b|\blotus\b|\bmala\b|\bincense\b/i,
+  Carnival: /\bcarnival\b|\bmasquerade\b|\bsamba\b|\bfeather mask\b/i,
+};
+
+/**
+ * Applied when the title names the occasion's own gift. Larger than the
+ * category boost on purpose: a rakhi should lead the Raksha Bandhan page even
+ * when a generically better-scoring present is available, because the shopper
+ * came for a rakhi. Still a multiplier rather than a hard sort, so a weak
+ * product does not outrank a strong one on the strength of one word.
+ */
+export const OCCASION_SIGNATURE_BOOST = 1.6;
+
+/** Whether the title names the traditional gift for this occasion. */
+export function namesTheOccasionsGift(title: string, occasion: string): boolean {
+  const pattern = OCCASION_SIGNATURE[occasion];
+  return pattern ? pattern.test(title) : false;
+}
+
 const OCCASION_CATEGORIES: Record<string, OccasionFit> = {
+  // The regional occasions share a second tier: once the traditional gift is
+  // exhausted, what people actually give at a festival is a nice thing for the
+  // house or the person - a candle, a cutlery set, a bag, jewellery - and not
+  // a mechanical keyboard.
+  ...Object.fromEntries(
+    [
+      "Diwali", "Raksha Bandhan", "Holi", "Onam", "Vaisakhi", "Eid al-Fitr", "Eid al-Adha",
+      "Lunar New Year", "Mid-Autumn Festival", "Nowruz", "Quinceañera", "Day of the Dead",
+      "St. Patrick's Day", "Oktoberfest", "Passover", "Hanukkah", "Bar/Bat Mitzvah",
+      "Kwanzaa", "Vesak", "Carnival",
+    ].map((occasion) => [
+      occasion,
+      {
+        prefer: [
+          "Jewellery", "Candles", "Kitchen & Drinkware", "Wall Art", "Throws & Textiles",
+          "Skincare & Beauty", "Fragrance", "Coffee & Tea", "Bags",
+        ],
+        unsuited: [
+          "Gaming", "Keyboards", "Chargers & Power", "Phone & Laptop", "Pets",
+          "Outdoor Gear", "Smart Lighting",
+        ],
+      },
+    ]),
+  ),
   // Things that go in the house, used in the house.
   Housewarming: {
     prefer: [
@@ -170,6 +253,24 @@ export const OCCASION_PREFER_BOOST = 1.18;
 /** Applied to an unsuited one. Demotes rather than hides: a book is still a
  *  fine housewarming gift, it just should not be the first thing on the page. */
 export const OCCASION_UNSUITED_PENALTY = 0.8;
+
+/**
+ * The full ranking multiplier for a product on an occasion page: the
+ * traditional gift first, then ordinary presents that suit the occasion.
+ *
+ * Call this rather than occasionCategoryFit directly. The two compose - a
+ * brass diya is both the signature gift and a preferred category - which is
+ * correct, because that really is the single most appropriate thing on the
+ * page.
+ */
+export function occasionGiftFit(
+  occasion: string,
+  title: string,
+  category: string | null,
+): number {
+  const signature = namesTheOccasionsGift(title, occasion) ? OCCASION_SIGNATURE_BOOST : 1;
+  return signature * occasionCategoryFit(occasion, category);
+}
 
 /** Multiplier for how well a category suits an occasion. 1 when either is
  *  unknown, which is most of the catalogue and the correct default. */
