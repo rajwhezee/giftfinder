@@ -40,6 +40,13 @@ interface Rule {
   category: string;
   /** Tested against `${product_type} ${title}`, lowercased. */
   pattern: RegExp;
+  /**
+   * Vetoes the match. For rules whose words are a material or a flavour rather
+   * than the object: "chocolate" is in the title of a chocolate bar and of a
+   * candle shaped like one, and ordering alone cannot separate them, because
+   * the rules that would win are on both sides of this one in the list.
+   */
+  exclude?: RegExp;
   interests: string[];
 }
 
@@ -62,6 +69,12 @@ const RULES: Rule[] = [
   // apparel and decor rules so an apron is kitchen rather than clothing and a
   // chocolate box is not a "gift box".
   {
+    // "Chocolate" is a flavour and a material as often as it is the gift, so
+    // this rule claimed 19 objects that merely mentioned it: a Mithai Candle
+    // Set, a Rakhi Bracelet Set, a cookie cutter, a candy-skull decal. Moving
+    // it later did not work either - it then lost "Gourmet Chocolate Basket"
+    // to the storage rule, and the rules that should beat it sit on both
+    // sides of it in this list. Hence the veto, which is order-independent.
     label: "chocolate & sweets",
     category: "Chocolate & Sweets",
     // Deliberately excludes "cake" and "cookie": this rule runs first, and
@@ -69,12 +82,14 @@ const RULES: Rule[] = [
     // only be the confection itself. Accents are matched both ways because
     // Etsy sellers write "Praliné" and "gateau" interchangeably.
     pattern: /\bchocolates?\b|\btruffles?\b|\bfudge\b|\bbrownies?\b|\bmacarons?\b|\bcandy\b|\bcaramels?\b|\btoffee\b|\bmithai\b|\bconfection|\bbonbons?\b|\bpralin[eé]?s?\b|\bg[aâ]teaux?\b|\bnougat\b|\bmarzipan\b|\bpatisserie\b/,
+    exclude: /\bcandles?\b|\bdecals?\b|\bstickers?\b|\bcutters?\b|\bmou?lds?\b|\bsigns?\b|\bsocks?\b|\bbracelets?\b|\brakhi\b|\bfavou?rs?\b|\bplush|\bearrings?\b|\bnecklaces?\b|\bkeychains?\b/,
     interests: ["Food", "Family"],
   },
   {
     label: "vinyl & records",
     category: "Vinyl & Music",
-    pattern: /\bvinyl\b|\blp record\b|\brecord (album|lp)\b|\bcassettes?\b|\bturntables?\b/,
+    pattern: /\bvinyl records?\b|\brecord players?\b|\blp record\b|\brecord (album|lp)\b|\bcassettes?\b|\bturntables?\b/,
+    exclude: /\bdecals?\b|\bstickers?\b|\bwraps?\b|\bflooring\b|\bbanners?\b/,
     interests: ["Music"],
   },
   {
@@ -474,7 +489,7 @@ export function deriveTags(
   else if (mens && !womens) gender = "male";
 
   for (const rule of RULES) {
-    if (rule.pattern.test(haystack)) {
+    if (rule.pattern.test(haystack) && !rule.exclude?.test(haystack)) {
       return { interests: rule.interests, gender, label: rule.label, category: rule.category };
     }
   }

@@ -190,8 +190,9 @@ const OCCASION_CATEGORIES: Record<string, OccasionFit> = {
   // Bar Mitzvah honours one person, and the gift is theirs.
   ...Object.fromEntries(
     [
-      "Diwali", "Holi", "Onam", "Vaisakhi", "Lunar New Year", "Mid-Autumn Festival",
-      "Nowruz", "Eid al-Fitr", "Eid al-Adha", "Passover", "Hanukkah", "Kwanzaa",
+      "Diwali", "Holi", "Onam", "Vaisakhi", "Raksha Bandhan", "Lunar New Year",
+      "Mid-Autumn Festival", "Nowruz", "Eid al-Fitr", "Eid al-Adha", "Passover",
+      "Hanukkah", "Kwanzaa",
     ].map((occasion) => [
       occasion,
       {
