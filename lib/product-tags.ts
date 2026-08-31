@@ -294,9 +294,18 @@ const RULES: Rule[] = [
     interests: ["Home Decor", "Self-care"],
   },
   {
+    // Appliances ahead of drinkware: an air fryer oven is not a plate, and
+    // "Ninja AF141 Air Fryer Pro" matched no rule at all before this, so all
+    // 46 air fryers were uncategorised and invisible to every occasion tier.
+    label: "appliances",
+    category: "Appliances",
+    pattern: /\bair ?fryers?\b|\bstand mixers?\b|\bblenders?\b|\bespresso machines?\b|\bcoffee makers?\b|\bfood processors?\b|\bslow cookers?\b|\bpressure cookers?\b|\binstant pot\b|\btoaster ovens?\b|\belectric kettles?\b|\brice cookers?\b|\brobot vacuums?\b|\bsous vide\b|\bwaffle makers?\b|\bice makers?\b|\bair purifiers?\b/,
+    interests: ["Cooking", "Home Decor", "Tech"],
+  },
+  {
     label: "kitchen & drinkware",
     category: "Kitchen & Drinkware",
-    pattern: /\bmugs?\b|\btumblers?\b|\bglassware\b|\bcookware\b|\bkettles?\b|\bcutting board\b|\bplates?\b|\bbowls?\b|\bflatware\b/,
+    pattern: /\bmugs?\b|\btumblers?\b|\bglassware\b|\bcookware\b|\bkettles?\b|\bcutting board\b|\bplates?\b|\bbowls?\b|\bflatware\b|\bcutlery\b|\bsilverware\b|\bdinnerware\b|\bplace settings?\b|\bserveware\b|\bknife (set|block)\b/,
     interests: ["Cooking", "Home Decor"],
   },
   {

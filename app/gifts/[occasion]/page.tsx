@@ -2,7 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { StaticGiftCard } from "@/components/StaticGiftCard";
-import { namesADifferentOccasion, occasionGiftFit, tooCrudeForOccasion } from "@/lib/occasion-fit";
+import {
+  MIN_PREFERRED_SCORE,
+  namesADifferentOccasion,
+  occasionGiftFit,
+  preferredCategoriesFor,
+  tooCrudeForOccasion,
+} from "@/lib/occasion-fit";
 import { OCCASION_EMOJI } from "@/lib/gift-option-icons";
 import { JUST_BECAUSE, OCCASIONS } from "@/lib/gift-options";
 import { occasionToSlug, slugToOccasion } from "@/lib/occasion-slugs";
@@ -100,11 +106,42 @@ async function getGiftsForOccasion(occasion: string) {
             (a.giftScore ?? 0) * occasionGiftFit(occasion, a.name, a.category),
         );
 
-      const fit = byFit(
-        strong.filter(
+      const usable = <T extends { name: string }>(rows: T[]) =>
+        rows.filter(
           (g) => !namesADifferentOccasion(g.name, occasion) && !tooCrudeForOccasion(g.name, occasion),
-        ),
-      );
+        );
+
+      const fit = byFit(usable(strong));
+
+      // Reserve slots for the categories this occasion prefers.
+      //
+      // The scorer rates a gift by how it reads to unwrap, so an appliance
+      // never clears the landing floor: the air fryers score a median of 26
+      // against 55. Exempting them from the floor alone changes nothing,
+      // because ranking is score-driven and 26 x 1.18 still loses to a candle
+      // at 60 - so the exemption has to guarantee a place rather than merely
+      // permit one. Two of eight, only when the fit ranking found none, and
+      // only for occasions that name preferred categories at all.
+      const preferred = preferredCategoriesFor(occasion);
+      const RESERVED = 2;
+      if (preferred.length > 0 && fit.length >= 8) {
+        const already = fit.slice(0, 8).filter((g) => g.category && preferred.includes(g.category)).length;
+        if (already === 0) {
+          const useful = await prisma.gift.findMany({
+            where: {
+              ...where,
+              category: { in: preferred },
+              giftScore: { gte: MIN_PREFERRED_SCORE, lt: MIN_LANDING_SCORE },
+            },
+            orderBy: [{ giftScore: "desc" }, { price: "asc" }],
+            take: 20,
+            select,
+          });
+          const picks = byFit(usable(useful)).slice(0, RESERVED);
+          if (picks.length > 0) return [...fit.slice(0, 8 - picks.length), ...picks];
+        }
+      }
+
       if (fit.length >= 8) return fit.slice(0, 8);
 
       // Thin occasions — Vaisakhi, Onam — do not have 8 well-scored gifts in
@@ -118,14 +155,7 @@ async function getGiftsForOccasion(occasion: string) {
         select,
       });
 
-      return [
-        ...fit,
-        ...byFit(
-          rest.filter(
-            (g) => !namesADifferentOccasion(g.name, occasion) && !tooCrudeForOccasion(g.name, occasion),
-          ),
-        ),
-      ].slice(0, 8);
+      return [...fit, ...byFit(usable(rest))].slice(0, 8);
     }),
   );
 

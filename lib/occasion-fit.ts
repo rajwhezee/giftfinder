@@ -242,8 +242,8 @@ const OCCASION_CATEGORIES: Record<string, OccasionFit> = {
       occasion,
       {
         prefer: [
-          "Kitchen & Drinkware", "Throws & Textiles", "Candles", "Wall Art", "Storage",
-          "Lamps", "Plants & Garden", "Furniture", "Coffee & Tea", "Games & Puzzles",
+          "Kitchen & Drinkware", "Appliances", "Throws & Textiles", "Candles", "Wall Art",
+          "Storage", "Lamps", "Plants & Garden", "Furniture", "Coffee & Tea", "Games & Puzzles",
         ],
         unsuited: [
           "Gaming", "Keyboards", "Chargers & Power", "Phone & Laptop", "Pets",
@@ -280,15 +280,15 @@ const OCCASION_CATEGORIES: Record<string, OccasionFit> = {
   // Things that go in the house, used in the house.
   Housewarming: {
     prefer: [
-      "Candles", "Kitchen & Drinkware", "Throws & Textiles", "Lamps", "Storage",
-      "Furniture", "Plants & Garden", "Wall Art", "String Lights", "Smart Lighting",
+      "Candles", "Kitchen & Drinkware", "Appliances", "Throws & Textiles", "Lamps",
+      "Storage", "Furniture", "Plants & Garden", "Wall Art", "String Lights", "Smart Lighting",
     ],
     unsuited: ["Books", "Shoes", "Clothing", "Hats", "Bags", "Wallets", "Watches & Trackers"],
   },
   Wedding: {
     prefer: [
-      "Kitchen & Drinkware", "Throws & Textiles", "Candles", "Wall Art", "Furniture",
-      "Jewellery", "Plants & Garden",
+      "Kitchen & Drinkware", "Appliances", "Throws & Textiles", "Candles", "Wall Art",
+      "Furniture", "Jewellery", "Plants & Garden",
     ],
     unsuited: ["Shoes", "Gaming", "Keyboards", "Chargers & Power", "Phone & Laptop", "Hats"],
   },
@@ -326,6 +326,24 @@ export const OCCASION_PREFER_BOOST = 1.18;
 /** Applied to an unsuited one. Demotes rather than hides: a book is still a
  *  fine housewarming gift, it just should not be the first thing on the page. */
 export const OCCASION_UNSUITED_PENALTY = 0.8;
+
+/** The categories this occasion prefers, or none if it has no entry. */
+export function preferredCategoriesFor(occasion: string): string[] {
+  return OCCASION_CATEGORIES[occasion]?.prefer ?? [];
+}
+
+/**
+ * The floor a preferred-category product must clear to be exempted from the
+ * landing page's usual quality bar.
+ *
+ * Low, because the scorer judges a gift by how it reads to unwrap and an
+ * appliance never reads well: the 46 air fryers score a median of 26 against a
+ * landing floor of 55. That is the scorer working correctly and it is also not
+ * what someone shopping a housewarming or a Diwali wants to be told. This lets
+ * the useful thing onto the page it belongs on without lowering the bar
+ * anywhere else.
+ */
+export const MIN_PREFERRED_SCORE = 20;
 
 /**
  * The full ranking multiplier for a product on an occasion page: the
