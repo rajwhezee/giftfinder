@@ -122,6 +122,17 @@ const RULES: Rule[] = [
     pattern: /\bbanners?\b|\bgarlands?\b|\bballoons?\b|\bbunting\b|\bcake toppers?\b|\bparty (decor|supplies|favou?rs)\b|\bconfetti\b/,
     interests: ["Home Decor", "Family", "Creativity"],
   },
+  // Hype and designer, ahead of apparel and footwear: these are collectibles
+  // shopped by name, and "KAWS Companion" filed as Clothing or a Travis Scott
+  // Jordan as generic Shoes loses the only thing a buyer is searching for.
+  // Brand names only, and only brands whose name is unambiguous - "Palace" and
+  // "Supreme" are ordinary words and are matched with a qualifier.
+  {
+    label: "hype & designer",
+    category: "Hype & Designer",
+    pattern: /\bkaws\b|\btravis scott\b|\bcactus jack\b|\bchrome hearts\b|\boff[- ]white\b|\bbape\b|\ba bathing ape\b|\bfear of god\b|\bessentials fog\b|\byeezy\b|\bstussy\b|\bstüssy\b|\bsupreme (box logo|hoodie|tee|shirt|bogo)\b|\bpalace skateboards\b|\bdior\b|\bbalenciaga\b|\bvetements\b|\brhude\b|\bamiri\b|\bcorteiz\b|\bdenim tears\b|\bhellstar\b|\bsp5der\b|\bbearbrick\b|\bbe@rbrick\b/i,
+    interests: ["Fashion", "Sneakers", "Art"],
+  },
   // --- Footwear, in two passes with the apparel rules in between.
   //
   //     This pass is the nouns that can only be a shoe. It runs first so a

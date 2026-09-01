@@ -60,6 +60,150 @@ interface CuratedQuery {
 }
 
 const QUERIES: CuratedQuery[] = [
+  // --- Hype and designer, added 2026-08-31 ---
+  //
+  // Collectibles and grails, which people shop by name rather than by
+  // category. Mostly `authenticated`, because the pieces that only exist on
+  // the resale market are exactly where fakes live and eBay's Authenticity
+  // Guarantee is the reason this source is usable at all.
+  //
+  // One brand per query: "corsair steelseries" taught that eBay ANDs every
+  // word and no listing names two competitors.
+  {
+    // Not authenticated: eBay's guarantee covers sneakers, handbags, watches
+    // and trading cards, not art toys, so the authenticated pool held a single
+    // listing. The seller floor above carries the quality here instead.
+    label: "KAWS figures",
+    q: "kaws companion figure",
+    mode: "new",
+    minPrice: 150,
+    maxPrice: 3000,
+    interests: ["Art", "Home Decor", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Graduation", "Just Because"],
+    ageMin: 16,
+    ageMax: 45,
+  },
+  {
+    label: "Bearbrick figures",
+    q: "bearbrick medicom 400%",
+    mode: "new",
+    minPrice: 100,
+    maxPrice: 2000,
+    interests: ["Art", "Home Decor", "Creativity"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 16,
+    ageMax: 45,
+  },
+  {
+    label: "Travis Scott sneakers (authenticated)",
+    q: "travis scott jordan",
+    mode: "authenticated",
+    minPrice: 300,
+    maxPrice: 3000,
+    interests: ["Sneakers", "Fashion"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 16,
+    ageMax: 40,
+  },
+  {
+    label: "Yeezy (authenticated)",
+    q: "yeezy boost",
+    mode: "authenticated",
+    minPrice: 150,
+    maxPrice: 1500,
+    interests: ["Sneakers", "Fashion"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 16,
+    ageMax: 45,
+  },
+  {
+    label: "Off-White (authenticated)",
+    q: "off-white virgil abloh",
+    mode: "authenticated",
+    minPrice: 200,
+    maxPrice: 2500,
+    interests: ["Fashion", "Sneakers"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 16,
+    ageMax: 40,
+  },
+  {
+    label: "Chrome Hearts (authenticated)",
+    q: "chrome hearts",
+    mode: "authenticated",
+    minPrice: 300,
+    maxPrice: 4000,
+    interests: ["Fashion", "Jewelry"],
+    occasions: ["Birthday", "Anniversary", "Christmas"],
+    ageMin: 18,
+    ageMax: 45,
+  },
+  {
+    label: "Dior accessories (authenticated)",
+    q: "dior bag accessory",
+    mode: "authenticated",
+    minPrice: 400,
+    maxPrice: 4000,
+    interests: ["Fashion", "Bags"],
+    occasions: ["Birthday", "Anniversary", "Christmas", "Wedding"],
+    ageMin: 21,
+    ageMax: 60,
+  },
+  {
+    label: "BAPE streetwear",
+    q: "bape a bathing ape hoodie",
+    mode: "new",
+    minPrice: 120,
+    maxPrice: 1200,
+    interests: ["Fashion"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 40,
+  },
+  {
+    label: "Supreme box logo",
+    q: "supreme box logo hoodie",
+    mode: "new",
+    minPrice: 150,
+    maxPrice: 2000,
+    interests: ["Fashion"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 40,
+  },
+  {
+    label: "Fear of God Essentials",
+    q: "fear of god essentials hoodie",
+    mode: "new",
+    minPrice: 80,
+    maxPrice: 600,
+    interests: ["Fashion"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 40,
+  },
+  {
+    label: "Denim Tears and Hellstar",
+    q: "denim tears hoodie",
+    mode: "new",
+    minPrice: 100,
+    maxPrice: 900,
+    interests: ["Fashion"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 16,
+    ageMax: 40,
+  },
+  {
+    label: "Stussy streetwear",
+    q: "stussy hoodie tee",
+    mode: "new",
+    minPrice: 60,
+    maxPrice: 500,
+    interests: ["Fashion"],
+    occasions: ["Birthday", "Christmas", "Graduation"],
+    ageMin: 14,
+    ageMax: 40,
+  },
   // --- Household essentials and peripherals, added 2026-08-31 ---
   //
   // The catalogue held 0 air fryers and 0 cutlery sets, so the household
