@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { motion } from "motion/react";
 import type { GiftRecommendation } from "@/lib/types";
+import { brandLabel } from "@/lib/brand-from-title";
 
 export function GiftCard({
   gift,
@@ -41,7 +42,13 @@ export function GiftCard({
 
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex-1">
-          <p className="text-[11px] tracking-[0.14em] text-ink-faint uppercase">{gift.platform}</p>
+          {/* The maker, not the marketplace. Every eBay row said "EBAY" here,
+              which tells a shopper nothing about whether the thing is worth
+              opening. The button below deliberately still says the marketplace,
+              because that is where the link goes. */}
+          <p className="text-[11px] tracking-[0.14em] text-ink-faint uppercase">
+            {brandLabel(gift)}
+          </p>
           <h3 className="mt-1.5 line-clamp-2 text-sm leading-snug text-ink">{gift.name}</h3>
         </div>
 

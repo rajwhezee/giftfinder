@@ -41,6 +41,13 @@ model Gift {
   /// it suits, which is `interests`. Derived by lib/product-tags.ts at import
   /// time. Null where no rule matched, which the UI groups as "Everything else".
   category      String?
+  /// Who made it, when that differs from where it is sold. `platform` is the
+  /// brand for the ~140 Shopify storefronts, so this stays null for them and
+  /// the UI falls back. It exists for eBay, whose rows would otherwise all read
+  /// "eBay" on a card and in the brand filter; lib/brand-from-title.ts derives
+  /// it. Null means no brand was recognised, which for a white-label air fryer
+  /// is the correct answer rather than a gap.
+  brand         String?
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
@@ -48,4 +55,5 @@ model Gift {
   @@index([occasions], type: Gin)
   @@index([interests], type: Gin)
   @@index([category])
+  @@index([brand])
 }

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "motion/react";
 import type { GiftRecommendation, RecommendRequestBody, SimilarResponse } from "@/lib/types";
+import { brandLabel } from "@/lib/brand-from-title";
 import { GiftCard } from "./GiftCard";
 
 /** Placeholder cards while the similar grid loads. */
@@ -177,7 +178,7 @@ export function GiftDetail({
 
             <div className="flex flex-col">
               <p className="text-[11px] tracking-[0.14em] text-ink-faint uppercase">
-                {current.platform}
+                {brandLabel(current)}
               </p>
               <h2
                 id="gift-detail-title"

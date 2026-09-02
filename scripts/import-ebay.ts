@@ -32,6 +32,7 @@ import {
 } from "../lib/ebay";
 import { INTERESTS, JUST_BECAUSE, OCCASIONS } from "../lib/gift-options";
 import { looksNonEnglish } from "../lib/language";
+import { brandFromTitle } from "../lib/brand-from-title";
 
 const CLIENT_ID = process.env.EBAY_CLIENT_ID;
 const CLIENT_SECRET = process.env.EBAY_CLIENT_SECRET;
@@ -988,6 +989,8 @@ interface StagedGift {
   imageUrl: string;
   productUrl: string;
   platform: string;
+  /** Recovered from the title; null where the listing names no brand. */
+  brand: string | null;
   occasions: Set<string>;
   interests: Set<string>;
   ageMin: number;
@@ -1097,6 +1100,11 @@ function stage(
     imageUrl,
     productUrl: url,
     platform: "eBay",
+    // Every eBay row would otherwise read "eBay" on its card and collapse into
+    // one 6,000-strong chip in the brand filter, which tells a shopper nothing
+    // about whether to click. See lib/brand-from-title.ts for why this comes
+    // from the title and not from the API.
+    brand: brandFromTitle(title),
     occasions: new Set(query.occasions),
     interests: new Set(query.interests),
     ageMin: query.ageMin,
@@ -1182,6 +1190,11 @@ async function main() {
         imageUrl: gift.imageUrl,
         productUrl: gift.productUrl,
         platform: gift.platform,
+        // Belongs with the listing, not with the taxonomy below: it is derived
+        // from the title, which refreshes on every run, so a seller renaming a
+        // listing should move the brand with it. Nothing offline owns this the
+        // way enrich-tags owns interests.
+        brand: gift.brand,
         occasions: [...gift.occasions],
       };
 

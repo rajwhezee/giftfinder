@@ -69,6 +69,7 @@ async function getGiftsForOccasion(occasion: string) {
     imageUrl: true,
     productUrl: true,
     platform: true,
+    brand: true,
     giftScore: true,
     category: true,
   };
@@ -169,6 +170,7 @@ async function getGiftsForOccasion(occasion: string) {
     imageUrl: g.imageUrl,
     productUrl: g.productUrl,
     platform: g.platform,
+    brand: g.brand,
   }));
 }
 

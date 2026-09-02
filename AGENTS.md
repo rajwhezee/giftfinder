@@ -1,7 +1,11 @@
 <!-- BEGIN:nextjs-agent-rules -->
+
 # This is NOT the Next.js you know
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` before writing any code. Heed deprecation notices.
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
 <!-- END:nextjs-agent-rules -->
 
 # GiftFinder
@@ -216,6 +220,7 @@ Checked 2026-08-19; do not spend the afternoon on them again.
 | **IKEA** | No `/products.json`, no public product API, and `robots.txt` disallows every `*/search/*` path an importer would need. The only way in is its undocumented internal endpoint, against that stated policy. Covered instead by Umbra, Floyd, Bend Goods, Brightech and the LED brands. |
 | **StockX** | `robots.txt` disallows `/api/` and `*/search*` for every user agent. Its sanctioned API is a partner programme behind a business agreement. |
 | **GOAT** | Returns a Cloudflare managed challenge for `robots.txt` itself. Getting a crawler past it means defeating bot detection. |
+| **eBay `/item/{id}`** | The only endpoint carrying `brand`, and it answers 403 "Insufficient permissions" to this keyset's client-credentials token. Brands come from the title instead; see the brand note above. |
 
 Hyped sneakers are covered instead by the 18 boutiques that hold real Nike
 SNKRS allocations, plus eBay's Authenticity Guarantee queries for pairs that

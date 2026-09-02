@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { brandLabel } from "@/lib/brand-from-title";
 
 /**
  * Server-rendered gift card for the occasion landing pages.
@@ -18,6 +19,10 @@ export function StaticGiftCard({
     imageUrl: string;
     productUrl: string;
     platform: string;
+    /** Required, not optional: this card is fed by a hand-written projection in
+     *  the occasion page, and an optional field let that projection silently
+     *  drop the brand and still typecheck. Every card said "eBay" again. */
+    brand: string | null;
   };
 }) {
   const approximate = gift.originalCurrency !== "USD";
@@ -36,7 +41,11 @@ export function StaticGiftCard({
 
       <div className="flex flex-1 flex-col gap-3 p-4">
         <div className="flex-1">
-          <p className="text-[11px] tracking-[0.14em] text-ink-faint uppercase">{gift.platform}</p>
+          {/* Same rule as GiftCard: the maker here, the marketplace on the
+              button, because that is where the link goes. */}
+          <p className="text-[11px] tracking-[0.14em] text-ink-faint uppercase">
+            {brandLabel(gift)}
+          </p>
           <h3 className="mt-1.5 line-clamp-2 text-sm leading-snug text-ink">{gift.name}</h3>
         </div>
 

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import confetti from "canvas-confetti";
 import { HOME_RESET_EVENT } from "@/lib/home-reset";
+import { brandLabel } from "@/lib/brand-from-title";
 import type { GiftRecommendation, RecommendRequestBody } from "@/lib/types";
 import { FeedbackPrompt } from "./FeedbackPrompt";
 import { GiftCard } from "./GiftCard";
@@ -89,9 +90,18 @@ export function GiftResults({
   // Brands actually present, most-stocked first. Derived rather than taken from
   // a fixed list, so a brand only ever appears as a filter when there is
   // something behind it to show.
+  //
+  // Keyed on the maker rather than the marketplace. Before this every eBay row
+  // collapsed into one chip reading "eBay 6230", which is not a filter anyone
+  // can use: it offered the choice between everything and the same everything.
+  // Rows with no recognised brand still gather under "eBay", which is the
+  // honest bucket for a white-label listing.
   const brands = useMemo(() => {
     const counts = new Map<string, number>();
-    for (const gift of inCategory) counts.set(gift.platform, (counts.get(gift.platform) ?? 0) + 1);
+    for (const gift of inCategory) {
+      const label = brandLabel(gift);
+      counts.set(label, (counts.get(label) ?? 0) + 1);
+    }
     return [...counts.entries()].sort(
       ([nameA, countA], [nameB, countB]) => countB - countA || nameA.localeCompare(nameB),
     );
@@ -102,7 +112,7 @@ export function GiftResults({
     () =>
       selectedBrands.length === 0
         ? inCategory
-        : inCategory.filter((gift) => selectedBrands.includes(gift.platform)),
+        : inCategory.filter((gift) => selectedBrands.includes(brandLabel(gift))),
     [inCategory, selectedBrands],
   );
 
@@ -140,7 +150,7 @@ export function GiftResults({
       next.length === 0
         ? results
         : results.filter((gift) => next.includes(gift.category ?? UNCATEGORISED));
-    const available = new Set(scope.map((gift) => gift.platform));
+    const available = new Set(scope.map((gift) => brandLabel(gift)));
     const kept = selectedBrands.filter((brand) => available.has(brand));
     if (kept.length !== selectedBrands.length) setSelectedBrands(kept);
   }
