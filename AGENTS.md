@@ -148,6 +148,15 @@ product's own tags. `CHIPS_WANTED` caches the chip set per request on the
 selection array itself, because a broad query scores ~13,000 gifts against one
 unchanging selection.
 
+A chip owning two tags is now a thing to justify, not a default. "Gaming"
+owned `[Gaming, Games]` and they turned out to be different shops: `Games` is
+2,227 rows of board games, chess, mancala, LEGO, puzzles and dice, `Gaming` is
+1,837 rows of League of Legends merch, controller stands and desk mats, and
+only 396 carry both. The larger half was reachable only behind a controller
+icon, which is why a tester went looking for a games option and reported that
+there wasn't one. Split on 2026-09-02. Before pairing two tags under one chip,
+check they describe one shopper.
+
 The results headline prints that total, and it is only honest to do so while
 the length is decided this way. It was removed for a day when the route still
 returned a fixed 150 and every shopper met the same figure whoever they had

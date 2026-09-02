@@ -182,7 +182,19 @@ export const INTEREST_CHOICES: InterestChoice[] = [
   { label: "Hype & Designer", tags: ["Hype"] },
   { label: "Tech", tags: ["Tech"] },
   { label: "Art", tags: ["Art", "Painting"] },
-  { label: "Gaming", tags: ["Gaming", "Games"] },
+  // Split apart on 2026-09-02. One chip owned both tags, and they are not the
+  // same thing: "Games" is 2,227 rows of board games, chess, mancala, LEGO,
+  // puzzles and dice, while "Gaming" is 1,837 rows of League of Legends
+  // merch, controller stands and desk mats. Only 396 carry both.
+  //
+  // "Games" was the larger of the two and was reachable only through a chip
+  // labelled Gaming with a controller on it, which nobody shopping for a board
+  // game would click. The bug report was someone looking for a games option,
+  // failing to find one, and asking where it was.
+  //
+  // Wider first, per the ordering rule above.
+  { label: "Games & Puzzles", tags: ["Games"] },
+  { label: "Gaming", tags: ["Gaming"] },
   // Everything below here is behind the "more" cut in the quiz.
   { label: "Creativity", tags: ["Creativity"] },
   { label: "Jewelry", tags: ["Jewelry"] },
@@ -210,10 +222,12 @@ export const INTEREST_CHOICES: InterestChoice[] = [
 /**
  * How many chips the quiz shows before folding the rest behind "more".
  *
- * Grown twice, each time so a new chip did not push an existing one out of the
- * visible set: thirteen for Fragrance, fourteen for Hype & Designer.
+ * Grown three times, each time so a new chip did not push an existing one out
+ * of the visible set: thirteen for Fragrance, fourteen for Hype & Designer,
+ * fifteen when Gaming split into Gaming and Games & Puzzles. Splitting a chip
+ * without growing this would have hidden the half that prompted the split.
  */
-export const INTERESTS_SHOWN = 14;
+export const INTERESTS_SHOWN = 15;
 
 /**
  * The slider's stops, non-linear on purpose.
