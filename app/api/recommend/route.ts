@@ -9,18 +9,65 @@ import { MIN_INTEREST_MATCHES, scoreGift, selectDiverse } from "@/lib/ranking";
 import type { GiftRecommendation } from "@/lib/types";
 
 /**
- * Deliberately high enough that most queries fall *under* it.
+ * The hard ceiling on a page. A guard on payload and CPU, not an answer.
  *
  * At 72 the cap was below the eligible count for almost every combination, so
- * every search returned exactly 72 results — which made the number read as a
- * quota rather than as a real answer. Sitting above the typical eligible count
- * means the total now varies with how much genuinely matched, and only
- * unusually broad queries get truncated.
+ * every search returned exactly 72 results, and raising it to 150 only moved
+ * where that happened: broad queries still saturated it, so the page kept
+ * announcing the same number whoever it was for. What decides the real length
+ * is QUALITY_RATIO below; this only stops an unusually flat query from
+ * shipping thousands of rows.
  *
  * The UI reveals these progressively as the shopper scrolls, so a larger array
  * costs payload rather than render time.
  */
 const MAX_RESULTS = 150;
+
+/**
+ * How far below the best match a gift may score and still make the page.
+ *
+ * A page is only as good as its worst row, and a fixed slot count guarantees
+ * the tail gets filled whether or not anything down there deserved a slot.
+ * This cuts on fit instead: keep what scores within 12% of the strongest
+ * match, and let the length fall out of how much genuinely matched.
+ *
+ * 0.88, measured against production on 2026-09-01 over the eligible set of six
+ * representative quizzes (count kept at each ratio):
+ *
+ *              friend  christmas  cooking  child  coworker  graduation
+ *   eligible     1868      12714      270     70      1149        2950
+ *   0.92            4         22       84     20       125           4
+ *   0.90           90         39      101     32       157           4
+ *   0.88          119         59      114     43       242          42
+ *   0.86          145        107      130     49       483          55
+ *   0.84          162        176      134     59       595         108
+ *
+ * At 0.86 and below the broad queries drift back into the cap and the number
+ * goes back to being the cap. At 0.90 and above the drop-off is too sharp to
+ * be about quality: the graduation quiz has 2,950 eligible gifts and would
+ * show four, because its top scorer sits well clear of a dense pack rather
+ * than because the pack is bad. 0.88 is the widest cut where every query still
+ * returns a page worth browsing and no two return the same length.
+ *
+ * The one query that still reaches the ceiling is coworker/Tech, and honestly
+ * so: its scores cluster (median 0.745 against a top of 0.883) because a great
+ * many tech gifts fit a coworker equally well. That is a real answer.
+ */
+const QUALITY_RATIO = 0.88;
+
+/**
+ * Never cut below this, however sharply the scores fall away.
+ *
+ * The ratio is relative to the single best match, so one unusually strong
+ * outlier can drag the bar above a perfectly good field behind it. A floor
+ * means the worst case is a short page rather than an empty-looking one.
+ * Deliberately under PAGE_SIZE in the UI, so hitting it renders as one
+ * complete screen rather than as a truncated one.
+ *
+ * It did not trigger on any of the six measured quizzes, which is the shape a
+ * safety net should have.
+ */
+const MIN_RESULTS = 24;
 
 /**
  * How many of the top-scoring candidates the diversity pass considers.
@@ -167,8 +214,23 @@ export async function POST(request: Request) {
     (a, b) => b.breakdown.total - a.breakdown.total || b.price - a.price,
   );
 
+  // The quality cut. What decides the length of a page, in place of a slot
+  // count: keep everything scoring within QUALITY_RATIO of the strongest match
+  // and let the total fall out of how much genuinely fit.
+  //
+  // Before the diversity pass rather than after it. Diversity discounts a
+  // candidate for repeating what is already picked, so filtering on the raw
+  // score afterwards mixes two different judgments and gives back a page that
+  // is neither the best matches nor a full one. Cutting first means everything
+  // the diversity pass arranges has already earned its place.
+  const best = ordered[0]?.breakdown.total ?? 0;
+  const worthShowing = ordered.filter((entry) => entry.breakdown.total >= best * QUALITY_RATIO);
+
+  const qualified =
+    worthShowing.length >= MIN_RESULTS ? worthShowing : ordered.slice(0, MIN_RESULTS);
+
   // Only the strongest candidates reach the diversity pass; see DIVERSITY_POOL.
-  const pool = ordered.slice(0, DIVERSITY_POOL);
+  const pool = qualified.slice(0, DIVERSITY_POOL);
 
   const picked = selectDiverse(
     pool.map((entry) => ({
@@ -189,7 +251,7 @@ export async function POST(request: Request) {
   // still not fetched — nothing renders it.
   const display = await prisma.gift.findMany({
     where: { id: { in: chosen.map((entry) => entry.gift.id) } },
-    select: { id: true, currency: true, imageUrl: true, productUrl: true },
+    select: { id: true, currency: true, imageUrl: true, productUrl: true, brand: true },
   });
   const byId = new Map(display.map((row) => [row.id, row]));
 
@@ -206,6 +268,7 @@ export async function POST(request: Request) {
         imageUrl: row.imageUrl,
         productUrl: row.productUrl,
         platform: gift.platform,
+        brand: row.brand,
         category: gift.category,
         matchScore: breakdown.interestMatches,
       },

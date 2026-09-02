@@ -66,6 +66,10 @@ migration.
 Postgres query plus pure scoring, at zero marginal cost. Measured on production
 2026-08-19 at ~18,900 gifts: a one-interest search ~300–360 ms, two interests
 ~280 ms, and a five-interest search with no budget limits ~790 ms.
+Re-measured 2026-09-01 at ~20,700 gifts, over the public URL so these include
+the round trip: one-interest ~460 ms, five-interest ~880 ms. Higher than the
+figures above because the catalogue grew, not because the quality cut costs
+anything — it shrinks the pool the diversity pass walks.
 The only Claude usage is `scripts/enrich-tags.ts` and `scripts/score-gifts.ts`,
 both offline Batch API passes. Adding a model call to either request path would
 break both the latency and the "about 30 seconds" promise.
@@ -103,6 +107,51 @@ Three separate guards, each of which was added after the latency regressed:
 
 `candidateCount` is only queried when there are no results, which is the only
 time the UI renders it.
+
+**How long a results page is, is decided by fit, not by a slot count.**
+`QUALITY_RATIO` keeps everything scoring within 12% of the strongest match and
+drops the rest; `MAX_RESULTS` is only a ceiling, and `MIN_RESULTS` only a floor.
+Measured on 2026-09-01, six representative quizzes returned 119, 59, 114, 43,
+150 and 42 gifts where every one of them used to return 150. That is the point:
+a fixed count guarantees the tail gets filled whether or not anything down there
+deserved a slot, and it made the number on the page read as a quota.
+
+The cut runs **before** the diversity pass, not after. Diversity discounts a
+candidate for repeating what is already picked, so filtering on the raw score
+afterwards mixes two different judgments and returns a page that is neither the
+best matches nor a full one: the same six quizzes gave 53, 31, 77, 43, 86 and 24
+that way, the last of them hitting the floor.
+
+The results headline prints that total, and it is only honest to do so while
+the length is decided this way. It was removed for a day when the route still
+returned a fixed 150 and every shopper met the same figure whoever they had
+described. Put a fixed slot count back and the headline has to come out again.
+
+**A card shows the maker; its button shows the marketplace.** `Gift.platform`
+is the brand for the ~140 Shopify storefronts and the marketplace name for the
+rest, so before `Gift.brand` existed every eBay row said "eBay" above its title
+and the brand filter offered one chip reading "eBay 6230", which is the choice
+between everything and the same everything. `brandLabel()` in
+`lib/brand-from-title.ts` is what the eyebrow and the filter use; the "View on
+eBay" button deliberately still uses `platform`, because that is where the link
+goes and "View on Coach" opening eBay would be a lie.
+
+`brand` is derived from the listing title by a vocabulary, not by the API.
+eBay's `item_summary/search` carries no brand field at any `fieldgroups` value,
+and `/item/{id}`, which does, answers 403 to a free client-credentials keyset;
+both checked 2026-09-02. Pulling it from the listing description was measured
+and rejected: over 900 live listings it added 0.9 points of coverage and was
+wrong when it fired, labelling a Bonavita kettle "Chemex" and a third-party
+controller "Nintendo", because descriptions name compatible and comparable
+products. The vocabulary covers 69.6% of eBay rows; the rest are genuinely
+unbranded white-label goods where "eBay" is the honest answer. Extending the
+list in `lib/brand-from-title.ts` and re-running
+`npx tsx scripts/backfill-brands.ts` is how that number goes up.
+
+Etsy rows keep saying Etsy. They are independent sellers with no brand, and
+`/listings/active` silently ignores `includes=Shop` the same way it ignores
+`includes=Images`, so a shop name would cost a call per shop and still only be
+a seller handle.
 
 **Occasions are curated; interests, age and gender are per-product.** An
 occasion says *why* someone is shopping, so it belongs to the import query.

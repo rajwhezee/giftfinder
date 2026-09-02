@@ -204,6 +204,14 @@ export function GiftResults({
             <p className="text-xs tracking-[0.18em] text-ink-faint uppercase">
               {occasion} · for your {relationship.toLowerCase()}
             </p>
+            {/* The count leads again, but only because it means something
+                again. It was taken out when the route returned a fixed 150 and
+                the same figure greeted every shopper whoever they had
+                described, which reads as a quota rather than as an answer.
+                QUALITY_RATIO decides the length now, so the six benchmark
+                quizzes come back 119, 59, 114, 43, 150 and 42. Restore a
+                fixed slot count in the route and this line goes back to being
+                a quota. */}
             <h2 className="font-display mt-2 text-3xl leading-tight font-semibold text-balance sm:text-4xl">
               {results.length > 0 ? (
                 <>
@@ -226,8 +234,9 @@ export function GiftResults({
 
         {results.length > 0 && (
           <p className="mt-4 text-xs text-ink-faint">
-            Tap any gift to see it up close, with the nearest things to it. Links go straight to
-            the seller. We earn nothing from your purchase.
+            Ranked on how well each one fits the person you described, best first, and cut off
+            where the fit stops. Tap any gift to see it up close, with the nearest things to it.
+            Links go straight to the seller. We earn nothing from your purchase.
           </p>
         )}
       </header>
