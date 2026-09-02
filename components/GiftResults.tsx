@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "motion/react";
 import confetti from "canvas-confetti";
 import { HOME_RESET_EVENT } from "@/lib/home-reset";
 import type { GiftRecommendation, RecommendRequestBody } from "@/lib/types";
+import { FeedbackPrompt } from "./FeedbackPrompt";
 import { GiftCard } from "./GiftCard";
 import { GiftDetail } from "./GiftDetail";
 
@@ -240,6 +241,8 @@ export function GiftResults({
           </p>
         )}
       </header>
+
+      <FeedbackPrompt />
 
       {/* What, before who. Only worth showing when there is a real choice. */}
       {categories.length > 1 && (
