@@ -109,6 +109,10 @@ export const INTERESTS = [
   // Handbags, totes and carry. Was Fashion + Travel, which is also a scarf and
   // a suitcase; the bag brands are a category people shop by name.
   "Bags",
+  // Grails and collectibles: KAWS, Bearbrick, Travis Scott, Chrome Hearts.
+  // People shop these by name and by hype rather than by "Fashion", and 571
+  // rows were only reachable through Sneakers or Fashion before this.
+  "Hype",
   // Perfume was inside Skincare & Beauty, which put an eau de parfum on the
   // same shelf as body wash. People shop for scent by name and by house, and
   // it is one of the commonest gifts there is.
@@ -134,8 +138,11 @@ export const INTERESTS = [
  *   the thinnest, so the chips people read first are the ones with something
  *   behind them. MIN_INTEREST_MATCHES is 1, which means a single thin pick is
  *   the whole search: choosing only Painting searched 144 rows.
- * - The first twelve reach 97.0% of the catalogue between them, which is what
- *   makes it safe for the quiz to show twelve and fold the rest away.
+ * - The visible chips reach ~97% of the catalogue between them, which is what
+ *   makes it safe for the quiz to show a dozen or so and fold the rest away.
+ *   Measured at twelve; the count has since grown to fourteen to seat Fragrance
+ *   and Hype & Designer without evicting anything, so the real figure is a
+ *   little higher.
  *
  * "Family" is in the vocabulary but has no chip. It answered "who is this
  * for", which the quiz already asked in its first question, so as an *interest*
@@ -172,11 +179,12 @@ export const INTEREST_CHOICES: InterestChoice[] = [
   { label: "Sports", tags: ["Sports"] },
   { label: "Cooking & Food", tags: ["Cooking", "Food"] },
   { label: "Sneakers", tags: ["Sneakers"] },
+  { label: "Hype & Designer", tags: ["Hype"] },
   { label: "Tech", tags: ["Tech"] },
   { label: "Art", tags: ["Art", "Painting"] },
   { label: "Gaming", tags: ["Gaming", "Games"] },
-  { label: "Creativity", tags: ["Creativity"] },
   // Everything below here is behind the "more" cut in the quiz.
+  { label: "Creativity", tags: ["Creativity"] },
   { label: "Jewelry", tags: ["Jewelry"] },
   { label: "Writing", tags: ["Writing"] },
   { label: "Outdoors", tags: ["Outdoors"] },
@@ -202,10 +210,10 @@ export const INTEREST_CHOICES: InterestChoice[] = [
 /**
  * How many chips the quiz shows before folding the rest behind "more".
  *
- * Thirteen rather than twelve so adding Fragrance did not push Gaming out of
- * the visible set.
+ * Grown twice, each time so a new chip did not push an existing one out of the
+ * visible set: thirteen for Fragrance, fourteen for Hype & Designer.
  */
-export const INTERESTS_SHOWN = 13;
+export const INTERESTS_SHOWN = 14;
 
 /**
  * The slider's stops, non-linear on purpose.

@@ -60,6 +60,7 @@ export const OCCASION_EMOJI: Record<string, string> = {
 };
 
 export const INTEREST_EMOJI: Record<string, string> = {
+  Hype: "🔥",
   // Blossom rather than a bottle: there is no perfume emoji, and the florals
   // already spoken for are 🌹 Romance, 🌷 Mother's Day and 💐 Anniversary.
   Fragrance: "🌸",
