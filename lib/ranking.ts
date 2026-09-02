@@ -371,6 +371,27 @@ export const INTEREST_REPEAT_PENALTY = 0.02;
  * penalties, and it costs nothing when a page is already varied.
  */
 export const PRICE_BAND_REPEAT_PENALTY = 0.025;
+/**
+ * Per already-selected item from the same category.
+ *
+ * The gap a test user found: a Gaming + Games search for a 22-year-old friend
+ * returned 71 gifts of which 27 were dice sets. Nothing in the pass could see
+ * it. The platform penalty cannot, because they came from dozens of different
+ * Etsy sellers; the interest penalty cannot, because dice answer Gaming and
+ * Games exactly as a keyboard or a board game does; and the near-duplicate
+ * test cannot, because "Liquid Core Dice Set" and "Cow Dice Set - Polyhedral
+ * Dice creature Inside" share two useful tokens out of a dozen and score far
+ * under DUPLICATE_SIMILARITY. `category` is the field that knows they are the
+ * same idea, and it was the one signal the pass was not using.
+ *
+ * 0.045, between the platform and interest penalties. Sized against what it is
+ * for: a shelf has to be genuinely dominant before this pushes it aside, and
+ * the tenth item from one category loses about half of what the tenth item
+ * from one seller does. Raising it much past 0.06 starts scattering a page
+ * that was legitimately about one thing, which a Gaming search partly is.
+ */
+export const CATEGORY_REPEAT_PENALTY = 0.045;
+
 /** Applied once if the title is a near-duplicate of something already picked. */
 export const NEAR_DUPLICATE_PENALTY = 0.3;
 /** Jaccard overlap of title tokens above which two products count as the same idea. */
@@ -408,6 +429,8 @@ export interface DiversifiableItem {
   interests?: string[];
   /** Price, used to spread the page across the shopper's budget. */
   price?: number;
+  /** What the thing is, used to stop one shelf taking the page. */
+  category?: string | null;
 }
 
 /**
@@ -428,6 +451,7 @@ export function selectDiverse<T extends DiversifiableItem>(
   const chosen: number[] = [];
   const platformCounts = new Map<string, number>();
   const interestCounts = new Map<string, number>();
+  const categoryCounts = new Map<string, number>();
 
   // Which of the shopper's interests each gift answers. Computed once.
   const answered = items.map((item) =>
@@ -472,11 +496,17 @@ export function selectDiverse<T extends DiversifiableItem>(
       const band = bandOf(item.price);
       const bandRepeats = band >= 0 ? (bandCounts.get(band) ?? 0) : 0;
 
+      // Uncategorised items are not a shelf. "Everything else" is whatever no
+      // rule matched, so counting it as one category would penalise a set of
+      // unrelated things for having nothing in common.
+      const categoryRepeats = item.category ? (categoryCounts.get(item.category) ?? 0) : 0;
+
       const adjusted =
         item.score -
         repeats * PLATFORM_REPEAT_PENALTY -
         interestRepeats * INTEREST_REPEAT_PENALTY -
         bandRepeats * PRICE_BAND_REPEAT_PENALTY -
+        categoryRepeats * CATEGORY_REPEAT_PENALTY -
         (duplicate.has(index) ? NEAR_DUPLICATE_PENALTY : 0);
 
       if (adjusted > bestAdjusted) {
@@ -493,6 +523,8 @@ export function selectDiverse<T extends DiversifiableItem>(
     for (const i of answered[bestIndex]) interestCounts.set(i, (interestCounts.get(i) ?? 0) + 1);
     const chosenBand = bandOf(items[bestIndex].price);
     if (chosenBand >= 0) bandCounts.set(chosenBand, (bandCounts.get(chosenBand) ?? 0) + 1);
+    const chosenCategory = items[bestIndex].category;
+    if (chosenCategory) categoryCounts.set(chosenCategory, (categoryCounts.get(chosenCategory) ?? 0) + 1);
 
     for (const index of remaining) {
       if (!duplicate.has(index) && jaccard(tokens[index], tokens[bestIndex]) >= DUPLICATE_SIMILARITY) {

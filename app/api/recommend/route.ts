@@ -240,6 +240,7 @@ export async function POST(request: Request) {
       name: entry.gift.name,
       interests: entry.gift.interests,
       price: entry.price,
+      category: entry.gift.category,
     })),
     MAX_RESULTS,
     body.interests,
