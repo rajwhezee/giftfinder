@@ -31,27 +31,28 @@ const MAX_RESULTS = 150;
  * This cuts on fit instead: keep what scores within 12% of the strongest
  * match, and let the length fall out of how much genuinely matched.
  *
- * 0.88, measured against production on 2026-09-01 over the eligible set of six
- * representative quizzes (count kept at each ratio):
+ * 0.88, re-measured 2026-09-02 after interestScore moved to chip coverage,
+ * which changed every score and so invalidated the first tuning. Counts kept
+ * at each ratio, capped at MAX_RESULTS, over seven quizzes written the way the
+ * quiz actually sends them (a chip's whole tag group, not one tag):
  *
- *              friend  christmas  cooking  child  coworker  graduation
- *   eligible     1868      12714      270     70      1149        2950
- *   0.92            4         22       84     20       125           4
- *   0.90           90         39      101     32       157           4
- *   0.88          119         59      114     43       242          42
- *   0.86          145        107      130     49       483          55
- *   0.84          162        176      134     59       595         108
+ *            travel+tech  christmas  cooking  child/gaming  tech  graduation  dice case
+ *   eligible        1868      12915      310           511  1149        2950       1243
+ *   0.92               4         18       95            68   125           4         62
+ *   0.90              90         26      107           111   150           4         83
+ *   0.88             119         38      121           143   150          42        109
+ *   0.86             145         69      135           150   150          55        150
+ *   0.84             150        107      140           150   150         108        150
  *
- * At 0.86 and below the broad queries drift back into the cap and the number
- * goes back to being the cap. At 0.90 and above the drop-off is too sharp to
- * be about quality: the graduation quiz has 2,950 eligible gifts and would
- * show four, because its top scorer sits well clear of a dense pack rather
- * than because the pack is bad. 0.88 is the widest cut where every query still
- * returns a page worth browsing and no two return the same length.
+ * The verdict did not change. At 0.86 and below four of seven queries sit on
+ * the cap and the number goes back to being the cap. At 0.90 and above the
+ * graduation quiz collapses to four out of 2,950 eligible gifts, because its
+ * top scorer sits clear of a dense pack rather than because the pack is bad.
+ * 0.88 is still the widest cut where every query returns a browsable page.
  *
- * The one query that still reaches the ceiling is coworker/Tech, and honestly
- * so: its scores cluster (median 0.745 against a top of 0.883) because a great
- * many tech gifts fit a coworker equally well. That is a real answer.
+ * The one query that reaches the ceiling is coworker/Tech, and honestly so:
+ * its scores cluster because a great many tech gifts fit a coworker equally
+ * well. That is a real answer.
  */
 const QUALITY_RATIO = 0.88;
 

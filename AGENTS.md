@@ -126,6 +126,28 @@ afterwards mixes two different judgments and returns a page that is neither the
 best matches nor a full one: the same six quizzes gave 53, 31, 77, 43, 86 and 24
 that way, the last of them hitting the floor.
 
+**Interest coverage counts chips, not tags.** Several chips own two tags and
+send both: "Gaming" is `[Gaming, Games]`, "Art" is `[Art, Painting]`, "Cooking
+& Food" is `[Cooking, Food]`, and the same for "Beauty & Self-care" and
+"Health & Fitness". `interestScore` used to divide matches by the number of
+tags sent, so ticking one box scored a gift carrying both synonyms 1.0 and a
+gift carrying one of them 0.5 — a halving for not repeating yourself.
+
+A test user found it before the code did: a Gaming search for a friend came
+back 38 gifts of which 15 were dice sets. Reproduced at 27 of 71, from an
+eligible pool that was only 10% dice, so scoring was promoting them from 10%
+to 38%. Etsy's dice sellers tag both halves of the pair; a keyboard tagged
+`[Gaming, Tech]` does not. The clearest evidence had nothing to do with dice:
+a Cooking & Food search was returning exactly 24 results, the `MIN_RESULTS`
+floor, because every single-tag cooking item was being halved.
+
+Counting chips took that search from 24 to 121 and the dice page from 71
+results at 38% dice to 109 at 25%. Focus stays per-tag on purpose: it asks how
+much of *this gift* is about the chosen things, which is a question about the
+product's own tags. `CHIPS_WANTED` caches the chip set per request on the
+selection array itself, because a broad query scores ~13,000 gifts against one
+unchanging selection.
+
 The results headline prints that total, and it is only honest to do so while
 the length is decided this way. It was removed for a day when the route still
 returned a fixed 150 and every shopper met the same figure whoever they had

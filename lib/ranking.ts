@@ -1,4 +1,4 @@
-import { BUDGET_MAX, INTERESTS, RELATIONSHIPS } from "./gift-options";
+import { BUDGET_MAX, INTEREST_CHOICES, INTERESTS, RELATIONSHIPS } from "./gift-options";
 import { KNOWN_BRANDS, RECOGNITION_BOOST } from "./known-brands";
 
 /**
@@ -175,14 +175,55 @@ export const COVERAGE_WEIGHT = 0.85;
  * the page filled with whatever narrow-tagged item was most expensive. Focus is
  * worth a nudge, not a landslide.
  */
+/**
+ * Which chip each tag belongs to. Several chips own two tags and send both:
+ * "Gaming" is [Gaming, Games], "Art" is [Art, Painting], "Cooking & Food" is
+ * [Cooking, Food]. A tag with no chip maps to itself.
+ */
+const CHIP_OF_TAG = new Map<string, string>(
+  INTEREST_CHOICES.flatMap((choice) => choice.tags.map((tag) => [tag, choice.label] as const)),
+);
+
+/**
+ * The chips a selection represents, cached per request.
+ *
+ * `selected` is one array shared by every gift in a request, so this is keyed
+ * on the array itself: a broad query scores ~13,000 gifts and rebuilding the
+ * set inside the loop would be 13,000 allocations to answer the same question.
+ * A WeakMap means the entry disappears with the request rather than growing a
+ * cache nobody clears.
+ */
+const CHIPS_WANTED = new WeakMap<string[], Set<string>>();
+
+function chipsWanted(selected: string[]): Set<string> {
+  const cached = CHIPS_WANTED.get(selected);
+  if (cached) return cached;
+  const chips = new Set(selected.map((tag) => CHIP_OF_TAG.get(tag) ?? tag));
+  CHIPS_WANTED.set(selected, chips);
+  return chips;
+}
+
 function interestScore(giftInterests: string[], selected: string[]): number {
   if (selected.length === 0 || giftInterests.length === 0) return 0;
   // Deduplicated: 32 rows carry a repeated tag, and counting one twice both
   // inflates coverage and understates focus.
   const tags = [...new Set(giftInterests)];
   const wanted = new Set(selected);
+
+  // Coverage counts *chips*, not tags. A shopper who ticks "Gaming" ticks one
+  // box, but the quiz sends [Gaming, Games], and dividing by the tag count
+  // scored a dice set carrying both synonyms 1.0 against 0.5 for a keyboard
+  // carrying only Gaming. That is how a Gaming search came back as a page of
+  // dice: not because dice fit better, but because Etsy's dice sellers happen
+  // to tag both halves of a synonym pair.
+  const satisfiedChips = new Set(
+    tags.filter((tag) => wanted.has(tag)).map((tag) => CHIP_OF_TAG.get(tag) ?? tag),
+  );
+  const coverage = satisfiedChips.size / chipsWanted(selected).size;
+
+  // Focus stays per-tag: it asks how much of *this gift* is about the chosen
+  // things, and that is a question about the product's own tags.
   const matches = tags.filter((i) => wanted.has(i)).length;
-  const coverage = matches / wanted.size;
   const focus = matches / tags.length;
   return Math.min(coverage * COVERAGE_WEIGHT + focus * (1 - COVERAGE_WEIGHT), 1);
 }
