@@ -57,6 +57,15 @@ const nextConfig: NextConfig = {
     return [{ source: "/:path*", headers: securityHeaders }];
   },
   images: {
+    // The merchant CDNs resize from the URL themselves, so photos are fetched
+    // direct rather than through Vercel's optimizer. That optimizer began
+    // answering 402 Payment Required once the account's transformation
+    // allowance ran out, and every card on the site fell back to the "No photo"
+    // placeholder. See lib/image-loader.ts. remotePatterns below is left in
+    // place: a custom loader ignores it, but it documents the hosts, and it is
+    // what would guard the built-in optimizer if this ever switched back.
+    loader: "custom",
+    loaderFile: "./lib/image-loader.ts",
     remotePatterns: [
       {
         protocol: "https",
