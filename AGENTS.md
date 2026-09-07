@@ -46,6 +46,23 @@ server still held open, and the page rendered completely unstyled with
 building, then starting dev, and confirming `.next/BUILD_ID` survived. Take the
 warning off the list rather than working around a problem that is gone.
 
+**Product photos are not optimised by Vercel, and must not be.** The built-in
+optimiser answered **402 Payment Required** once the account's transformation
+allowance ran out — 95 of 96 photos across four live occasion pages, every card
+falling back to the "No photo" placeholder, so the site read as a catalogue with
+no pictures. `images.loader` is `custom`, pointing at `lib/image-loader.ts`,
+which rewrites each URL for the merchant's own CDN: Shopify `?width=`, eBay
+`s-l800.jpg`, Etsy `il_794xN`, Walmart `odnWidth`. Browsers fetch direct and
+nothing is billed at any traffic level.
+
+This is invisible locally. Dev has no quota, so `/_next/image` serves every
+image happily on a laptop while production returns 402 to real visitors. A
+400-row sample through the local optimiser passed clean on the same day
+production was almost entirely broken. **Check images against the deployed
+URL, never against `next dev`.** Removing the custom loader to "use the
+built-in optimiser properly" reintroduces a metered dependency on a site that
+earns nothing.
+
 **Development needs `'unsafe-eval'` in the CSP; production must not have it.**
 React's dev build evaluates strings to rebuild callstacks across the
 server/client boundary, and Next 16's overlay leans on it harder than 15 did.
