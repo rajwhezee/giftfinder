@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { GiftImage } from "./GiftImage";
 import { motion } from "motion/react";
 import type { GiftRecommendation } from "@/lib/types";
 import { brandLabel } from "@/lib/brand-from-title";
@@ -26,7 +26,7 @@ export function GiftCard({
       className="card-surface card-hover group relative z-0 flex h-full flex-col overflow-hidden rounded-2xl hover:z-10"
     >
       <div className="relative aspect-[4/5] w-full overflow-hidden bg-paper">
-        <Image
+        <GiftImage
           src={gift.imageUrl}
           alt={gift.name}
           fill

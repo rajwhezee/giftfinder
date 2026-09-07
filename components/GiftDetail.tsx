@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import Image from "next/image";
+import { GiftImage } from "./GiftImage";
 import { motion } from "motion/react";
 import type { GiftRecommendation, RecommendRequestBody, SimilarResponse } from "@/lib/types";
 import { brandLabel } from "@/lib/brand-from-title";
@@ -166,7 +166,7 @@ export function GiftDetail({
                 sheet and the price and the seller button both sat below the
                 fold, so the product read as unbuyable until you scrolled. */}
             <div className="relative aspect-[4/5] max-h-[46vh] w-full overflow-hidden rounded-2xl bg-paper sm:max-h-none">
-              <Image
+              <GiftImage
                 src={current.imageUrl}
                 alt={current.name}
                 fill
