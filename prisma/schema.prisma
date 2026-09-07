@@ -48,6 +48,13 @@ model Gift {
   /// it. Null means no brand was recognised, which for a white-label air fryer
   /// is the correct answer rather than a gap.
   brand         String?
+  /// False when the merchant's CDN no longer serves `imageUrl`. Every photo is
+  /// hotlinked, so these rot on the merchant's schedule: a sweep on 2026-09-07
+  /// found 26 of 29,582 dead, products still listed in the feed pointing at an
+  /// image their own CDN 404s. Written by scripts/check-images.ts; ranking
+  /// demotes these below everything that has a picture, so a shopper only meets
+  /// one after exhausting the real matches.
+  imageOk       Boolean  @default(true)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 

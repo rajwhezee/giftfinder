@@ -57,6 +57,13 @@ const MAX_RESULTS = 150;
 const QUALITY_RATIO = 0.88;
 
 /**
+ * What a gift's score is multiplied by when its photo is gone. Deep enough to
+ * put it under the quality cut on any query that has real matches to offer,
+ * shallow enough that it still ranks above nothing at all.
+ */
+const NO_PHOTO_DEMOTION = 0.3;
+
+/**
  * Never cut below this, however sharply the scores fall away.
  *
  * The ratio is relative to the single best match, so one unusually strong
@@ -165,6 +172,7 @@ export async function POST(request: Request) {
       ageMax: true,
       giftScore: true,
       category: true,
+      imageOk: true,
     },
   });
 
@@ -191,7 +199,15 @@ export async function POST(request: Request) {
     // wrong thing to bring to a housewarming.
     const fit = occasionGiftFit(body.occasion, gift.name, gift.category);
 
-    return { gift, price, breakdown: { ...breakdown, total: breakdown.total * fit } };
+    // A gift with no photo is a gift nobody clicks. Demoted rather than
+    // filtered, for the same reason /api/similar demotes what is already on the
+    // page: on a narrow query the eligible pool can be small enough that
+    // dropping rows outright empties the grid. At this weight a photoless row
+    // lands far below the QUALITY_RATIO cut, so it is only ever reached through
+    // the MIN_RESULTS backfill — last resort, which is what it is.
+    const photo = gift.imageOk ? 1 : NO_PHOTO_DEMOTION;
+
+    return { gift, price, breakdown: { ...breakdown, total: breakdown.total * fit * photo } };
   });
 
   // Accuracy over volume: never pad with items that share no interests.

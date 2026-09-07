@@ -81,6 +81,11 @@ async function getGiftsForOccasion(occasion: string) {
       const where = {
         ...(occasion !== JUST_BECAUSE && { occasions: { has: occasion } }),
         price,
+        // These pages are curated and crawled: eight hand-ranked cards standing
+        // for the whole catalogue. A card with no photo is not worth one of the
+        // eight, and unlike the quiz there is no long tail here for it to sink
+        // into, so the landing pages exclude rather than demote.
+        imageOk: true,
       };
 
       // Best first, not cheapest first. Ordering by price ascending put $1-3
