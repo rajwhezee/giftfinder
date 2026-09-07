@@ -220,6 +220,25 @@ today. Re-run it before citing Best Buy as a source.
 | `npm run enrich:tags` | Claude Batch API | `ANTHROPIC_API_KEY` |
 | `npm run score:gifts` | Claude Batch API | `ANTHROPIC_API_KEY` |
 
+**Photos are hotlinked, so they rot.** Every image is served from the
+merchant's own CDN and dies on the merchant's schedule. The first full sweep,
+2026-09-07, found 75 dead out of 29,135: re-importing the twelve affected
+storefronts recovered 49, and the other 26 are products still listed in the
+feed pointing at an image their own CDN 404s, which no import can recover.
+
+`npx tsx scripts/check-images.ts` writes `Gift.imageOk`, and ranking reads it —
+the quiz demotes those rows below the quality cut, the occasion pages exclude
+them. Run it after any import, with `--recheck` when that import refreshed
+image URLs, or rows the import just fixed stay hidden. Without `--recheck` it
+skips rows already flagged, so a routine sweep only pays for photos believed
+good.
+
+`components/GiftImage.tsx` still draws a placeholder for anything that slips
+through. That is not redundancy: a sweep is a snapshot, and a URL can die an
+hour after it is checked. The flag keeps dead photos off the page; the
+component keeps the page from breaking when the flag is stale. Do not delete
+one on the grounds that the other exists.
+
 **An import is not finished until it is scored.** New rows arrive with
 `giftScore` null, and the occasion pages ask for `giftScore >= 55` in one tier
 and `{ not: null, lt: 55 }` in the other, so an unscored row matches neither and
