@@ -202,8 +202,8 @@ the effective catalogue for everyone.
 
 ## Catalogue
 
-Roughly 29,100 gifts across 140 sources, counted 2026-09-07: 8,616 from Etsy,
-6,230 from eBay and 14,289 across 138 Shopify storefronts. Every source is a
+Roughly 29,600 gifts across 140 sources, counted 2026-09-07: 8,616 from Etsy,
+6,230 from eBay and 14,736 across 138 Shopify storefronts. Every source is a
 plain developer API or public endpoint — no affiliate membership anywhere.
 
 **Best Buy currently contributes zero rows.** The importer and its key still
