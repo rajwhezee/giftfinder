@@ -202,14 +202,20 @@ the effective catalogue for everyone.
 
 ## Catalogue
 
-Roughly 20,700 gifts across ~70 sources, counted 2026-08-21. Every source is a
+Roughly 29,100 gifts across 140 sources, counted 2026-09-07: 8,616 from Etsy,
+6,230 from eBay and 14,289 across 138 Shopify storefronts. Every source is a
 plain developer API or public endpoint — no affiliate membership anywhere.
+
+**Best Buy currently contributes zero rows.** The importer and its key still
+work, but nothing it fetched survives in the table, so the four-source list
+below describes what *can* be imported rather than what is in the catalogue
+today. Re-run it before citing Best Buy as a source.
 
 | Script | Source | Credential |
 | --- | --- | --- |
 | `npm run import:etsy` | Etsy Open API v3 | free key; `x-api-key` is `keystring:shared_secret` |
 | `npm run import:ebay` | eBay Browse API | free keyset; OAuth client-credentials token |
-| `npm run import:shopify` | ~70 DTC brands' public `/products.json` | none |
+| `npm run import:shopify` | 138 DTC brands' public `/products.json` | none |
 | `npm run import:bestbuy` | Best Buy Products API | free key, **needs a business-domain email** |
 | `npm run enrich:tags` | Claude Batch API | `ANTHROPIC_API_KEY` |
 | `npm run score:gifts` | Claude Batch API | `ANTHROPIC_API_KEY` |

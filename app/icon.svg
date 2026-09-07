@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Gift Finder">
+  <!-- Champagne on Ivory, same three colours as the site: ivory ground, the
+       near-black ring and handle, antique gold for the gift itself.
+       Geometry follows .wordmark-lens in components/Header.tsx so the tab icon
+       and the magnifying glass over the dotless i read as the same object.
+       The lid overhangs the body and the ribbon is deliberately thin: at 16px
+       the ribbon disappears and the gift degrades to one solid gold box rather
+       than splitting into two shapes. -->
+  <rect width="64" height="64" rx="13" fill="#faf7f0"/>
+  <g fill="#8c6829">
+    <circle cx="23.2" cy="15.8" r="2.7"/>
+    <circle cx="28.8" cy="15.8" r="2.7"/>
+    <rect x="15.6" y="18" width="20.8" height="5" rx="1"/>
+    <rect x="17.6" y="24" width="16.8" height="11.6" rx="1"/>
+  </g>
+  <rect x="25" y="18" width="2" height="17.6" fill="#faf7f0"/>
+  <g fill="none" stroke="#1b1c24" stroke-width="6" stroke-linecap="round">
+    <circle cx="26" cy="26" r="16.5"/>
+    <path d="M37.7 37.7 55 55"/>
+  </g>
+</svg>
