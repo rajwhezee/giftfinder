@@ -64,3 +64,46 @@ model Gift {
   @@index([category])
   @@index([brand])
 }
+
+/// A suggestion left through /feedback, replacing the Google Form the site
+/// used during testing.
+///
+/// Deliberately carries no IP address, no user agent and no session id. Rate
+/// limiting needs to recognise a repeat submitter, but it does not need to know
+/// which message they sent, so that lives in SubmissionThrottle instead and
+/// nothing joins the two. What a person wrote and where they wrote it from are
+/// never stored on the same row.
+model Suggestion {
+  id        String   @id @default(cuid())
+  /// "suggestion" | "bug" | "missing" | "other" — see FEEDBACK_KINDS.
+  kind      String   @default("suggestion")
+  message   String
+  /// Only if they chose to leave one, and only so a reply is possible.
+  email     String?
+  /// The page they were on. Answers "was this from a results grid or a landing
+  /// page", which is most of what makes a suggestion actionable.
+  path      String?
+  /// Set by hand once it has been read and acted on. No admin UI: see
+  /// scripts/read-feedback.ts.
+  handled   Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([handled])
+}
+
+/// One row per accepted submission, holding a salted hash of the sender's IP
+/// and nothing else. Exists only so /api/feedback can count recent posts from
+/// the same source and refuse the fifth in an hour.
+///
+/// Truncated SHA-256 over a salt plus the address. That is not a strong
+/// anonymisation — the IPv4 space is small enough to brute force given the
+/// salt — it is a way of not keeping a plaintext address for a spam counter.
+/// Pruned by scripts/read-feedback.ts --prune.
+model SubmissionThrottle {
+  id        String   @id @default(cuid())
+  ipHash    String
+  createdAt DateTime @default(now())
+
+  @@index([ipHash, createdAt])
+}

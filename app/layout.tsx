@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import Link from "next/link";
 import { Header } from "@/components/Header";
-import { FEEDBACK_SURVEY_URL, hasFeedbackSurvey } from "@/lib/feedback";
+import { FEEDBACK_PATH, SUPPORT_PATH } from "@/lib/feedback";
 import "./globals.css";
 
 const inter = Inter({
@@ -110,24 +110,22 @@ export default function RootLayout({
               <Link href="/disclosure" className="transition-colors hover:text-terracotta">
                 How this site works
               </Link>
-              {/* The quiet half of the survey ask. The card under the results
-                  is the one that converts; this catches anyone who wants to
-                  say something from a page that has no results on it. */}
-              {hasFeedbackSurvey && (
-                <>
-                  <span aria-hidden className="text-ink-faint">
-                    ·
-                  </span>
-                  <a
-                    href={FEEDBACK_SURVEY_URL}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="transition-colors hover:text-terracotta"
-                  >
-                    Give feedback
-                  </a>
-                </>
-              )}
+              {/* The quiet half of the feedback ask. The card under the
+                  results is the one that converts; these catch anyone who
+                  wants to say something from a page that has no results on
+                  it. */}
+              <span aria-hidden className="text-ink-faint">
+                ·
+              </span>
+              <Link href={SUPPORT_PATH} className="transition-colors hover:text-terracotta">
+                Contact
+              </Link>
+              <span aria-hidden className="text-ink-faint">
+                ·
+              </span>
+              <Link href={FEEDBACK_PATH} className="transition-colors hover:text-terracotta">
+                Give feedback
+              </Link>
             </div>
           </div>
         </footer>

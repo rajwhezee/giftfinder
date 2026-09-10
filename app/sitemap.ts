@@ -24,6 +24,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "weekly" as const,
       priority: 0.6,
     })),
+    // /feedback is deliberately absent: it is noindex, being a bare form.
+    { url: `${SITE}/support`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.4 },
     { url: `${SITE}/disclosure`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.3 },
     { url: `${SITE}/privacy`, lastModified: now, changeFrequency: "yearly" as const, priority: 0.3 },
   ];

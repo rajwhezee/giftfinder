@@ -1,4 +1,5 @@
-import { FEEDBACK_SURVEY_URL, hasFeedbackSurvey } from "@/lib/feedback";
+import Link from "next/link";
+import { FEEDBACK_PATH } from "@/lib/feedback";
 
 /**
  * The invitation to the test-user survey, shown with a set of results.
@@ -13,29 +14,26 @@ import { FEEDBACK_SURVEY_URL, hasFeedbackSurvey } from "@/lib/feedback";
  * the page. One line of text and one small button, no headline competing with
  * the one above it.
  *
- * Renders nothing while `FEEDBACK_SURVEY_URL` is empty, so the survey can be
- * taken down by clearing one constant.
+ * Always rendered now. It used to disappear when the survey URL was emptied,
+ * which made sense for a survey with an end date; the suggestion box is part
+ * of the site and has nothing to be switched off for.
  */
 export function FeedbackPrompt() {
-  if (!hasFeedbackSurvey) return null;
-
   return (
     <aside className="mb-8 flex flex-col items-center gap-4 rounded-xl border border-terracotta/25 bg-surface px-5 py-4 text-center sm:flex-row sm:justify-between sm:text-left">
       <div>
         <p className="text-[11px] tracking-[0.18em] text-terracotta uppercase">Still in testing</p>
         <p className="mt-1.5 text-sm text-ink-soft">
-          Did anything here look worth giving? Two minutes of answers, and they are the only thing
+          Did anything here look worth giving? One box, no sign-up, and it is the only thing
           shaping what gets built next.
         </p>
       </div>
-      <a
-        href={FEEDBACK_SURVEY_URL}
-        target="_blank"
-        rel="noopener noreferrer"
+      <Link
+        href={FEEDBACK_PATH}
         className="btn-primary shrink-0 rounded-full px-6 py-2.5 text-sm font-medium"
       >
         Give feedback
-      </a>
+      </Link>
     </aside>
   );
 }

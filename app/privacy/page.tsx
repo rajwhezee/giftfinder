@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { FEEDBACK_PATH, SUPPORT_EMAIL, SUPPORT_PATH } from "@/lib/feedback";
 
 export const metadata: Metadata = {
   title: "Privacy Policy | Gift Finder",
@@ -10,7 +11,7 @@ export default function PrivacyPage() {
   return (
     <main className="mx-auto max-w-2xl px-4 py-16 sm:py-20">
       <h1 className="font-display text-4xl font-semibold">Privacy Policy</h1>
-      <p className="mt-3 text-xs tracking-[0.18em] text-ink-faint uppercase">Last updated: July 2026</p>
+      <p className="mt-3 text-xs tracking-[0.18em] text-ink-faint uppercase">Last updated: September 2026</p>
 
       <div className="mt-10 space-y-8 text-[15px] leading-relaxed text-ink-soft">
         <section>
@@ -33,6 +34,32 @@ export default function PrivacyPage() {
             Like most websites, our hosting and database providers automatically log standard
             technical information (such as IP address and request timestamps) for security and
             reliability purposes. We don&apos;t use this data for tracking or advertising.
+          </p>
+        </section>
+
+        <section>
+          <h2 className="font-display text-lg font-semibold text-ink">
+            Feedback you send us
+          </h2>
+          <p className="mt-2">
+            If you use the{" "}
+            <Link href={FEEDBACK_PATH} className="text-terracotta underline underline-offset-4 hover:text-terracotta-deep">
+              feedback form
+            </Link>{" "}
+            or email us, we keep what you wrote so it can be read and acted on. The form stores
+            your message, which of the four subjects you picked, and the page you were on. An
+            email address is stored only if you choose to enter one, and is used to reply to you
+            and nothing else. We never sell it or add it to a mailing list.
+          </p>
+          <p className="mt-2">
+            To keep the form from being flooded we separately store a one-way hash of the sender&apos;s
+            IP address, purely as a counter. It is held apart from the messages and nothing links
+            the two, so a stored suggestion cannot be traced back to the address it came from.
+            Ask us at{" "}
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-terracotta underline underline-offset-4 hover:text-terracotta-deep">
+              {SUPPORT_EMAIL}
+            </a>{" "}
+            and we will delete anything you have sent.
           </p>
         </section>
 
@@ -67,9 +94,13 @@ export default function PrivacyPage() {
           </h2>
           <p className="mt-2">
             Questions about this policy can be sent to{" "}
-            <a href="mailto:hello@example.com" className="text-terracotta underline underline-offset-4 hover:text-terracotta-deep">
-              hello@example.com
+            <a href={`mailto:${SUPPORT_EMAIL}`} className="text-terracotta underline underline-offset-4 hover:text-terracotta-deep">
+              {SUPPORT_EMAIL}
             </a>
+            , or through the{" "}
+            <Link href={SUPPORT_PATH} className="text-terracotta underline underline-offset-4 hover:text-terracotta-deep">
+              contact page
+            </Link>
             .
           </p>
         </section>

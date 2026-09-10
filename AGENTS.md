@@ -83,6 +83,28 @@ purchase") is only true while this holds. `Gift.productUrl` is
 `@map("affiliateUrl")` — the column keeps the old name so the rename needed no
 migration.
 
+**Feedback is ours, and `/api/feedback` is the only unauthenticated write.**
+The site used a Google Form during testing; suggestions now go to the
+`Suggestion` table and are read with `npx tsx scripts/read-feedback.ts`. There
+is no admin UI on purpose: authenticating one reader means a login page, which
+is a larger attack surface than the thing it guards, and the database is
+already reachable from a terminal holding the credential.
+
+Every other route reads, so this one is shaped differently. Abuse of
+`/api/recommend` costs query time; abuse of this leaves rows behind forever.
+Two rate-limit layers, and both are needed — the in-memory one from
+`lib/rate-limit.ts` is per-instance and forgotten on a cold start, so the
+durable count in `SubmissionThrottle` is what actually decides whether a row is
+written. The honeypot returns **201 and stores nothing**: telling a bot it
+failed tells it what to change.
+
+**A suggestion and the IP that sent it are never on the same row.**
+`SubmissionThrottle` holds a salted hash and a timestamp, `Suggestion` holds the
+message, and nothing joins them. Adding an `ipHash` column to `Suggestion` to
+"see who sent what" would undo the point and contradict what the privacy page
+now promises. The privacy policy documents the form, the optional email and the
+hash; changing what is stored means changing that page in the same commit.
+
 **No LLM at request time.** `/api/recommend` and `/api/similar` are both a
 Postgres query plus pure scoring, at zero marginal cost. Measured on production
 2026-08-19 at ~18,900 gifts: a one-interest search ~300–360 ms, two interests
