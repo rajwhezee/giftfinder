@@ -24,8 +24,7 @@ export function FeedbackPrompt() {
       <div>
         <p className="text-[11px] tracking-[0.18em] text-terracotta uppercase">Still in testing</p>
         <p className="mt-1.5 text-sm text-ink-soft">
-          Did anything here look worth giving? One box, no sign-up, and it is the only thing
-          shaping what gets built next.
+          Did these suit the person you had in mind? Tell us what we got wrong.
         </p>
       </div>
       <Link
