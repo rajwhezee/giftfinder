@@ -75,6 +75,23 @@ export default async function Home() {
           }),
         }}
       />
+      {/* The site's name, for the name Google prints above the result. Only
+          meaningful on the homepage, which is the one place Google reads it.
+          Without it the result falls back to the domain or a guess from the
+          title, and a search for "the gift finder" has nothing tying the phrase
+          to this site. `name` matches the wordmark and og:site_name. */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: jsonLdScript({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "Gift Finder",
+            alternateName: ["The Gift Finder", "GiftFinder", "thegiftfinder.net"],
+            url: "https://thegiftfinder.net/",
+          }),
+        }}
+      />
 
       <GiftMark />
 
